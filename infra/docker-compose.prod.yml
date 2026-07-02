@@ -1,0 +1,57 @@
+# Compose de produção/homologação do Quantah — roda DENTRO da VPS (ADR-007).
+# Copiado para /opt/quantah pelo deploy. Lê /opt/quantah/.env (secrets do ambiente).
+# Portável: nada específico do GCP. Migrar de provedor = subir este compose noutra VM.
+name: quantah
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    networks: [quantah]
+
+  app:
+    image: ${APP_IMAGE:-ghcr.io/xandroalmeida/quantah:latest}
+    restart: unless-stopped
+    env_file: .env
+    expose:
+      - "80"
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    networks: [quantah]
+
+  pgsql:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-U", "${DB_USERNAME}", "-d", "${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    networks: [quantah]
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
+
+networks:
+  quantah:
+    driver: bridge

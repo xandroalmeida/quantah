@@ -1,0 +1,245 @@
+name: CI/CD
+
+# CA-1: todo push/PR na main roda testes + build (barra em vermelho se quebrar).
+# CA-2: no push da main, com tudo verde, faz deploy automático para homologação.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSION: "8.4"
+  NODE_VERSION: "22"
+
+jobs:
+  # ── CA-1: testes unitários/feature + build de assets ────────────────────────
+  tests:
+    name: Testes + build
+    runs-on: ubuntu-latest
+    # Variáveis reais do ambiente: o dotenv immutable do Laravel não as sobrescreve,
+    # então vencem o .env (apontam o Postgres do CI).
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: testing
+      DB_USERNAME: sail
+      DB_PASSWORD: password
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: testing
+          POSTGRES_USER: sail
+          POSTGRES_PASSWORD: password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U sail -d testing"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo_pgsql, pgsql, mbstring, bcmath, zip
+          coverage: xdebug
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Preparar .env
+        working-directory: app
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Composer install
+        working-directory: app
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: npm ci + build
+        working-directory: app
+        run: |
+          npm ci
+          npm run build
+
+      - name: Testes (unit + feature) com cobertura
+        working-directory: app
+        run: php artisan test --coverage --min=80
+
+  # ── CA-5: E2E em browser real (Laravel Dusk) ───────────────────────────────
+  dusk:
+    name: E2E (Dusk)
+    runs-on: ubuntu-latest
+    env:
+      APP_URL: http://127.0.0.1:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: quantah
+      DB_USERNAME: sail
+      DB_PASSWORD: password
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: quantah
+          POSTGRES_USER: sail
+          POSTGRES_PASSWORD: password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U sail -d quantah"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo_pgsql, pgsql, mbstring, bcmath, zip
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Preparar .env (Dusk roda contra a app servida localmente)
+        working-directory: app
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Composer install
+        working-directory: app
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: npm ci + build
+        working-directory: app
+        run: |
+          npm ci
+          npm run build
+
+      - name: Migrar banco (Dusk usa o banco real, não transação)
+        working-directory: app
+        run: php artisan migrate --force
+
+      - name: ChromeDriver compatível
+        working-directory: app
+        run: php artisan dusk:chrome-driver --detect
+
+      - name: Subir a app (php artisan serve)
+        working-directory: app
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 >/tmp/serve.log 2>&1 &
+          # espera a app responder
+          for i in $(seq 1 20); do
+            curl -sf http://127.0.0.1:8000/up >/dev/null && break
+            sleep 1
+          done
+
+      - name: Rodar Dusk
+        working-directory: app
+        run: php artisan dusk
+
+      - name: Anexar screenshots em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dusk-screenshots
+          path: app/tests/Browser/screenshots
+          if-no-files-found: ignore
+
+  # ── CA-2: deploy automático para homologação (só na main, se tudo verde) ────
+  deploy:
+    name: Deploy homologação
+    runs-on: ubuntu-latest
+    needs: [tests, dusk]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build + push da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Configurar SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Enviar compose, Caddyfile e .env de produção
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          scp -i ~/.ssh/id_ed25519 infra/docker-compose.prod.yml "$USER@$HOST:/opt/quantah/docker-compose.yml"
+          scp -i ~/.ssh/id_ed25519 infra/Caddyfile "$USER@$HOST:/opt/quantah/Caddyfile"
+          printf '%s' "${{ secrets.PROD_ENV }}" | ssh -i ~/.ssh/id_ed25519 "$USER@$HOST" 'cat > /opt/quantah/.env'
+
+      - name: Deploy (pull da imagem, subir, migrar)
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          SHA: ${{ github.sha }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$USER@$HOST" \
+            "cd /opt/quantah && \
+             echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USER' --password-stdin && \
+             export APP_IMAGE='${{ env.IMAGE }}:$SHA' && \
+             docker compose pull && \
+             docker compose up -d --wait && \
+             docker compose exec -T app php artisan migrate --force && \
+             docker compose exec -T app php artisan storage:link || true && \
+             docker image prune -f"
+
+      - name: Smoke test da homologação
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          # aguarda o Caddy emitir o cert e a app responder por HTTPS
+          SITE="https://quantah-homolog.${HOST}.sslip.io/up"
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$SITE" || true)
+            echo "tentativa $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 5
+          done
+          echo "homologação não respondeu 200 em $SITE"; exit 1

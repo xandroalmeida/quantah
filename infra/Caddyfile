@@ -1,0 +1,6 @@
+# Caddy = TLS automático (Let's Encrypt) + reverse proxy para a app.
+# SITE_ADDRESS vem do /opt/quantah/.env (ex.: quantah-homolog.34.39.229.117.sslip.io).
+{$SITE_ADDRESS} {
+	encode gzip zstd
+	reverse_proxy app:80
+}
