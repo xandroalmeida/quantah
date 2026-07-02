@@ -82,6 +82,11 @@ export default {
                 '3xl': '48px',
             },
 
+            // --- Alvo de toque: min-h/min-w herdam a escala de spacing do DS,
+            //     para `min-h-3xl` (48px) garantir o alvo mínimo dos botões. ---
+            minHeight: ({ theme }) => theme('spacing'),
+            minWidth: ({ theme }) => theme('spacing'),
+
             // --- Raio (tokens.md › Raio). xl=24px é a assinatura de botões e cards. ---
             borderRadius: {
                 none: '0px',

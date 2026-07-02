@@ -14,6 +14,12 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+// Vitrine do Design System (EPIC-001). Pública para inspeção/E2E; virada à
+// kitchen sink completa na STORY-006.
+Route::get('/ds/buttons', function () {
+    return Inertia::render('DesignSystem/Buttons');
+})->name('ds.buttons');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
