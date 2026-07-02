@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: draft
-owner_agent: null
+status: in_progress
+owner_agent: claude-programador-story006
 created_at: 2026-07-02
 updated_at: 2026-07-02
 estimated_session_size: L
@@ -101,8 +101,74 @@ estória crescer além de `L`, sinalize ao PO para quebrar antes de continuar.
 
 ## Notas do agente (preenchido durante/após execução)
 
+> **Owner:** `claude-programador-story006`. Trabalho direto na `main`. Ambiente Sail `quantah` no ar.
+> Segue IDR-002/003 (contrato-em-fonte + Dusk) e as regras de ouro do DS.
+
+### 2026-07-02 — Leitura inicial completa
+- **Documentos lidos:** STORY-006 (inteira); `components.md` (§Cards: raio `xl` 24px, padding `xl`;
+  content/feature-sage/feature-green/feature-dark; §Navegação: nav.bar canvas/ink sticky, nav.link
+  `body-sm-strong` ativo=indicador primary, nav.bottom ≥48px, footer ink/canvas-soft `3xl xl`;
+  §Feedback: badge.positive primary-pale/positive-deep pill, badge.negative negative-bg/branco pill,
+  snackbar canvas/xl/`md lg` success/warning/danger/info ícone+texto `aria-live=polite`, empty-state
+  ícone+`display-xs`+`body-md`+button.primary "sempre instrui o próximo passo", skeleton placeholder
+  nunca spinner em tela vazia); `patterns.md` (surface-rhythm sage→branco; pattern.empty/error);
+  `README`/`design-system.md` (regras de ouro); código existente (Button, inputs, tokens, Breeze).
+- **Entendimento consolidado:** implementar os componentes de superfície/status/feedback/nav por token
+  e montar a **vitrine kitchen-sink** em `/ds` que renderiza TODOS os componentes do DS (STORY-004 +
+  005 + estes) com estados. Componentes:
+  - **Card** — variantes `content` (canvas/ink), `feature-sage` (canvas-soft), `feature-green`
+    (primary-pale), `feature-dark` (ink/primary) — raio `xl`, padding `xl`.
+  - **Badge** — `positive` (primary-pale/positive-deep), `negative` (negative-bg/branco→canvas),
+    `warning`, `info` — pill, `body-sm-strong`, ícone+texto (feedback nunca só cor).
+  - **Snackbar** — success/warning/danger/info; canvas, raio `xl`, `md lg`, ícone+texto,
+    `aria-live="polite"` (mudança dinâmica anunciada).
+  - **EmptyState** — ícone + título `display-xs` + instrução `body-md` + `button.primary`; **sempre
+    instrui o próximo passo**.
+  - **Skeleton** — placeholder de carregamento (linha/bloco/círculo), `aria-hidden`, animate-pulse.
+  - **Nav** — `NavBar` (sticky, canvas/ink) + `NavLink` (ativo=indicador primary) + `NavBottom`
+    (mobile ≥48px) + `Footer` (ink/canvas-soft).
+- **Fora de escopo:** telas de produto; componentes fora da lista mínima da Onda 1 (tabelas B2B, bands
+  de marketing/hero).
+- **Dúvidas:** nenhuma bloqueante. Não redefino token; falta/conflito → `blocked` + Designer.
+
+### Decisões (registradas antes de codar)
+1. **Namespacing:** componentes flat em `Components/` quando não colidem com o Breeze
+   (Card/Badge/Snackbar/EmptyState/Skeleton) — seguindo o precedente do `Button`. **Nav em
+   `Components/nav/`** porque `NavLink.jsx`/`ResponsiveNavLink.jsx` do Breeze colidem (débito pré-DS,
+   usado por Auth — fora de escopo mexer).
+2. **Vitrine = rota nova `/ds`** (kitchen sink), preservando `/ds/buttons` e `/ds/inputs` (hosts dos
+   Dusk das STORY-004/005 — não quebrar). `/ds` dogfooda o próprio `NavBar`/`NavLink` como navegação
+   interna por âncoras (prova a navegabilidade do CA-2).
+3. **Estratégia de teste = IDR-002/003 mantida** (contrato-em-fonte Feature + Dusk). Componentes
+   presentacionais; sem lógica de cliente que peça Vitest. Sem dep nova prevista.
+
+### Plano (5 bullets)
+1. **RED contrato:** `SurfaceComponentContractTest` (Feature) varre os novos `.jsx` — existência,
+   tokens (card raio `xl`, badge `rounded-pill`, snackbar `aria-live`, empty-state com CTA + `display-xs`,
+   footer ink/canvas-soft, nav.link indicador primary), zero valor cru.
+2. **RED Dusk:** `KitchenSinkTest` na vitrine `/ds` — renderiza todos os grupos; snackbar `aria-live`;
+   empty-state tem `button.primary`; skeleton presente; nav ativo com indicador; footer; contraste AA;
+   foco visível; alvo ≥48px na nav.bottom; âncoras navegáveis. Categorias (a)(b)(c)(d).
+3. **GREEN:** componentes + `Pages/DesignSystem/Showcase.jsx` (`/ds`) + rota.
+4. Suíte completa verde, Dusk verde, Pint limpo, cobertura ≥80%.
+5. Evidência (screenshots), revisão Designer, IDR se houver, `done` + `index.json`, homolog verificado,
+   roteiro ao usuário.
+
+### Mapeamento CA → testes (planejado)
+- **CA-1** (componentes reutilizáveis por token, estados): `SurfaceComponentContractTest::*`
+  (existência + tokens por componente) + Dusk render de cada grupo com estados.
+- **CA-2** (vitrine `/ds` com TODOS os componentes, navegável): Dusk
+  `KitchenSinkTest::test_showcase_renders_all_component_groups`, `::test_in_page_nav_anchors_navigate`.
+- **CA-3** (a11y: contraste, foco, ≥48px, snackbar aria-live): Dusk `::test_snackbar_announces_via_aria_live`,
+  `::test_bottom_nav_targets_are_at_least_48px`, `::test_focus_visible_on_nav_link`,
+  `::test_dark_card_and_badges_pass_aa_contrast`.
+- **CA-4** (zero valor cru — guarda automatizada): `SurfaceComponentContractTest::test_no_raw_hex`,
+  `::test_no_arbitrary_or_neutral_color`.
+- **CA-5** (rota dedicada em homolog, smoke 200; cada componente referencia spec): rota `/ds` +
+  smoke do CI; `::test_showcase_route_responds` + comentários de spec nos componentes.
+
 ### Decisões tomadas
-- 
+- (ver "Decisões (registradas antes de codar)")
 
 ### Descobertas
 - 

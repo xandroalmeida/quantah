@@ -193,8 +193,8 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "in_progress",
+      "owner_agent": "claude-programador-story006",
       "sprint_id": null,
       "path": "epics/EPIC-001-design-system-codigo/stories/STORY-006-cards-badges-feedback-nav-vitrine.md",
       "blocked_by": [
