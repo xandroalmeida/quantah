@@ -25,7 +25,8 @@ export default function Checkbox({
             {(controlProps) => (
                 <input
                     type="checkbox"
-                    className={`h-lg w-lg rounded-sm border-ink text-primary focus:ring-2 focus:ring-ink focus:ring-offset-0 ${className}`}
+                    // 24px + raio sm (8px) = quadrado arredondado — distinto do radio (círculo).
+                    className={`h-xl w-xl rounded-sm border-ink text-primary focus:ring-2 focus:ring-ink focus:ring-offset-0 ${className}`}
                     {...controlProps}
                     {...props}
                 />

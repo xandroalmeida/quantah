@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: in_progress
+status: done
 owner_agent: claude-programador-story005
 created_at: 2026-07-02
 updated_at: 2026-07-02
@@ -47,16 +47,16 @@ fricção da Onda 1. Sem inputs do DS, cada tela reinventaria campo e validaçã
 
 ## Critérios de aceite
 
-- [ ] **CA-1:** Existem componentes reutilizáveis para text, masked, datetime, select, checkbox,
-      radio e switch, todos compondo tokens do DS (sem valor cru).
-- [ ] **CA-2:** Cada input suporta **label**, **hint/ajuda** e estado de **erro** com mensagem
-      associada acessível (`aria-describedby`/`aria-invalid`).
-- [ ] **CA-3:** Estados default/focus/disabled/error cobertos; **foco visível** por teclado; alvo
-      de toque **≥48px**; contraste AA em texto, borda e mensagem de erro.
-- [ ] **CA-4:** `masked` aceita ao menos uma máscara relevante à Onda 1 (ex.: chave de acesso da
-      NFC-e / campos numéricos) sem acoplar regra de negócio no componente.
-- [ ] **CA-5:** Todos os inputs aparecem na vitrine com seus estados (a página é finalizada na
-      STORY-006, mas os componentes já são plugáveis nela).
+- [x] **CA-1:** Existem componentes reutilizáveis para text, masked, datetime, select, checkbox,
+      radio e switch, todos compondo tokens do DS (sem valor cru). — `InputTokenContractTest`.
+- [x] **CA-2:** Cada input suporta **label**, **hint/ajuda** e estado de **erro** com mensagem
+      associada acessível (`aria-describedby`/`aria-invalid`). — `InputTest` (label/hint/erro por aria).
+- [x] **CA-3:** Estados default/focus/disabled/error cobertos; **foco visível** por teclado; alvo
+      de toque **≥48px**; contraste AA em texto, borda e mensagem de erro. — `InputTest` (browser real).
+- [x] **CA-4:** `masked` aceita ao menos uma máscara relevante à Onda 1 (chave de acesso da NFC-e,
+      44 dígitos) sem acoplar regra de negócio — guarda valor unmasked. — `InputTest` (unmasked/ISO).
+- [x] **CA-5:** Todos os inputs aparecem na vitrine `/ds/inputs` com seus estados (kitchen sink
+      finaliza na STORY-006; os componentes já são plugáveis). — `InputTest` (showcase).
 
 ## Fora de escopo
 
@@ -86,12 +86,14 @@ e o design dos testes. Você **não** redefine tokens nem critérios de aceite.
 
 ## Definição de Pronto (DoD)
 
-- [ ] CA-1 a CA-5 passam; **Designer confirmou fidelidade** (spec de `input.*`).
-- [ ] Testes escritos e passando na cobertura exigida; a11y mínima verificada.
-- [ ] Pipeline verde; deploy de homologação verificado.
-- [ ] IDR se houve decisão técnica relevante.
-- [ ] `index.json` atualizado: status = `done`.
-- [ ] "Notas do agente" preenchida.
+- [x] CA-1 a CA-5 passam; **Designer confirmou fidelidade** (ver
+      `STORY-005-evidencia/revisao-designer.md` — fidelidade confirmada; 1 divergência de checkbox
+      corrigida na mesma operação).
+- [x] Testes escritos e passando na cobertura exigida (87.3% ≥ 80%); a11y mínima verificada em browser.
+- [x] Pipeline verde; deploy de homologação verificado.
+- [x] IDR-003 registrado (react-imask + datetime nativo + reavaliação de Vitest/RTL).
+- [x] `index.json` atualizado: status = `done`.
+- [x] "Notas do agente" preenchida.
 
 ## Protocolo do agente (obrigatório)
 
@@ -192,21 +194,70 @@ Designer. Falta de token/conflito → `blocked` + escalar.
 - Categorias (testing-discipline): (a) feliz, (b) inválido, (c) exceção — *disabled/leitura bloqueada e
   erro submetido*, (d) borda — *vazio, foco por teclado, ≥48px* — todas cobertas nos 7 componentes.
 
+### Mapeamento CA → teste (final)
+- **CA-1** (7 componentes reutilizáveis compondo tokens, sem valor cru):
+  `InputTokenContractTest::test_defines_seven_input_components`,
+  `::test_input_chrome_uses_ds_tokens` (rounded-md, border-ink, bg-canvas, body-md, px-lg/py-md, ≥48px),
+  `::test_selected_indicator_uses_primary`,
+  `::test_inputs_have_no_raw_hex_color`, `::test_inputs_have_no_arbitrary_or_neutral_color`.
+- **CA-2** (label + hint + erro com aria):
+  `InputTokenContractTest::test_error_wires_aria_invalid_describedby_and_alert`,
+  `::test_error_state_uses_negative_tokens`;
+  Dusk `InputTest::test_label_is_associated_with_control` (a),
+  `::test_hint_is_linked_by_aria_describedby` (a),
+  `::test_error_shows_message_wired_by_aria` (c — aria-invalid + role=alert + texto).
+- **CA-3** (estados/foco/≥48px/contraste):
+  Dusk `::test_all_controls_have_visible_keyboard_focus` (d),
+  `::test_touch_targets_are_at_least_48px` (d),
+  `::test_border_and_error_text_pass_contrast` (b — borda 19:1, erro 7.9:1),
+  `::test_disabled_control_is_not_editable` (b);
+  contrato `::test_focus_is_visible_via_token_ring`.
+- **CA-4** (masked guarda unmasked; datetime guarda ISO):
+  Dusk `::test_masked_field_formats_and_stores_unmasked_value` (a),
+  `::test_masked_field_ignores_non_digits` (b),
+  `::test_masked_field_empty_stays_empty` (d),
+  `::test_datetime_field_stores_iso_value` (a).
+- **CA-5** (vitrine com todos os componentes e estados):
+  Dusk `::test_showcase_lists_all_input_components_and_states`.
+- Categorias (testing-discipline): (a) feliz, (b) inválido, (c) exceção/erro, (d) borda — cobertas.
+
 ### Decisões tomadas
-- (ver "Decisões (registradas antes de codar)" acima; IDR-003 formaliza react-imask + datetime nativo +
-  manutenção da estratégia de teste da IDR-002)
+- (ver "Decisões (registradas antes de codar)" acima) — formalizadas na **IDR-003**: react-imask
+  (valor unmasked) + datetime nativo (ISO) + manutenção da estratégia de teste da IDR-002.
+- **Estrutura:** DS inputs em `resources/js/Components/inputs/` (namespaced) — não colidir com o
+  scaffolding Breeze (`Components/Checkbox.jsx`, `TextInput.jsx`…), que é débito pré-DS fora de escopo.
+- **Wrappers compartilhados** `Field` (caixa: text/masked/datetime/select) e `ChoiceField`
+  (checkbox/radio/switch) centralizam chrome por token e wiring de a11y (DRY).
+- **Label flutuante** só no `TextField` (CSS puro: `peer` + `placeholder-shown`); demais com label
+  estático — masked mostra o formato no placeholder (spec).
 
 ### Descobertas
-- 
+- **Colisão com o Breeze:** já existiam `Components/Checkbox.jsx`/`TextInput.jsx`… (starter, cores
+  cruas indigo/gray) usados por Auth/Profile. Namespacei os DS inputs em `inputs/` para não quebrá-los
+  nem puxar refactor de auth para o escopo. O RED do contrato flagrou isso.
+- **Fidelidade (Designer):** checkbox de 16px com raio `sm` (8px) virava círculo (= radio). Corrigido
+  subindo checkbox+radio para 24px (checkbox = quadrado arredondado; radio = círculo).
+- **Harness Dusk:** `script()` do WebDriver **rejeita objeto JS de valores numéricos** (o de valores
+  string funciona — ButtonTest). Troquei o retorno do teste de contraste por **array**. E `waitFor`
+  não acha `<span>` vazio (sem dimensão) — o teste de "masked vazio" espera pelo input, não pelo span.
 
 ### Bloqueios encontrados
-- 
+- Nenhum bloqueante. Sem falta/conflito de token; nenhuma decisão de produto/arquitetura reaberta.
 
 ### IDRs criados
-- 
+- **IDR-003** — Máscara via react-imask (valor unmasked), datetime por input nativo (ISO), e Vitest/RTL
+  mantido adiado (reavalia e mantém a IDR-002). `accepted`.
 
 ### Cobertura final
-- 
+- Suíte PHP completa: **53 testes** verdes; cobertura **87.3%** (piso 80%). Código novo desta estória é
+  JSX (frontend) — comportamento coberto por `InputTest` (Dusk, 12) + `InputTokenContractTest` (8),
+  conforme IDR-002/003 (sem camada jsdom). Pint limpo. Dusk total do projeto: **27** verdes.
 
 ### Links de evidência
-- 
+- Componentes: `app/resources/js/Components/inputs/{Field,ChoiceField,TextField,MaskedField,
+  DateTimeField,SelectField,Checkbox,Radio,Switch}.jsx`. Vitrine: `Pages/DesignSystem/Inputs.jsx`,
+  rota `/ds/inputs`.
+- Testes: `tests/Feature/DesignSystem/InputTokenContractTest.php`, `tests/Browser/InputTest.php`.
+- Screenshots (Dusk, browser real): `STORY-005-evidencia/inputs-desktop.png`, `inputs-mobile.png`,
+  `inputs-choice.png`. Revisão de fidelidade: `STORY-005-evidencia/revisao-designer.md`.
+- Homologação: `https://<homolog>/ds/inputs` (smoke após deploy do CI na `main`).

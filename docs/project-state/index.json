@@ -173,7 +173,7 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": null,
-      "status": "in_progress",
+      "status": "done",
       "owner_agent": "claude-programador-story005",
       "sprint_id": "SPRINT-2026-W27",
       "path": "epics/EPIC-001-design-system-codigo/stories/STORY-005-inputs.md",
@@ -338,6 +338,19 @@
         "decided_at": "2026-07-02",
         "decided_by": "programador",
         "related_story": "STORY-004",
+        "related_adrs": [
+          "ADR-000",
+          "ADR-008"
+        ]
+      },
+      {
+        "id": "IDR-003",
+        "title": "Máscara via react-imask (valor unmasked), datetime por input nativo (ISO), e Vitest/RTL mantido adiado",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-003-mascara-react-imask-datetime-nativo-e-vitest-adiado.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "programador",
+        "related_story": "STORY-005",
         "related_adrs": [
           "ADR-000",
           "ADR-008"

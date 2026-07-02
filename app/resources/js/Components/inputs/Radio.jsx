@@ -24,7 +24,8 @@ export default function Radio({
             {(controlProps) => (
                 <input
                     type="radio"
-                    className={`h-lg w-lg border-ink text-primary focus:ring-2 focus:ring-ink focus:ring-offset-0 ${className}`}
+                    // 24px, círculo (forms arredonda o radio) — par visual do checkbox.
+                    className={`h-xl w-xl border-ink text-primary focus:ring-2 focus:ring-ink focus:ring-offset-0 ${className}`}
                     {...controlProps}
                     {...props}
                 />
