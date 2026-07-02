@@ -2,14 +2,14 @@
 adr_id: ADR-000
 slug: stack-default
 title: Stack default do MVP — web-rica (Laravel + Inertia/React + PostgreSQL)
-status: proposed  # proposed | accepted | superseded | rejected | deferred
-decided_at: null  # YYYY-MM-DD quando virar accepted
+status: accepted  # proposed | accepted | superseded | rejected | deferred
+decided_at: 2026-07-02  # YYYY-MM-DD quando virar accepted
 decided_by: arquiteto
-approved_by: null  # "Alexandro" — preenchido na aprovação humana
+approved_by: Alexandro  # "Alexandro" — preenchido na aprovação humana
 supersedes: null
 superseded_by: null
 related_adrs: []
-related_pdrs: []
+related_pdrs: [PDR-001]
 related_epics: []
 created_at: 2026-07-02
 updated_at: 2026-07-02
@@ -115,16 +115,79 @@ fica documentada como caminho).
 
 ---
 
+## Ratificação do Arquiteto (2026-07-02)
+
+Revisei o stub proposto na inicialização. **Recomendo ratificar a Opção A (web-rica: Laravel +
+Inertia/React + PostgreSQL, empacotada como PWA)** — sem alterar a stack. A decisão é coerente
+com a visão e com os princípios arquiteturais; abaixo o registro da análise e os ajustes que
+incorporei.
+
+### Gate dos 6 princípios centrais
+
+| Princípio | Veredito |
+|---|---|
+| 1. Simples é o belo | ✅ Um monolito, uma base de código web. Sem microsserviços, sem stack montada à mão. |
+| 2. Tudo começa em monolito | ✅ Laravel monolítico servindo React via Inertia. |
+| 3. Datastore primário primeiro | ✅ PostgreSQL como único armazenamento no MVP. Qualquer store extra (cache, fila dedicada, search) só via ADR próprio provando com números que o Postgres não basta. |
+| 4. Frameworks opinativos | ✅ Laravel é opinativo e produtivo; Inertia elimina o boilerplate de API+SPA. |
+| 5. Coesão alta / acoplamento baixo | ✅ Viável — o pipeline de dados (extração/dedup/normalização) deve nascer como módulo coeso e desacoplado da camada web (ver ADR de acompanhamento). |
+| 6. 100% local | ✅ Sobe inteiro via `setup-ambiente` (PHP+Postgres+Vite); SEFAZ-SP mockável em teste. |
+
+Complementares relevantes: **#7 reversibilidade** — decisão reversível (Opção B/nativo fica
+documentada como saída); **#10 TDD/E2E** — a stack comporta (Pest/PHPUnit + Playwright);
+**#11 custo** — sem custo recorrente de unicórnio.
+
+### Incorporação do PDR-001 (design system)
+
+O PDR-001 (adoção do design system Wise-derived) impõe uma restrição de FE que esta stack
+**atende bem**: os tokens do DS (cor, tipografia, spacing, raios) mapeiam para o tema da stack
+Inertia+React via **`tailwind.config.js` + variáveis CSS** — que é o mecanismo idiomático de
+tema desse frontend. Confirmo que a stack ratificada suporta o DS sem adaptação estrutural. O
+mapeamento concreto tokens→tema é detalhe do EPIC-000 (Programador segue a sub-skill
+`inertia-react`); o DS canônico em si é entrega do Designer (DDR). Não há conflito entre este
+ADR e o PDR-001.
+
+### ADRs de acompanhamento (deferred, com gatilho de retomada)
+
+Os pontos **[→ Fase técnica]** da visão **não** são resolvidos aqui — cada um é uma decisão
+arquitetural própria, deliberadamente adiada para não decidir sem contexto. Ordem provável e
+gatilho:
+
+1. **ADR-001 — Módulo de ingestão e modelo canônico do cupom** (topológico + persistência).
+   *Gatilho:* abertura da estória de Coleta. Cobre a interface do adaptador por estado, o
+   cupom normalizado e a fronteira ingestão↔web.
+2. **ADR-002 — Extração resiliente SEFAZ-SP** (integração). Fila de reprocessamento, tratamento
+   de captcha, monitoramento de quebra de layout. *Gatilho:* junto do ADR-001.
+3. **ADR-003 — Deduplicação e validação por chave de acesso** (persistência). *Gatilho:* ADR-001.
+4. **ADR-004 — Matching de produtos / uso do CCG-GTIN** (persistência). *Gatilho:* quando houver
+   volume que justifique reconciliação entre lojas — pode ficar `deferred` além do MVP inicial.
+5. **ADR-005 — Integração de pagamento/PIX + KYC de saque** (integração/segurança). *Gatilho:*
+   abertura da estória de resgate da Carteira.
+6. **ADR-006 — Anonimização de CPF e segregação de bases (LGPD)** (persistência/segurança).
+   *Gatilho:* junto do ADR-001 (a coleta já toca CPF).
+
+Manter esses como ADRs separados preserva o princípio #1 (não decidir complexidade imaginada) e
+o planejamento em ondas. O **STORY-000-spike-stack** (abaixo) continua sendo o primeiro passo
+técnico concreto.
+
+### Recomendação
+
+**Ratificar como `accepted`**, condicionado ao seu aceite humano (registro abaixo). Sem
+condicionantes técnicas — a stack está apta a destravar o EPIC-000.
+
+---
+
 ## Aprovação humana
 
-- **Status final:** ⬜ pendente
-- **Aprovado por:** Alexandro (pendente)
-- **Data:** —
-- **Forma do aceite:** —
-- **Condicionantes do aceite:** —
+- **Status final:** ✅ aceito
+- **Aprovado por:** Alexandro
+- **Data:** 2026-07-02
+- **Forma do aceite:** aprovação explícita em sessão de Cowork (papel Arquiteto)
+- **Condicionantes do aceite:** nenhuma
 
 ---
 
 ## Histórico
 
 - 2026-07-02 — criada como `proposed` (stub de inicialização) — stack default do perfil web-rica, a ratificar pelo Arquiteto.
+- 2026-07-02 — ratificada pelo Arquiteto (gate dos 6 princípios + incorporação do PDR-001 + ADRs de acompanhamento mapeados) e **aceita** por Alexandro → `accepted`.

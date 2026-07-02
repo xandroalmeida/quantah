@@ -1,30 +1,194 @@
 {
   "version": 2,
-  "generated_at": "2026-07-02T00:00:00Z",
+  "generated_at": "2026-07-02T18:00:00Z",
   "project": {
     "name": "Quantah",
-    "current_wave": null,
+    "current_wave": "WAVE-2026-01",
     "current_sprint": null
   },
-  "waves": [],
-  "epics": [],
-  "stories": [],
+  "product": {
+    "vision": "product/vision.md",
+    "personas": "product/personas.md",
+    "north_star": "product/north-star.md"
+  },
+  "waves": [
+    {
+      "id": "WAVE-2026-01",
+      "title": "Provar a coleta em SP (com incentivo)",
+      "status": "active",
+      "goal": "Colaborador escaneia/compartilha o QR da NFC-e, o cupom é validado, deduplicado e persistido, e o saldo em cashback é creditado — em homologação",
+      "start_date": "2026-07-02",
+      "epic_ids": ["EPIC-000", "EPIC-001", "EPIC-002", "EPIC-003"]
+    }
+  ],
+  "epics": [
+    {
+      "id": "EPIC-000",
+      "slug": "foundation",
+      "title": "Foundation — ambiente, pipeline e tokens do DS em produção",
+      "wave": "WAVE-2026-01",
+      "status": "ready",
+      "path": "epics/EPIC-000-foundation/epic.md",
+      "story_ids": ["STORY-000", "STORY-001", "STORY-002", "STORY-003"],
+      "validation_report": null,
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "EPIC-001",
+      "slug": "design-system-codigo",
+      "title": "Design System em código — biblioteca de componentes React",
+      "wave": "WAVE-2026-01",
+      "status": "draft",
+      "path": "epics/EPIC-001-design-system-codigo/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "EPIC-002",
+      "slug": "coleta-de-cupom",
+      "title": "Coleta de cupom — do QR da NFC-e ao dado válido, único e novo",
+      "wave": "WAVE-2026-01",
+      "status": "draft",
+      "path": "epics/EPIC-002-coleta-de-cupom/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "EPIC-003",
+      "slug": "carteira-e-cashback",
+      "title": "Carteira e cashback — a recompensa que fecha o loop",
+      "wave": "WAVE-2026-01",
+      "status": "draft",
+      "path": "epics/EPIC-003-carteira-e-cashback/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    }
+  ],
+  "stories": [
+    {
+      "id": "STORY-000",
+      "epic_id": "EPIC-000",
+      "title": "Spike de stack — validar o esqueleto rodando e a viabilidade de leitura do QR da NFC-e",
+      "type": "spike",
+      "target_role": "arquiteto",
+      "requires_design": false,
+      "status": "ready",
+      "owner_agent": null,
+      "path": "epics/EPIC-000-foundation/stories/STORY-000-spike-stack.md",
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-001",
+      "epic_id": "EPIC-000",
+      "title": "Pipeline CI/CD e deploy automatizado de homologação com hello-world",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "status": "ready",
+      "owner_agent": null,
+      "path": "epics/EPIC-000-foundation/stories/STORY-001-pipeline-deploy-homolog.md",
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-002",
+      "epic_id": "EPIC-000",
+      "title": "Tema Tailwind a partir dos tokens do Design System (com Inter)",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "path": "epics/EPIC-000-foundation/stories/STORY-002-tema-tailwind-tokens-ds.md",
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-003",
+      "epic_id": "EPIC-000",
+      "title": "Validação final do EPIC-000 (Foundation)",
+      "type": "validation",
+      "target_role": "validador",
+      "requires_design": false,
+      "status": "ready",
+      "owner_agent": null,
+      "path": "epics/EPIC-000-foundation/stories/STORY-003-validacao-epic-000.md",
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    }
+  ],
   "sprints": [],
   "decisions": {
-    "pdr": [],
+    "pdr": [
+      {
+        "id": "PDR-001",
+        "title": "Adotar o design system Wise-derived como base do UX/UI do Quantah",
+        "status": "accepted",
+        "path": "decisions/pdr/PDR-001-design-system-wise.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "PO (Alexandro / Claude)",
+        "related_adrs": ["ADR-000"]
+      },
+      {
+        "id": "PDR-002",
+        "title": "Escopo da Onda 1 — Coleta + incentivo (4 épicos)",
+        "status": "accepted",
+        "path": "decisions/pdr/PDR-002-escopo-onda-1.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "PO (Alexandro / Claude)",
+        "related_adrs": ["ADR-000"],
+        "related_epics": ["EPIC-000", "EPIC-001", "EPIC-002", "EPIC-003"]
+      }
+    ],
     "adr": [
       {
         "id": "ADR-000",
         "title": "Stack default do MVP — web-rica (Laravel + Inertia/React + PostgreSQL)",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-000-stack-default.md",
-        "decided_at": null,
+        "decided_at": "2026-07-02",
         "decided_by": "arquiteto",
-        "approved_by": null
+        "approved_by": "Alexandro",
+        "related_pdrs": ["PDR-001"]
       }
     ],
     "idr": [],
-    "ddr": []
+    "ddr": [
+      {
+        "id": "DDR-001",
+        "title": "Substituição da fonte proprietária Wise Sans por Inter 900 / Manrope",
+        "status": "accepted",
+        "path": "decisions/ddr/DDR-001-substituicao-fonte-display.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "designer",
+        "approved_by": "Alexandro",
+        "scope": "transversal",
+        "affects_screens": [],
+        "related_pdrs": ["PDR-001"],
+        "related_adrs": ["ADR-000"]
+      },
+      {
+        "id": "DDR-002",
+        "title": "Diferenciação de marca — base de sistema, não clone do Wise",
+        "status": "accepted",
+        "path": "decisions/ddr/DDR-002-diferenciacao-marca-vs-wise.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "designer",
+        "approved_by": "Alexandro",
+        "scope": "transversal",
+        "affects_screens": [],
+        "related_pdrs": ["PDR-001"]
+      }
+    ]
   },
   "design": {
     "screens": [],
@@ -34,8 +198,24 @@
       "components": "design/system/components.md",
       "patterns": "design/system/patterns.md",
       "voice_and_tone": "design/system/voice-and-tone.md",
-      "canonical_reference": "docs/especificacao/design-system.md"
+      "canonical_reference": "docs/especificacao/design-system.md",
+      "source": "docs/DESIGN-wise.md",
+      "source_status": "consolidado pelo Designer em design/system/ e canonical_reference (PDR-001); DDR-001 e DDR-002 accepted",
+      "decision": "decisions/pdr/PDR-001-design-system-wise.md",
+      "ddrs": ["DDR-001", "DDR-002"]
     }
   },
-  "reports": []
+  "roadmap": {
+    "current_wave": "roadmap/current-wave.md",
+    "next_wave": "roadmap/next-wave.md"
+  },
+  "reports": [
+    {
+      "id": "status-2026-07-02",
+      "title": "Abertura da Onda 1 (WAVE-2026-01)",
+      "path": "reports/status-2026-07-02.md",
+      "date": "2026-07-02",
+      "type": "wave-open"
+    }
+  ]
 }
