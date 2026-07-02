@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* DDR-001: Inter como família única; contextual alternates ("calt") como no DS de origem. */
+@layer base {
+    html {
+        font-feature-settings: 'calt';
+    }
+}
