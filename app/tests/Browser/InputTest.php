@@ -145,7 +145,7 @@ class InputTest extends DuskTestCase
             $browser->visit('/ds/inputs')->waitFor('[data-testid=text-input]', 10);
 
             $ratios = $browser->script(<<<'JS'
-                function parse(c){ return c.match(/\d+(\.\d+)?/g).slice(0,3).map(Number); }
+                function parse(c){ var m = c.match(/\d+(\.\d+)?/g); return m ? m.slice(0,3).map(Number) : [255,255,255]; }
                 function lum(c){
                     var a = c.map(function(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); });
                     return 0.2126*a[0] + 0.7152*a[1] + 0.0722*a[2];
@@ -155,21 +155,28 @@ class InputTest extends DuskTestCase
                     var hi = Math.max(L1,L2), lo = Math.min(L1,L2);
                     return (hi + 0.05) / (lo + 0.05);
                 }
+                // Fundo efetivo: sobe na árvore até achar uma superfície não-transparente.
+                function effBg(el){
+                    while (el){
+                        var bg = getComputedStyle(el).backgroundColor;
+                        if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') return bg;
+                        el = el.parentElement;
+                    }
+                    return 'rgb(255, 255, 255)';
+                }
                 var input = document.querySelector('[data-testid=text-input]');
                 var ics = getComputedStyle(input);
                 var msg = document.querySelector('[data-testid=text-error-msg]');
                 var mcs = getComputedStyle(msg);
-                var page = getComputedStyle(document.body).backgroundColor;
-                return {
-                    border: ratio(ics.borderTopColor, ics.backgroundColor),
-                    error: ratio(mcs.color, mcs.backgroundColor === 'rgba(0, 0, 0, 0)' ? page : mcs.backgroundColor)
-                };
+                // Array (não objeto): o wire do WebDriver rejeita objeto de valores numéricos.
+                return [ratio(ics.borderTopColor, effBg(input)), ratio(mcs.color, effBg(msg))];
             JS)[0];
 
-            $this->assertGreaterThanOrEqual(3.0, $ratios['border'],
-                "A borda do input deveria passar contraste de UI (≥3:1). Medido: {$ratios['border']}");
-            $this->assertGreaterThanOrEqual(4.5, $ratios['error'],
-                "O texto de erro deveria passar AA (≥4.5:1). Medido: {$ratios['error']}");
+            [$border, $error] = $ratios;
+            $this->assertGreaterThanOrEqual(3.0, $border,
+                "A borda do input deveria passar contraste de UI (≥3:1). Medido: {$border}");
+            $this->assertGreaterThanOrEqual(4.5, $error,
+                "O texto de erro deveria passar AA (≥4.5:1). Medido: {$error}");
         });
     }
 
@@ -232,7 +239,8 @@ class InputTest extends DuskTestCase
     public function test_masked_field_empty_stays_empty(): void
     {
         $this->browse(function (Browser $browser) {
-            $browser->visit('/ds/inputs')->waitFor('[data-testid=masked-value]', 10);
+            // masked-value começa vazio (span sem dimensão) — espera o input, não o span.
+            $browser->visit('/ds/inputs')->waitFor('[data-testid=masked-input]', 10);
 
             $canonical = $browser->script(
                 "return document.querySelector('[data-testid=masked-value]').textContent.trim();"

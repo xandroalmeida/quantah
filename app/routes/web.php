@@ -20,6 +20,10 @@ Route::get('/ds/buttons', function () {
     return Inertia::render('DesignSystem/Buttons');
 })->name('ds.buttons');
 
+Route::get('/ds/inputs', function () {
+    return Inertia::render('DesignSystem/Inputs');
+})->name('ds.inputs');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
