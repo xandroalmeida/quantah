@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: ready
-owner_agent: null
+status: in_progress
+owner_agent: claude-programador-story002
 created_at: 2026-07-02
 updated_at: 2026-07-02
 estimated_session_size: M
@@ -100,15 +100,59 @@ o Designer antes de cristalizar. Falta de token/conflito → `blocked` + escalar
 
 ## Notas do agente (preenchido durante/após execução)
 
+**Owner:** `claude-programador-story002` · Branch: `story-002-tema-tailwind-tokens`
+
+### Documentos lidos
+- STORY-002 (inteira), `design/system/tokens.md` (valores canônicos), `DDR-001` (Inter),
+  `stacks/inertia-react/SKILL.md` (§ Estilo/DS na prática), `design/system/components.md`
+  (`button.primary`), `patterns.md` (`surface-rhythm`), `programador/SKILL.md`, `_project.md`.
+
+### Entendimento consolidado (minhas palavras)
+- Transformar os tokens do DS na configuração de tema do Tailwind (cores, tipografia com Inter,
+  spacing, raio com `xl`=24px, elevação, motion, breakpoints) e demonstrar no hello-world com um
+  título display (Inter 900), um parágrafo de corpo e um `button.primary` — **tudo via tokens,
+  zero valor cru**. Contraste AA (`on-primary` sobre `primary`) e foco visível.
+- Fora de escopo: biblioteca de componentes React do DS (EPIC-001) e ilustração de marca (DDR-002).
+- Não redefino token; se faltar/conflitar → `blocked` + escalar Designer (`requires_design: true`).
+
+### Plano (3–5 bullets)
+1. Mapear tokens → `tailwind.config.js` (`theme.extend`) + CSS vars/`font-feature-settings` em
+   `app.css`; carregar Inter 400/600/900 em `app.blade.php` (troca de Figtree por Inter, DDR-001).
+2. TDD: escrever testes vermelhos antes do código (guardas de config + Dusk em browser real).
+3. Reconstruir `Hello.jsx` só com utilitários de token (canvas sage, display 900, corpo,
+   `button.primary`).
+4. Verde: unit+feature + Dusk; suíte completa; Pint. Evidência de E2E por cenário.
+
+### Mapeamento CA → testes (planejado)
+- **CA-1** (tokens de cor existem; sem valor cru no JSX) →
+  `Unit/DesignSystem/NoRawColorInHelloTest` (varre `Hello.jsx`: sem hex, sem `gray-`, `bg-black`,
+  `[#...]`) + `Unit/DesignSystem/TailwindThemeTokensTest` (config expõe as cores do DS).
+- **CA-2** (escala tipográfica + Inter 400/600/900; display 900) →
+  Dusk `ThemeTest::test_display_title_uses_inter_900` (font-family contém Inter, weight 900) +
+  guarda: `app.blade.php` carrega Inter 400,600,900.
+- **CA-3** (spacing, raio `xl`=24px, elevação, breakpoints no tema) →
+  `Unit/DesignSystem/TailwindThemeTokensTest` (borderRadius.xl=24px, spacing, screens md/lg,
+  boxShadow) + provado em browser pelo raio real do botão (CA-4).
+- **CA-4** (título display, parágrafo, `button.primary` verde/on-primary/raio 24px via tokens) →
+  Dusk `ThemeTest::test_primary_button_renders_with_brand_tokens` (bg rgb(159,232,112),
+  color rgb(14,15,12), border-radius 24px) + `test_hello_shows_display_title_and_body`.
+- **CA-5** (contraste AA on-primary/primary; foco visível) →
+  Dusk `ThemeTest::test_primary_button_contrast_passes_AA` (calcula ratio ≥ 4.5 dos rgb reais) +
+  `test_primary_button_focus_is_visible` (foco por teclado muda outline/box-shadow).
+
+### Dúvidas
+- Nenhuma bloqueante. `requires_design: true`: implemento o mapeamento 1:1 dos valores canônicos
+  de `tokens.md`; fidelidade fica pendente de confirmação do Designer (registrado no PR).
+
 ### Decisões tomadas
-- 
+- (em progresso)
 ### Descobertas
-- 
+- (em progresso)
 ### Bloqueios encontrados
-- 
+- Nenhum até agora.
 ### IDRs criados
-- 
+- (avaliar ao fim — estratégia de CSS vars / troca de fonte)
 ### Cobertura final
-- 
+- (preencher ao fim)
 ### Links de evidência
-- 
+- (preencher ao fim)
