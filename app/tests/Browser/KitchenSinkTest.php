@@ -2,7 +2,6 @@
 
 namespace Tests\Browser;
 
-use Facebook\WebDriver\WebDriverKeys;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 
@@ -133,6 +132,21 @@ class KitchenSinkTest extends DuskTestCase
             $this->assertGreaterThanOrEqual(4.5, $dark, "Card escuro (primary sobre ink) deveria passar AA. Medido: {$dark}");
             $this->assertGreaterThanOrEqual(4.5, $pos, "badge.positive deveria passar AA. Medido: {$pos}");
             $this->assertGreaterThanOrEqual(4.5, $neg, "badge.negative deveria passar AA. Medido: {$neg}");
+        });
+    }
+
+    /** CA-3 (mobile) — a página não rola na horizontal (regra de ouro do DS). */
+    public function test_no_horizontal_page_overflow_on_mobile(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->resize(390, 1200)->visit('/ds')->waitFor('[data-testid=showcase-title]', 10);
+
+            $overflow = $browser->script(
+                'return document.documentElement.scrollWidth - document.documentElement.clientWidth;'
+            )[0];
+
+            $this->assertLessThanOrEqual(1, $overflow,
+                "A página não deveria rolar na horizontal em mobile. Overflow: {$overflow}px");
         });
     }
 

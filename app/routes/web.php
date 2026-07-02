@@ -24,6 +24,12 @@ Route::get('/ds/inputs', function () {
     return Inertia::render('DesignSystem/Inputs');
 })->name('ds.inputs');
 
+// Vitrine kitchen-sink: todos os componentes do DS (STORY-006). Rota dedicada,
+// pública para inspeção/E2E e smoke de homologação.
+Route::get('/ds', function () {
+    return Inertia::render('DesignSystem/Showcase');
+})->name('ds.showcase');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
