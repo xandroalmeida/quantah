@@ -3,7 +3,7 @@ epic_id: EPIC-000
 slug: foundation
 title: Foundation — ambiente, pipeline e tokens do DS em produção
 wave: WAVE-2026-01
-status: ready
+status: done
 owner_role: po
 created_at: 2026-07-02
 updated_at: 2026-07-02

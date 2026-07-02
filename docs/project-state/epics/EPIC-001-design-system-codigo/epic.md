@@ -3,7 +3,7 @@ epic_id: EPIC-001
 slug: design-system-codigo
 title: Design System em código — biblioteca de componentes React
 wave: WAVE-2026-01
-status: draft
+status: ready
 owner_role: po
 created_at: 2026-07-02
 updated_at: 2026-07-02
@@ -60,12 +60,15 @@ mostra todos os componentes e seus estados.
 
 ## Estórias
 
-(Preenchido no Fluxo B — cada componente/grupo vira estória com `requires_design: true`.)
+Decomposto em 2026-07-02 (PO). Cada componente/grupo é estória com `requires_design: true`
+(Designer valida em paralelo, PDR-002).
 
-- [ ] STORY-XXX — botões (primary/secondary/tertiary/danger/icon) + spec
-- [ ] STORY-XXX — inputs (text/masked/datetime/select/checkbox/radio/switch) + spec
-- [ ] STORY-XXX — cards, badges, snackbar, empty-state, skeleton, nav + vitrine
-- [ ] STORY-XXX (validação) — validação final do épico
+- [ ] **STORY-004** — botões (primary/secondary/tertiary/danger/icon) + spec · `ready`
+- [ ] **STORY-005** — inputs (text/masked/datetime/select/checkbox/radio/switch) + spec · `ready`
+- [ ] **STORY-006** — cards, badges, snackbar, empty-state, skeleton, nav + vitrine · `draft`
+      (bloqueada por STORY-004 e STORY-005)
+- [ ] **STORY-007** (validação) — validação final do épico · `draft`
+      (bloqueada por STORY-004/005/006)
 
 ## Validação final
 

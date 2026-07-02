@@ -7,8 +7,8 @@ sprint_id: null
 type: validation
 target_role: validador
 requires_design: false
-status: ready
-owner_agent: null
+status: done
+owner_agent: validador-826f6e93
 created_at: 2026-07-02
 updated_at: 2026-07-02
 estimated_session_size: M
