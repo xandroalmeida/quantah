@@ -3,7 +3,7 @@ epic_id: EPIC-002
 slug: coleta-de-cupom
 title: Coleta de cupom — do QR da NFC-e ao dado válido, único e novo
 wave: WAVE-2026-01
-status: draft
+status: ready
 owner_role: po
 created_at: 2026-07-02
 updated_at: 2026-07-02
@@ -67,14 +67,18 @@ como dado **válido, único e novo** (deduplicado por chave de acesso, validado 
 
 ## Estórias
 
-(Preenchido no Fluxo B. Começa por spikes de arquitetura antes das de implementação.)
+Decomposto em 2026-07-02 (PO). Começa pelo spike de arquitetura (produz as ADRs) antes das estórias
+de implementação. Checklist de validação (`validation/checklist.md`) autorado já nesta decomposição.
 
-- [ ] STORY-XXX (spike) — ingestão + modelo canônico + extração SP (target_role: arquiteto)
-- [ ] STORY-XXX — captura do QR (scan + compartilhar) e confirmação (requires_design)
-- [ ] STORY-XXX — validação SEFAZ + deduplicação + persistência
-- [ ] STORY-XXX — anonimização de CPF na coleta
-- [ ] STORY-XXX — instrumentação da north-star
-- [ ] STORY-XXX (validação) — validação final do épico
+- [ ] **STORY-008** (spike) — ingestão + modelo canônico + extração SP + dedup + LGPD → ADR-001/002/003/006
+      (target_role: arquiteto) · `ready`
+- [ ] **STORY-009** — captura do QR (scan + compartilhar) e confirmação, mobile (`requires_design`) · `draft`
+      (bloqueada por STORY-008)
+- [ ] **STORY-010** — validação SEFAZ-SP + deduplicação por chave + persistência canônica · `draft`
+      (bloqueada por STORY-008; núcleo de regra, cobertura ≥98%)
+- [ ] **STORY-011** — anonimização de CPF na coleta (LGPD, ADR-006) · `draft` (bloqueada por STORY-008/010)
+- [ ] **STORY-012** — instrumentação da north-star (válidos-únicos-novos/semana) · `draft` (bloqueada por STORY-010)
+- [ ] **STORY-013** (validação) — validação final do épico · `draft` (bloqueada por STORY-008..012)
 
 ## Validação final
 

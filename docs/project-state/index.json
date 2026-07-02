@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-07-02T20:00:00Z",
+  "generated_at": "2026-07-02T21:00:00Z",
   "project": {
     "name": "Quantah",
     "current_wave": "WAVE-2026-01",
@@ -76,9 +76,16 @@
       "slug": "coleta-de-cupom",
       "title": "Coleta de cupom — do QR da NFC-e ao dado válido, único e novo",
       "wave": "WAVE-2026-01",
-      "status": "draft",
+      "status": "ready",
       "path": "epics/EPIC-002-coleta-de-cupom/epic.md",
-      "story_ids": [],
+      "story_ids": [
+        "STORY-008",
+        "STORY-009",
+        "STORY-010",
+        "STORY-011",
+        "STORY-012",
+        "STORY-013"
+      ],
       "validation_report": null,
       "created_at": "2026-07-02",
       "updated_at": "2026-07-02"
@@ -228,6 +235,139 @@
         "STORY-004",
         "STORY-005",
         "STORY-006"
+      ],
+      "blocks": [],
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-008",
+      "epic_id": "EPIC-002",
+      "title": "Spike de arquitetura — ingestão, modelo canônico, extração SEFAZ-SP, dedup e LGPD",
+      "type": "spike",
+      "target_role": "arquiteto",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-008-spike-ingestao-modelo-extracao.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-009",
+        "STORY-010",
+        "STORY-011",
+        "STORY-012",
+        "STORY-013"
+      ],
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-009",
+      "epic_id": "EPIC-002",
+      "title": "Captura do cupom — escanear/compartilhar o QR da NFC-e e confirmar (mobile)",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-009-captura-qr-confirmacao.md",
+      "blocked_by": [
+        "STORY-008"
+      ],
+      "blocks": [
+        "STORY-013"
+      ],
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-010",
+      "epic_id": "EPIC-002",
+      "title": "Validação SEFAZ-SP, deduplicação por chave e persistência no modelo canônico",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-010-validacao-sefaz-dedup-persistencia.md",
+      "blocked_by": [
+        "STORY-008"
+      ],
+      "blocks": [
+        "STORY-011",
+        "STORY-012",
+        "STORY-013"
+      ],
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-011",
+      "epic_id": "EPIC-002",
+      "title": "Anonimização de CPF na coleta (LGPD)",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-011-anonimizacao-cpf.md",
+      "blocked_by": [
+        "STORY-008",
+        "STORY-010"
+      ],
+      "blocks": [
+        "STORY-013"
+      ],
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-012",
+      "epic_id": "EPIC-002",
+      "title": "Instrumentação da north-star — cupons válidos, únicos e novos por semana",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-012-instrumentacao-north-star.md",
+      "blocked_by": [
+        "STORY-010"
+      ],
+      "blocks": [
+        "STORY-013"
+      ],
+      "created_at": "2026-07-02",
+      "updated_at": "2026-07-02"
+    },
+    {
+      "id": "STORY-013",
+      "epic_id": "EPIC-002",
+      "title": "Validação final do EPIC-002 (Coleta de cupom)",
+      "type": "validation",
+      "target_role": "validador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-013-validacao-epic-002.md",
+      "blocked_by": [
+        "STORY-008",
+        "STORY-009",
+        "STORY-010",
+        "STORY-011",
+        "STORY-012"
       ],
       "blocks": [],
       "created_at": "2026-07-02",
