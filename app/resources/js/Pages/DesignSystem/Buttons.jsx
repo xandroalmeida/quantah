@@ -33,7 +33,9 @@ export default function Buttons() {
 
                     <section className="flex flex-col gap-lg">
                         <h2 className="text-display-xs">Variantes</h2>
-                        <div className="flex flex-wrap items-center gap-lg">
+                        {/* surface-rhythm: cluster de botões sobre card branco (canvas)
+                            para o secondary (sage) contrastar com a superfície. */}
+                        <div className="flex flex-wrap items-center gap-lg rounded-xl bg-canvas p-xl shadow-elev-2">
                             <Button variant="primary" data-testid="btn-primary" onClick={inc}>
                                 Enviar cupom
                             </Button>
@@ -59,7 +61,7 @@ export default function Buttons() {
 
                     <section className="flex flex-col gap-lg">
                         <h2 className="text-display-xs">Estados</h2>
-                        <div className="flex flex-wrap items-center gap-lg">
+                        <div className="flex flex-wrap items-center gap-lg rounded-xl bg-canvas p-xl shadow-elev-2">
                             <Button
                                 variant="primary"
                                 data-testid="btn-disabled"
