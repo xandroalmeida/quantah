@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: in_progress
+status: in_review
 owner_agent: claude-programador-story002
 created_at: 2026-07-02
 updated_at: 2026-07-02
@@ -145,14 +145,62 @@ o Designer antes de cristalizar. Falta de token/conflito → `blocked` + escalar
   de `tokens.md`; fidelidade fica pendente de confirmação do Designer (registrado no PR).
 
 ### Decisões tomadas
-- (em progresso)
+- **IDR-001**: tokens vivem no `theme.extend` do Tailwind; camada de CSS variables adiada até
+  haver runtime theming real (dark mode/multi-marca). Fonte Inter via bunny.net (como o starter).
+- Raio/spacing/breakpoints do DS mapeados; `borderRadius.xl=24px` é a assinatura. Breakpoints
+  postos em `extend.screens` (md/lg) para não remover `sm/xl/2xl` das telas de auth do starter.
+- `button.primary` demonstrado com `focus-visible:ring` (indicador só no teclado, a11y correta).
+
+### Mapeamento CA → teste (final)
+- **CA-1** (tokens de cor; sem valor cru no JSX):
+  `NoRawColorInHelloTest::test_hello_has_no_raw_hex_color`,
+  `::test_hello_has_no_tailwind_arbitrary_color`,
+  `::test_hello_does_not_use_raw_neutral_palette`;
+  `TailwindThemeTokensTest::test_theme_maps_design_system_colors`.
+- **CA-2** (escala tipográfica + Inter 400/600/900; display 900):
+  `ThemeTest::test_display_title_uses_inter_900` (browser real),
+  `TailwindThemeTokensTest::test_theme_sets_inter_as_display_and_sans`,
+  `::test_document_loads_inter_weights`.
+- **CA-3** (spacing, raio xl=24px, elevação, breakpoints):
+  `TailwindThemeTokensTest::test_theme_defines_signature_radius_xl_24px`,
+  `::test_theme_defines_design_system_breakpoints`,
+  `::test_theme_defines_spacing_and_elevation`; raio provado em browser por CA-4.
+- **CA-4** (título display, corpo, button.primary via tokens):
+  `ThemeTest::test_hello_shows_display_title_and_body`,
+  `::test_primary_button_renders_with_brand_tokens` (bg rgb(159,232,112), texto rgb(14,15,12),
+  raio 24px — computados no browser real).
+- **CA-5** (contraste AA + foco visível):
+  `ThemeTest::test_primary_button_contrast_passes_AA` (ratio real ≥ 4.5),
+  `::test_primary_button_focus_is_visible` (Tab por teclado → CTA com ring visível).
+
+### Cenários E2E em browser real (Dusk) — desfechos cobertos
+- Este é um hello-world de demonstração (sem ramificações/erros de usuário): o fluxo é "abrir a
+  página e ver o tema aplicado". Coberto ponta a ponta pelos 5 cenários do `ThemeTest` + os 2 do
+  `HelloWorldTest` (render + hidratação). Não há caminhos alternativos/erro mapeados nesta estória.
+
 ### Descobertas
-- (em progresso)
+- Flake de cold-start: o **primeiro** `visit` de um run Dusk podia estourar o `waitFor` de 5s
+  (warm-up do Chromium + primeiro serve de assets). Endurecido para 10s (ThemeTest + HelloWorldTest).
+  Full Dusk rodado 2× seguidas: 7/7 verde e determinístico.
+
 ### Bloqueios encontrados
-- Nenhum até agora.
+- Nenhum.
+
 ### IDRs criados
-- (avaliar ao fim — estratégia de CSS vars / troca de fonte)
+- `IDR-001` — Tokens no `theme.extend` do Tailwind; CSS vars adiadas (accepted).
+
 ### Cobertura final
-- (preencher ao fim)
+- Suíte unit+feature: **38 testes, 138 assertions, verde**; cobertura PHP **87.3%** (≥ 80% do gate).
+  A estória não adiciona código PHP de produção (só tema/JSX/config/blade + testes), então a
+  cobertura de núcleo permanece intacta.
+- Dusk (browser real): **7 testes verde** (5 ThemeTest + 2 HelloWorldTest), rodado 2× sem flake.
+- Pint: limpo.
+
+### Pendências de gate (não são do Programador)
+- `requires_design: true`: a **fidelidade do mapeamento** dos tokens foi feita 1:1 a partir dos
+  valores canônicos de `tokens.md`, mas a **confirmação do Designer** fica pendente (validação em
+  paralelo, PDR-002). CI verde e smoke em homologação seguem o merge do PR.
+
 ### Links de evidência
-- (preencher ao fim)
+- Branch: `story-002-tema-tailwind-tokens`. Commits (TDD): `4388db6` (testes vermelhos) →
+  `7532288` (tema/tokens) → `ddf1e8d` (hello-world verde + Dusk). PR: (preencher ao abrir).
