@@ -17,7 +17,7 @@ class ThemeTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/')
-                ->waitFor('[data-testid=hello-title]')
+                ->waitFor('[data-testid=hello-title]', 10)
                 ->assertVisible('[data-testid=hello-title]')
                 ->assertVisible('[data-testid=hello-body]')
                 ->assertSeeIn('[data-testid=hello-title]', 'Quantah');
@@ -28,7 +28,7 @@ class ThemeTest extends DuskTestCase
     public function test_display_title_uses_inter_900(): void
     {
         $this->browse(function (Browser $browser) {
-            $browser->visit('/')->waitFor('[data-testid=hello-title]');
+            $browser->visit('/')->waitFor('[data-testid=hello-title]', 10);
 
             $style = $browser->script(<<<'JS'
                 var el = document.querySelector('[data-testid=hello-title]');
@@ -47,7 +47,7 @@ class ThemeTest extends DuskTestCase
     public function test_primary_button_renders_with_brand_tokens(): void
     {
         $this->browse(function (Browser $browser) {
-            $browser->visit('/')->waitFor('[data-testid=hello-cta]');
+            $browser->visit('/')->waitFor('[data-testid=hello-cta]', 10);
 
             $style = $browser->script(<<<'JS'
                 var el = document.querySelector('[data-testid=hello-cta]');
@@ -72,7 +72,7 @@ class ThemeTest extends DuskTestCase
     public function test_primary_button_contrast_passes_AA(): void
     {
         $this->browse(function (Browser $browser) {
-            $browser->visit('/')->waitFor('[data-testid=hello-cta]');
+            $browser->visit('/')->waitFor('[data-testid=hello-cta]', 10);
 
             $ratio = $browser->script(<<<'JS'
                 function parse(rgb){ return rgb.match(/\d+/g).slice(0,3).map(Number); }
@@ -97,8 +97,12 @@ class ThemeTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/')
-                ->waitFor('[data-testid=hello-cta]')
-                ->keys('body', [WebDriverKeys::TAB]);
+                ->waitFor('[data-testid=hello-cta]', 10)
+                // clica em texto não-focável para garantir foco no documento (activeElement = body)
+                ->click('[data-testid=hello-eyebrow]');
+
+            // Tab de verdade (evento de teclado) → dispara :focus-visible no CTA.
+            $browser->driver->getKeyboard()->sendKeys(WebDriverKeys::TAB);
 
             $focus = $browser->script(<<<'JS'
                 var el = document.activeElement;

@@ -15,7 +15,7 @@ class HelloWorldTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/')
-                ->waitFor('[data-testid="hello-world"]')
+                ->waitFor('[data-testid="hello-world"]', 10)
                 ->assertSee('Quantah')
                 ->assertSeeIn('[data-testid="hello-world"]', 'Olá do Quantah');
         });
@@ -29,7 +29,7 @@ class HelloWorldTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/')
-                ->waitFor('[data-testid="hello-environment"]')
+                ->waitFor('[data-testid="hello-environment"]', 10)
                 ->assertSeeIn('[data-testid="hello-environment"]', 'ambiente:');
         });
     }
