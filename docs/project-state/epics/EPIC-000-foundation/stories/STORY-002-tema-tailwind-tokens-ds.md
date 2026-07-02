@@ -46,15 +46,15 @@ Sem os tokens no tema, cada tela reinventaria valores crus — proibido pelo DS.
 
 ## Critérios de aceite
 
-- [ ] **CA-1:** Os tokens de cor do DS (primary, on-primary, canvas, canvas-soft, ink, body,
+- [x] **CA-1:** Os tokens de cor do DS (primary, on-primary, canvas, canvas-soft, ink, body,
       mute, semânticas) existem como utilitários Tailwind e **nenhum valor cru** de cor aparece
       no JSX da hello-world.
-- [ ] **CA-2:** A escala tipográfica do DS está mapeada e a fonte **Inter** (400/600/900) é
+- [x] **CA-2:** A escala tipográfica do DS está mapeada e a fonte **Inter** (400/600/900) é
       carregada; o display usa peso 900 (DDR-001).
-- [ ] **CA-3:** Spacing, raio (com `xl` = 24px), elevação e breakpoints do DS estão no tema.
-- [ ] **CA-4:** A hello-world exibe: um título display (Inter 900), um parágrafo em corpo, e um
+- [x] **CA-3:** Spacing, raio (com `xl` = 24px), elevação e breakpoints do DS estão no tema.
+- [x] **CA-4:** A hello-world exibe: um título display (Inter 900), um parágrafo em corpo, e um
       `button.primary` (verde `#9fe870`, texto `on-primary`, raio 24px) — todos via tokens.
-- [ ] **CA-5:** Contraste do botão passa AA (texto `on-primary` sobre `primary`), foco visível.
+- [x] **CA-5:** Contraste do botão passa AA (texto `on-primary` sobre `primary`), foco visível.
 
 ## Fora de escopo
 
@@ -86,12 +86,13 @@ Designer ou novo DDR; **pare e registre**, não invente token.
 
 ## Definição de Pronto (DoD)
 
-- [ ] CA-1 a CA-5 passam; Designer confirmou fidelidade do mapeamento.
-- [ ] Testes/checagens passando; a11y mínima verificada.
-- [ ] Pipeline verde; hello-world com tema em homologação (evidência).
-- [ ] IDR se houve decisão técnica relevante (ex.: estratégia de CSS vars).
-- [ ] `index.json` atualizado: status = `in_review` ao abrir PR.
-- [ ] Notas do agente preenchidas.
+- [x] CA-1 a CA-5 passam; **Designer confirmou fidelidade do mapeamento** (ver
+      `STORY-002-evidencia/revisao-designer.md` — 100% fiel, sem divergências).
+- [x] Testes/checagens passando; a11y mínima verificada (contraste AA + foco por teclado em Dusk).
+- [x] Pipeline verde; hello-world com tema em homologação (evidência: smoke em `/` e `/up`).
+- [x] IDR se houve decisão técnica relevante — **IDR-001** (estratégia de tokens no tema / CSS vars).
+- [x] `index.json` atualizado (status acompanhou in_progress → in_review → done).
+- [x] Notas do agente preenchidas.
 
 ## Protocolo do agente (obrigatório)
 
@@ -209,3 +210,6 @@ o Designer antes de cristalizar. Falta de token/conflito → `blocked` + escalar
 - **Homologação verde:** pipeline de push na `main` fez o deploy e o smoke automático passou;
   smoke manual confirmado em `https://quantah-homolog.34.39.229.117.sslip.io/` (`/up` 200, `/`
   200 servindo Inter 400/600/900 + "Quantah"). Estória `done`.
+- **Revisão do Designer (fidelidade):** `STORY-002-evidencia/revisao-designer.md` +
+  capturas `tema-mobile.png` / `tema-desktop.png`. Veredito: mapeamento **100% fiel** aos tokens
+  canônicos, regras de ouro respeitadas em mobile e desktop, **sem divergências**.
