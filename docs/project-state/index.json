@@ -62,7 +62,12 @@
         "STORY-006",
         "STORY-007"
       ],
-      "validation_report": null,
+      "validation_report": {
+        "path": "epics/EPIC-001-design-system-codigo/validation/report.md",
+        "verdict": "approved",
+        "validated_at": "2026-07-02",
+        "validated_by": "validador (0dae5a52)"
+      },
       "created_at": "2026-07-02",
       "updated_at": "2026-07-02"
     },
@@ -215,8 +220,8 @@
       "target_role": "validador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-validador-story007",
       "sprint_id": null,
       "path": "epics/EPIC-001-design-system-codigo/stories/STORY-007-validacao-epic-001.md",
       "blocked_by": [

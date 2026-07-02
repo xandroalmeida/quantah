@@ -41,12 +41,12 @@ não sobre uma promessa.
 
 ## Critérios de aceite
 
-- [ ] **CA-1:** Todos os componentes da lista mínima existem, com estados, e aparecem na vitrine.
-- [ ] **CA-2:** Vitrine acessível em homologação por HTTPS (HTTP 200), verificada de forma independente.
-- [ ] **CA-3:** A11y mínima confirmada (contraste AA, foco visível, alvo ≥48px) e zero valor cru
+- [x] **CA-1:** Todos os componentes da lista mínima existem, com estados, e aparecem na vitrine.
+- [x] **CA-2:** Vitrine acessível em homologação por HTTPS (HTTP 200), verificada de forma independente.
+- [x] **CA-3:** A11y mínima confirmada (contraste AA, foco visível, alvo ≥48px) e zero valor cru
       fora dos tokens (guarda verde).
-- [ ] **CA-4:** Cobertura conforme `quality-standards.md`; pipeline verde no merge que publicou.
-- [ ] **CA-5:** Relatório emitido em `validation/report.md` e `index.json` aponta o relatório com o
+- [x] **CA-4:** Cobertura conforme `quality-standards.md`; pipeline verde no merge que publicou.
+- [x] **CA-5:** Relatório emitido em `validation/report.md` e `index.json` aponta o relatório com o
       veredito; transição de status do épico fica a cargo do PO.
 
 ## Fora de escopo
@@ -69,10 +69,10 @@ Segue `docs/skills/validador/*` e `quality-standards.md`. Evidência independent
 
 ## Definição de Pronto (DoD)
 
-- [ ] Checklist do épico executado item a item com evidência.
-- [ ] Relatório com veredito em `validation/report.md`.
-- [ ] `index.json` atualizado: `epics[EPIC-001].validation_report` aponta o relatório; story `done`.
-- [ ] "Notas do agente" preenchida.
+- [x] Checklist do épico executado item a item com evidência.
+- [x] Relatório com veredito em `validation/report.md`.
+- [x] `index.json` atualizado: `epics[EPIC-001].validation_report` aponta o relatório; story `done`.
+- [x] "Notas do agente" preenchida.
 
 ## Protocolo do agente (obrigatório)
 
@@ -80,14 +80,38 @@ Siga `docs/skills/validador/*` e `agent-task-format.md`. Veredito segue `verdict
 
 ## Notas do agente (preenchido durante/após execução)
 
+> **Owner:** `claude-validador-story007` (sessão 0dae5a52). Papel: Validador independente.
+> **Veredito: APPROVED** — 17 `pass`, 3 `pass com ressalva`, 0 `fail`, 4 `n/a` justificados.
+
+### Pré-condição destravada
+- O `validation/checklist.md` do EPIC-001 **não existia** ao iniciar. O Validador não cria checklist
+  (input do PO). Foi decidido com o dono (PO) que o **PO autora o checklist antes** — feito no commit
+  `b7b5b55` (`docs(PO): checklist de validação do EPIC-001`). Só então a validação começou, mantendo a
+  fronteira de papel.
+
 ### Decisões tomadas
-- 
+- Cobertura (Bloco 2.1) marcada `pass com ressalva`: mede linha **PHP** (87,3% ≥ 80%); o código novo é
+  JSX, coberto por contrato-em-fonte (Feature) + Dusk (browser), por **IDR-002/003** vigente — respeitado,
+  não reinterpretado.
+- Núcleo 98% (2.2), promoção tag-based (3.4), migrações (5.7) e — para verificação por scanner — segurança
+  de dependências marcados `n/a` justificados: épico de UI sem módulo de regra/migração; pipeline de
+  promoção/scanner é escopo do EPIC-000 (já validado), não tocado aqui.
+- Não alterei o `status` do **épico** (segue `ready`) — transição é do PO (CA-5). Atualizei apenas
+  `epics[EPIC-001].validation_report` e o status desta estória de validação para `done`.
 
 ### Descobertas
-- 
+- CI (`ci-cd.yml`) não tem passo de scanner de dependências/segredos — registrado como **Limitação**;
+  segredos verificados por inspeção direta (nenhum versionado).
+- O grep do HTML servido de `/ds` não lista nomes de componentes (app Inertia/React: DOM montado no
+  cliente). Render/a11y verificados por E2E Dusk em browser real (verde no CI) + leitura das asserções
+  + `curl` independente (HTTP 200, `data-page: DesignSystem/Showcase`).
 
 ### Bloqueios encontrados
-- 
+- Nenhum durante a execução. Único bloqueio inicial (checklist ausente) destravado pelo PO (acima).
 
 ### Links de evidência
-- 
+- Relatório: `epics/EPIC-001-design-system-codigo/validation/report.md`.
+- Checklist (input do PO): `epics/EPIC-001-design-system-codigo/validation/checklist.md`.
+- CI do commit deployado: run `28627157436` (commit `7a7d06a`) — 64 unit+feature (87,3%), 36 Dusk.
+- Verificação independente de homolog: `https://quantah-homolog.34.39.229.117.sslip.io/ds` → HTTP 200.
+- Contrato de tokens local: `php artisan test --filter=DesignSystem` → 35 passed (212 assertions).
