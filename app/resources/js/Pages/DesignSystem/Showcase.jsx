@@ -196,11 +196,14 @@ export default function Showcase() {
                             A <code className="text-body-sm">NavBar</code> no topo desta página é o próprio
                             componente. Abaixo, a barra inferior do app (mobile):
                         </p>
+                        {/* A caixa do demo já provê a borda; zera o border-t do NavBottom p/ não
+                            duplicar a linha no topo (!border-t-0 vence a ordem de utilitários). */}
                         <div className="mt-lg overflow-hidden rounded-xl border border-ink">
                             <NavBottom
                                 data-testid="nav-bottom"
                                 items={bottomItems}
                                 itemProps={{ 'data-testid': 'nav-bottom-item' }}
+                                className="!border-t-0"
                             />
                         </div>
                     </Section>
