@@ -51,7 +51,7 @@ class ButtonTest extends DuskTestCase
     }
 
     /** CA-3 — cada variante passa contraste WCAG AA (>= 4.5:1), medido no rgb real. */
-    public function test_all_variants_pass_AA_contrast(): void
+    public function test_all_variants_pass_aa_contrast(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/ds/buttons')->waitFor('[data-testid=btn-primary]', 10);

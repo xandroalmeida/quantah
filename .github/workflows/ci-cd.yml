@@ -62,6 +62,10 @@ jobs:
         working-directory: app
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Lint (Pint)
+        working-directory: app
+        run: vendor/bin/pint --test
+
       - name: Preparar .env
         working-directory: app
         run: |

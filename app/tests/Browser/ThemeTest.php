@@ -69,7 +69,7 @@ class ThemeTest extends DuskTestCase
     }
 
     /** CA-5 — contraste texto/fundo do button.primary passa AA (>= 4.5:1), medido no rgb real. */
-    public function test_primary_button_contrast_passes_AA(): void
+    public function test_primary_button_contrast_passes_aa(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/')->waitFor('[data-testid=hello-cta]', 10);
