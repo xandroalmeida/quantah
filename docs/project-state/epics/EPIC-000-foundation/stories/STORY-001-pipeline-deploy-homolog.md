@@ -7,8 +7,8 @@ sprint_id: null
 type: implementation
 target_role: programador
 requires_design: false
-status: ready
-owner_agent: null
+status: in_progress
+owner_agent: claude-programador-story001
 created_at: 2026-07-02
 updated_at: 2026-07-02
 estimated_session_size: L
@@ -104,16 +104,51 @@ e escale. Ao terminar → `status: in_review`, PR aberto, `index.json` atualizad
 
 ## Notas do agente (preenchido durante/após execução)
 
+> Executada em 2026-07-02 pelo papel **Programador** (`owner_agent: claude-programador-story001`).
+> **Pré-requisito de infra resolvido:** o Arquiteto fechou **ADR-007** (VPS genérica no GCP) e
+> **ADR-008** (E2E = Laravel Dusk), ambos `accepted` por Alexandro. A VM de homolog já foi provisionada
+> (`infra/gcp/provision.sh`). Trabalho direto na `main` (sem PR, por decisão do dono); branch renomeada
+> `master → main`.
+
+### Documentos lidos
+- Estória inteira; `epic.md`; ADR-000, ADR-007, ADR-008; skill do Programador; `_project.md`;
+  evidência do STORY-000 (stack sobe ponta a ponta; Sail compartilhado entre agentes → stack isolado).
+
+### Entendimento consolidado
+- Entregar o "trilho": CI (testes+build) que barra merge, deploy automático de homolog no merge, uma
+  página hello-world Inertia (rota→React, 200), dev local em 1 comando com seed, e E2E em browser real.
+- Ambiente: PHP só no Sail; outro agente roda `app-*` no ar → subi stack isolado `quantah-s001`
+  (portas 8001/5443/5174) para rodar a suíte sem colisão.
+
+### Plano (3–5 bullets)
+1. **CA-4** (TDD): teste Feature vermelho de `GET /` → 200 + Inertia component `Hello` com props;
+   depois rota + página `Hello.jsx`.
+2. **CA-5** (TDD): instalar Dusk (ADR-008) + selenium no compose; teste de browser vermelho que abre `/`
+   e verifica o conteúdo do hello-world (caminho feliz + robustez de carregamento).
+3. **CA-1**: workflow CI (GitHub Actions) — Postgres service, `composer install`, `npm ci`, build,
+   `artisan test` e Dusk; barra o merge se quebrar.
+4. **CA-2**: workflow de deploy no merge → build imagem prod (Dockerfile) → GHCR → SSH na VM →
+   `compose pull` + `migrate --force` + `up -d`. Caddy serve HTTPS no host sslip.io.
+5. **CA-3**: `make up` (um comando) do clone limpo → sobe app+Postgres+seed. Documentar no README.
+
+### Mapa CA → testes
+- **CA-4** → `Tests\Feature\HelloWorldTest`: `test_hello_world_is_served_via_inertia_and_returns_200`
+  (feliz), `test_hello_world_exposes_app_name_and_environment` (conteúdo/props),
+  `test_unknown_route_returns_404` (borda/negativo do roteamento).
+- **CA-5** → `Tests\Browser\HelloWorldTest` (Dusk): `test_visitor_sees_quantah_hello_world` (feliz em
+  browser real), `test_hello_world_hydrates_react_and_shows_environment` (Inertia/React hidrata).
+- **CA-1/CA-2/CA-3** → verificados por execução do pipeline/deploy/script (automação, não unit).
+
 ### Decisões tomadas
-- 
+- (preencher ao longo)
 ### Descobertas
-- 
+- Outro agente mantém o stack `app-*` (com selenium/mailpit/minio) no ar; usei stack isolado.
 ### Bloqueios encontrados
-- 
+- Nenhum até aqui.
 ### IDRs criados
-- 
+- (preencher se houver)
 ### Cobertura final
-- Unitários: 
+- Unitários/Feature: 
 - E2E: 
 ### Links de evidência
-- PR / Pipeline / Homologação: 
+- Pipeline / Homologação: 
