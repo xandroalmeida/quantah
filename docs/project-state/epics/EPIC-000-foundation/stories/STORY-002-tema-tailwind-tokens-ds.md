@@ -203,4 +203,6 @@ o Designer antes de cristalizar. Falta de token/conflito → `blocked` + escalar
 
 ### Links de evidência
 - Branch: `story-002-tema-tailwind-tokens`. Commits (TDD): `4388db6` (testes vermelhos) →
-  `7532288` (tema/tokens) → `ddf1e8d` (hello-world verde + Dusk). PR: (preencher ao abrir).
+  `7532288` (tema/tokens) → `ddf1e8d` (hello-world verde + Dusk).
+- PR: https://github.com/xandroalmeida/quantah/pull/1 — **CI verde** ("Testes + build" ✓,
+  "E2E (Dusk)" ✓; "Deploy homologação" roda no merge para `main`).
