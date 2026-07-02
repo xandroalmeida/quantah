@@ -58,15 +58,15 @@ jobs:
           cache: npm
           cache-dependency-path: app/package-lock.json
 
+      - name: Composer install
+        working-directory: app
+        run: composer install --prefer-dist --no-interaction --no-progress
+
       - name: Preparar .env
         working-directory: app
         run: |
           cp .env.example .env
           php artisan key:generate
-
-      - name: Composer install
-        working-directory: app
-        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: npm ci + build
         working-directory: app
@@ -117,15 +117,15 @@ jobs:
           cache: npm
           cache-dependency-path: app/package-lock.json
 
+      - name: Composer install
+        working-directory: app
+        run: composer install --prefer-dist --no-interaction --no-progress
+
       - name: Preparar .env (Dusk roda contra a app servida localmente)
         working-directory: app
         run: |
           cp .env.example .env
           php artisan key:generate
-
-      - name: Composer install
-        working-directory: app
-        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: npm ci + build
         working-directory: app
@@ -205,37 +205,37 @@ jobs:
 
       - name: Enviar compose, Caddyfile e .env de produção
         env:
-          HOST: ${{ secrets.DEPLOY_HOST }}
-          USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          scp -i ~/.ssh/id_ed25519 infra/docker-compose.prod.yml "$USER@$HOST:/opt/quantah/docker-compose.yml"
-          scp -i ~/.ssh/id_ed25519 infra/Caddyfile "$USER@$HOST:/opt/quantah/Caddyfile"
-          printf '%s' "${{ secrets.PROD_ENV }}" | ssh -i ~/.ssh/id_ed25519 "$USER@$HOST" 'cat > /opt/quantah/.env'
+          scp -i ~/.ssh/id_ed25519 infra/docker-compose.prod.yml "$DEPLOY_USER@$DEPLOY_HOST:/opt/quantah/docker-compose.yml"
+          scp -i ~/.ssh/id_ed25519 infra/Caddyfile "$DEPLOY_USER@$DEPLOY_HOST:/opt/quantah/Caddyfile"
+          printf '%s' "${{ secrets.PROD_ENV }}" | ssh -i ~/.ssh/id_ed25519 "$DEPLOY_USER@$DEPLOY_HOST" 'cat > /opt/quantah/.env'
 
       - name: Deploy (pull da imagem, subir, migrar)
         env:
-          HOST: ${{ secrets.DEPLOY_HOST }}
-          USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
           SHA: ${{ github.sha }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 "$USER@$HOST" \
+          ssh -i ~/.ssh/id_ed25519 "$DEPLOY_USER@$DEPLOY_HOST" \
             "cd /opt/quantah && \
              echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USER' --password-stdin && \
              export APP_IMAGE='${{ env.IMAGE }}:$SHA' && \
              docker compose pull && \
              docker compose up -d --wait && \
              docker compose exec -T app php artisan migrate --force && \
-             docker compose exec -T app php artisan storage:link || true && \
+             (docker compose exec -T app php artisan storage:link || true) && \
              docker image prune -f"
 
       - name: Smoke test da homologação
         env:
-          HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
           # aguarda o Caddy emitir o cert e a app responder por HTTPS
-          SITE="https://quantah-homolog.${HOST}.sslip.io/up"
+          SITE="https://quantah-homolog.${DEPLOY_HOST}.sslip.io/up"
           for i in $(seq 1 30); do
             code=$(curl -s -o /dev/null -w "%{http_code}" "$SITE" || true)
             echo "tentativa $i: HTTP $code"
