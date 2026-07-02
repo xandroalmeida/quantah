@@ -116,7 +116,7 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": null,
-      "status": "in_review",
+      "status": "done",
       "owner_agent": "claude-programador-story002",
       "path": "epics/EPIC-000-foundation/stories/STORY-002-tema-tailwind-tokens-ds.md",
       "created_at": "2026-07-02",

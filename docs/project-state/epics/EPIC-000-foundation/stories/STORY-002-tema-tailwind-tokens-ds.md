@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: in_review
+status: done
 owner_agent: claude-programador-story002
 created_at: 2026-07-02
 updated_at: 2026-07-02
@@ -205,4 +205,7 @@ o Designer antes de cristalizar. Falta de token/conflito → `blocked` + escalar
 - Branch: `story-002-tema-tailwind-tokens`. Commits (TDD): `4388db6` (testes vermelhos) →
   `7532288` (tema/tokens) → `ddf1e8d` (hello-world verde + Dusk).
 - PR: https://github.com/xandroalmeida/quantah/pull/1 — **CI verde** ("Testes + build" ✓,
-  "E2E (Dusk)" ✓; "Deploy homologação" roda no merge para `main`).
+  "E2E (Dusk)" ✓). Aprovado por Alexandro e **mergeado** na `main` (merge `e6f2539`).
+- **Homologação verde:** pipeline de push na `main` fez o deploy e o smoke automático passou;
+  smoke manual confirmado em `https://quantah-homolog.34.39.229.117.sslip.io/` (`/up` 200, `/`
+  200 servindo Inter 400/600/900 + "Quantah"). Estória `done`.
