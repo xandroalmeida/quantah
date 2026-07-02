@@ -81,9 +81,29 @@ em ambiente real; nada de aprovar por confiança.
 
 ## Notas do agente (preenchido durante/após execução)
 
+> Executada em 2026-07-02 pelo papel **Validador** (sessão `826f6e93`). Relatório completo em
+> `epics/EPIC-000-foundation/validation/report.md`. `index.json` › `EPIC-000.validation_report`
+> aponta o relatório com veredito `approved`. Status do épico **não** foi alterado (é ato do PO).
+
 ### Veredito
-- 
+- **APPROVED.** 15 itens do checklist: 12 `pass`, 3 `pass com ressalva`, 0 `fail` (0 bloqueantes,
+  0 não-bloqueantes).
+
 ### Evidências verificadas
-- 
+- **Homologação**: `https://quantah-homolog.34.39.229.117.sslip.io/` → HTTP 200, `/up` → 200;
+  Inter + `border-radius:24px` no CSS servido (verificação independente por curl).
+- **Pipeline**: run verde `28612051361` (Testes+build, Dusk, Deploy — todos success); 2 runs
+  vermelhos antes do verde comprovam que o gate barra o merge (job `deploy` `needs: [tests, dusk]`).
+- **Cobertura**: 87.3% (gate `--min=80` verde), 38 testes / 138 assertions.
+- **A11y**: contraste do CTA 13.05:1 (cálculo WCAG independente; AA exige 4.5:1); foco visível.
+- **DS**: `Hello.jsx` só com utilitários de token; fidelidade confirmada pelo Designer.
+- **Segredos**: nenhum versionado; deploy via GitHub Secrets; `app/.env` ignorado.
+
+### Ressalvas factuais (não-fail)
+- `make up` verificado por inspeção + evidência da STORY-000; não re-executado de clone limpo nesta sessão.
+- E2E em browser real (Dusk) roda contra a app servida no runner (ambiente equivalente); homologação
+  coberta por smoke HTTP 200 + probe independente, não por E2E de browser apontado à URL pública.
+- `EPIC-000.status` permanece `ready` no `index.json`/`epic.md` apesar das estórias `done` (flip é do PO).
+
 ### Itens reprovados / a corrigir
-- 
+- Nenhum item reprovado.
