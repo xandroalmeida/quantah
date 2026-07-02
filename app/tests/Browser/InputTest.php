@@ -102,9 +102,15 @@ class InputTest extends DuskTestCase
                     var el = document.querySelector('[data-testid=$testid]');
                     el.focus();
                     var cs = getComputedStyle(el);
+                    var box = cs.boxShadow;
+                    // Switch: o anel de foco fica no trilho (filho), não no botão-alvo.
+                    if (box === 'none' || !box) {
+                        var child = el.querySelector('span');
+                        if (child) { box = getComputedStyle(child).boxShadow; }
+                    }
                     return {
                         active: document.activeElement === el,
-                        boxShadow: cs.boxShadow,
+                        boxShadow: box,
                         outlineStyle: cs.outlineStyle,
                         outlineWidth: cs.outlineWidth
                     };
