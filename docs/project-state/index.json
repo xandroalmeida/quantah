@@ -18,7 +18,12 @@
       "status": "active",
       "goal": "Colaborador escaneia/compartilha o QR da NFC-e, o cupom é validado, deduplicado e persistido, e o saldo em cashback é creditado — em homologação",
       "start_date": "2026-07-02",
-      "epic_ids": ["EPIC-000", "EPIC-001", "EPIC-002", "EPIC-003"]
+      "epic_ids": [
+        "EPIC-000",
+        "EPIC-001",
+        "EPIC-002",
+        "EPIC-003"
+      ]
     }
   ],
   "epics": [
@@ -29,7 +34,12 @@
       "wave": "WAVE-2026-01",
       "status": "ready",
       "path": "epics/EPIC-000-foundation/epic.md",
-      "story_ids": ["STORY-000", "STORY-001", "STORY-002", "STORY-003"],
+      "story_ids": [
+        "STORY-000",
+        "STORY-001",
+        "STORY-002",
+        "STORY-003"
+      ],
       "validation_report": null,
       "created_at": "2026-07-02",
       "updated_at": "2026-07-02"
@@ -136,7 +146,9 @@
         "path": "decisions/pdr/PDR-001-design-system-wise.md",
         "decided_at": "2026-07-02",
         "decided_by": "PO (Alexandro / Claude)",
-        "related_adrs": ["ADR-000"]
+        "related_adrs": [
+          "ADR-000"
+        ]
       },
       {
         "id": "PDR-002",
@@ -145,8 +157,15 @@
         "path": "decisions/pdr/PDR-002-escopo-onda-1.md",
         "decided_at": "2026-07-02",
         "decided_by": "PO (Alexandro / Claude)",
-        "related_adrs": ["ADR-000"],
-        "related_epics": ["EPIC-000", "EPIC-001", "EPIC-002", "EPIC-003"]
+        "related_adrs": [
+          "ADR-000"
+        ],
+        "related_epics": [
+          "EPIC-000",
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003"
+        ]
       }
     ],
     "adr": [
@@ -158,7 +177,38 @@
         "decided_at": "2026-07-02",
         "decided_by": "arquiteto",
         "approved_by": "Alexandro",
-        "related_pdrs": ["PDR-001"]
+        "related_pdrs": [
+          "PDR-001"
+        ]
+      },
+      {
+        "id": "ADR-007",
+        "title": "Infraestrutura de homologação/produção — VPS genérica (GCP só provisiona a VM)",
+        "status": "accepted",
+        "path": "decisions/adr/ADR-007-infra-vps-generica-gcp.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "arquiteto",
+        "approved_by": "Alexandro",
+        "related_pdrs": [
+          "PDR-002"
+        ],
+        "related_epics": [
+          "EPIC-000"
+        ]
+      },
+      {
+        "id": "ADR-008",
+        "title": "Ferramenta de E2E em browser real — Laravel Dusk",
+        "status": "accepted",
+        "path": "decisions/adr/ADR-008-ferramenta-e2e-dusk.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "arquiteto",
+        "approved_by": "Alexandro",
+        "related_pdrs": [],
+        "related_epics": [
+          "EPIC-000",
+          "EPIC-002"
+        ]
       }
     ],
     "idr": [],
@@ -173,8 +223,12 @@
         "approved_by": "Alexandro",
         "scope": "transversal",
         "affects_screens": [],
-        "related_pdrs": ["PDR-001"],
-        "related_adrs": ["ADR-000"]
+        "related_pdrs": [
+          "PDR-001"
+        ],
+        "related_adrs": [
+          "ADR-000"
+        ]
       },
       {
         "id": "DDR-002",
@@ -186,7 +240,9 @@
         "approved_by": "Alexandro",
         "scope": "transversal",
         "affects_screens": [],
-        "related_pdrs": ["PDR-001"]
+        "related_pdrs": [
+          "PDR-001"
+        ]
       }
     ]
   },
@@ -202,7 +258,10 @@
       "source": "docs/DESIGN-wise.md",
       "source_status": "consolidado pelo Designer em design/system/ e canonical_reference (PDR-001); DDR-001 e DDR-002 accepted",
       "decision": "decisions/pdr/PDR-001-design-system-wise.md",
-      "ddrs": ["DDR-001", "DDR-002"]
+      "ddrs": [
+        "DDR-001",
+        "DDR-002"
+      ]
     }
   },
   "roadmap": {
