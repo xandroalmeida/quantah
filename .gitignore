@@ -1,0 +1,9 @@
+app/.bin/
+app/vendor/
+app/node_modules/
+app/.env
+app/database/*.sqlite
+app/database/*.sqlite-shm
+app/database/*.sqlite-wal
+app/public/build/
+.DS_Store

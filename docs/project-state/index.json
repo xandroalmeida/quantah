@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "generated_at": "2026-07-02T00:00:00Z",
+  "project": {
+    "name": "Quantah",
+    "current_wave": null,
+    "current_sprint": null
+  },
+  "waves": [],
+  "epics": [],
+  "stories": [],
+  "sprints": [],
+  "decisions": {
+    "pdr": [],
+    "adr": [
+      {
+        "id": "ADR-000",
+        "title": "Stack default do MVP — web-rica (Laravel + Inertia/React + PostgreSQL)",
+        "status": "proposed",
+        "path": "decisions/adr/ADR-000-stack-default.md",
+        "decided_at": null,
+        "decided_by": "arquiteto",
+        "approved_by": null
+      }
+    ],
+    "idr": [],
+    "ddr": []
+  },
+  "design": {
+    "screens": [],
+    "system": {
+      "root_path": "design/system/",
+      "tokens": "design/system/tokens.md",
+      "components": "design/system/components.md",
+      "patterns": "design/system/patterns.md",
+      "voice_and_tone": "design/system/voice-and-tone.md",
+      "canonical_reference": "docs/especificacao/design-system.md"
+    }
+  },
+  "reports": []
+}

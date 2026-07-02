@@ -1,0 +1,445 @@
+# Tipos de ADR — sub-orientação e exemplos
+
+ADRs não são todas iguais. Uma decisão de **stack** tem perguntas diferentes de uma decisão de **contrato**, que tem perguntas diferentes de uma decisão de **infra**. Esta reference dá guidance específica por tipo: o que cobrir, armadilhas comuns, exigências adicionais (diagrama, spike), e quando uma decisão é grande o bastante para merecer ADR vs. ser um IDR ou só comentário no PR.
+
+## Heurística geral: é ADR, IDR, ou PR comment?
+
+Antes de escrever ADR, decida o nível certo. Três níveis:
+
+| Escala da decisão | Onde mora | Quem decide | Aprovação |
+|---|---|---|---|
+| **Estrutural — afeta múltiplos módulos, múltiplos agentes, ou contrato público** | **ADR** em `docs/project-state/decisions/adr/` | Arquiteto | Humano explícito |
+| **Local mas com impacto futuro — vira padrão de um módulo, ou workaround durável** | **IDR** em `docs/project-state/decisions/idr/` | Programador | Sem aprovação humana formal — confia no critério dele |
+| **Local sem impacto futuro — estilo, nome, organização dentro de função** | **Comentário no PR** | Programador | Code review |
+
+**Perguntas para classificar:**
+
+1. **Afeta mais de um módulo ou mais de um agente?** Sim → ADR.
+2. **Limita decisões futuras de outros agentes?** Sim → ADR.
+3. **Contradiz ou substitui ADR existente?** Sim → ADR (supersede).
+4. **Vira convenção transversal do projeto?** Sim → IDR (mas se for muito impactante, ADR).
+5. **Só afeta um pedaço local de código e ninguém vai precisar saber depois?** PR comment.
+
+**Quando em dúvida**: prefira IDR a "deixar pra lá". É mais barato registrar e descobrir que não precisava do que não registrar e perder o histórico.
+
+---
+
+## Tipo 1 — Stack
+
+> Escolha de linguagem(s), framework(s) principais, runtime, banco.
+
+**O que essa ADR cobre:**
+
+- Linguagem(s) escolhida(s) — incluindo separação FE/BE se houver.
+- Framework opinativo principal (princípio arquitetural #4).
+- Runtime / plataforma de execução.
+- Banco (PostgreSQL já fixado — mas versão, configurações importantes).
+- ORM ou query layer.
+- Ferramenta de testes (unit + E2E).
+- Gerenciador de dependências.
+
+**Perguntas centrais:**
+
+- Qual linguagem? Por que ela e não as alternativas óbvias?
+- Qual framework opinativo? Que defaults ele te dá (auth, ORM, admin, migrations, etc)?
+- Maturidade da combinação: tem 5+ anos? Tem comunidade ativa? Tem hire-ability local (encontrar dev/agente que conhece)?
+- Compatibilidade com TDD e E2E em browser real (princípio arquitetural #10)?
+- Compatibilidade com funcionamento 100% local com Docker (princípio #6)?
+- Como o ambiente local sobe? Idealmente em 1 comando após clone.
+
+**Armadilhas comuns:**
+
+- Escolher tech "moderna" sem maturidade comprovada — risco de virar exótica.
+- Underestimar curva de aprendizado.
+- Não considerar custo operacional da plataforma.
+- Stack com 30 dependências individuais em vez de framework opinativo (viola princípio #4).
+- Escolher por gosto pessoal sem critério honesto.
+
+**Exigências adicionais:**
+
+- **Spike de "hello world deploy"** antes de aceitar — não basta papel. Princípio: decisão irreversível na prática (princípio #7) — exige validação.
+- **Diagrama**: opcional (a decisão é mais textual que topológica).
+- **Estimativa de custo** ordem de magnitude (princípio #11).
+- **Plano de verificação**: como sabemos que a stack atende SLOs (latência, throughput) em ambiente real.
+
+**Mini-checklist:**
+- [ ] Linguagem + framework + runtime nomeados e justificados.
+- [ ] Alternativas reais consideradas (mínimo 2 + status quo).
+- [ ] Como atende cada um dos 6 princípios centrais.
+- [ ] Como E2E em browser real funciona (se FE web).
+- [ ] Como ambiente local sobe em 1 comando.
+- [ ] Estimativa de custo recorrente.
+- [ ] Spike proposto (ou justificativa para não ter spike).
+
+**Exemplo ilustrativo de decisão (não real do projeto):**
+
+> "Adotamos **<framework opinativo>** como framework principal do backend. Alternativas rejeitadas: <B> (por <motivo>); <C> (pouco opinativo, exigiria reconstrução de admin, validation, migrations); <D> (igualmente válido, perdeu por <viés>). O framework entrega: auth, admin, ORM, migrations, validation, testing — defaults seguros e maduros. Compatível com TDD e com E2E em browser real (a ferramenta concreta de teste/E2E é da stack — ver sub-skill ativa). Roda em Docker em <30s; deploy em qualquer cloud que suporte a runtime."
+>
+> *(O *como-fazer* específico da stack — qual framework, o que ele entrega de graça, qual ferramenta de teste — vive nas sub-skills de stack ativas; ex.: `stacks/laravel/SKILL.md`. Aqui o exemplo só mostra o **formato** da decisão.)*
+
+---
+
+## Tipo 2 — Topológico
+
+> Como os componentes do sistema se organizam — monolito vs separação, sync vs async, fronteiras de processo.
+
+**O que essa ADR cobre:**
+
+- Estrutura de processos: monolito modular (princípio #2), separação técnica natural (FE/BE/worker), eventual microsserviço (com critério forte).
+- Comunicação sync vs async entre componentes.
+- Onde fica cada responsabilidade.
+- Borda do sistema (reverse proxy, edge, etc).
+
+**Perguntas centrais:**
+
+- Por que esta topologia e não monolito mais simples? (Princípio #2.)
+- Qual a fronteira de cada componente — pela razão única de mudar (princípio #5)?
+- Cada comunicação entre componentes: sync, async, ou ambos?
+- Qual o impacto em latência, disponibilidade, debugging?
+- Como tudo isso roda local em Docker Compose (princípio #6)?
+
+**Armadilhas comuns:**
+
+- Quebrar monolito sem evidência (viola princípio #2 — central).
+- Microsserviços sem necessidade real, com complexidade que time pequeno não opera.
+- Comunicação async sem ferramentas de observação (sem trace, sem fila monitorada).
+- Bordas baseadas em camadas técnicas (controllers, services) em vez de razão de negócio (princípio #5).
+
+**Exigências adicionais:**
+
+- **Diagrama Mermaid obrigatório** — texto sozinho é ambíguo para topologia. Veja `diagrams.md`.
+- **Plano de observabilidade**: como rastrear request que cruza componentes (trace ID).
+- **Como roda local**: descrever o `docker-compose.yml` conceitual.
+
+**Mini-checklist:**
+- [ ] Componentes nomeados pela razão de negócio, não camada técnica.
+- [ ] Diagrama de topologia incluído (Mermaid).
+- [ ] Comunicação entre componentes especificada (sync/async + protocolo).
+- [ ] Justificativa explícita se foge do monolito (princípio #2 é central).
+- [ ] Plano de funcionamento local com Docker.
+- [ ] Estratégia de trace/correlação entre componentes.
+
+**Exemplo ilustrativo (vocabulário de domínio genérico):**
+
+> "Adotamos **monolito modular único** com módulos: `cadastro`, `registros-de-domínio`, `transações-de-domínio`, `matching`, `auth`. Comunicação interna: chamadas síncronas de função entre módulos via interfaces explícitas. Worker assíncrono via fila de jobs no datastore primário (a mecânica concreta de fila é da sub-skill de stack ativa — ver `stacks/...`) para processamento de matching e repasses ao provedor de pagamentos — único componente fora do request HTTP. Reverse proxy na borda (decisão de infra, ADR separada). Local: 3 containers (app, worker, banco) sobem com `docker compose up`."
+
+---
+
+## Tipo 3 — Contrato
+
+> Formato de comunicação entre componentes ou com o exterior — REST, gRPC, GraphQL, eventos, payloads, versionamento.
+
+**O que essa ADR cobre:**
+
+- Protocolo (HTTP REST, gRPC, GraphQL, WebSocket, etc).
+- Formato de payload (JSON, Protobuf, etc).
+- Convenção de naming (snake_case vs camelCase, etc).
+- Versionamento (URL-path, header, content-type).
+- Estratégia de evolução (compatibilidade retroativa, deprecation).
+- Documentação do contrato (OpenAPI, schemas, etc).
+- Tratamento de erro padronizado (códigos, formato de body de erro).
+- Paginação.
+- Autenticação no canal.
+
+**Perguntas centrais:**
+
+- Quem são os consumidores? (FE próprio, mobile, parceiros externos?)
+- O contrato é público (clientes terceiros) ou interno?
+- Como evolui? (Versão major em URL? Header? Backward compat sempre?)
+- Como documentamos? Geração automática (OpenAPI) ou manual?
+- Como testamos contrato? (Schema validation, contract testing?)
+
+**Armadilhas comuns:**
+
+- Pular versionamento ("vamos resolver depois") — depois é tarde.
+- Não padronizar formato de erro — cada endpoint inventa o seu.
+- Misturar verbos no path (`/api/getRecurso`) em vez de seguir REST corretamente (`GET /api/recursos/{id}`).
+- Quebrar contrato publicado sem deprecation.
+- Aceitar campos extras silenciosamente (vulnerável) vs rejeitar com clareza.
+
+**Exigências adicionais:**
+
+- **Diagrama obrigatório** se a decisão é de **contrato entre serviços** — sequência ou fluxo.
+- **Exemplo concreto** de request/response no ADR.
+- **Plano de versionamento** explícito.
+- **Mecanismo de validação** automatizada (OpenAPI checker, contract test).
+
+**Mini-checklist:**
+- [ ] Protocolo + formato definidos.
+- [ ] Convenção de naming explícita.
+- [ ] Estratégia de versionamento documentada com exemplo.
+- [ ] Tratamento de erro padronizado (códigos HTTP + formato body).
+- [ ] Documentação automática (OpenAPI ou equivalente) configurada.
+- [ ] Exemplo de request/response no ADR.
+- [ ] Contract test ou validação de schema em CI.
+
+**Exemplo ilustrativo:**
+
+> "APIs HTTP REST com JSON. Convenção: paths em kebab-case, campos em snake_case (consistente com a convenção do datastore). Versionamento via path: `/api/v1/...`. Mudanças incompatíveis exigem v2 (v1 continua atendendo por 6 meses após deprecation anunciada). Erros seguem padrão: HTTP code apropriado (4xx/5xx) + body `{error: {code, message, details}}`. OpenAPI gerado automaticamente pelo framework, validado em CI."
+
+---
+
+## Tipo 4 — Persistência
+
+> Modelo de dados macro, estratégia de evolução de schema, abordagem para armazenamento.
+
+**O que essa ADR cobre:**
+
+- Banco (datastore primário já fixado em `_project.md` › Stack ativa — mas detalhes: versão, capacidades/extensões adotadas; o catálogo é da sub-skill de stack, ver `stacks/...`).
+- Modelo macro: agregados, entidades principais, relações.
+- Estratégia de migrations (ferramenta, padrão).
+- Multi-tenancy (separação por Analista B2B/dono — ver `security-architecture.md`).
+- Audit log (tabela, triggers, app-side).
+- Estratégia de backup e recovery (referência ao NFR-architecture).
+- Quando usar capacidades específicas do banco (documento/JSON, vetor, time-series) — o que existe é da sub-skill de stack ativa.
+
+**Perguntas centrais:**
+
+- Quais os agregados de negócio (princípio #5 aplicado a dados)?
+- Como tenants são isolados? (Coluna tenant_id + filtro? Isolamento a nível de linha?)
+- Como migrations rodam em produção (zero-downtime, etc)?
+- Que capacidades/extensões do datastore usaremos? (Para o que cada banco oferece — vetor, geo, time-series, busca — consulte a sub-skill de stack ativa, ex.: `stacks/database/postgres/SKILL.md`; princípio #3.)
+- Auditoria: o que vira audit log, como?
+- Soft delete vs hard delete (cruzando com LGPD direito de eliminação).
+
+**Armadilhas comuns:**
+
+- Modelo orientado a tabela em vez de a agregado (perde fronteira de transação clara).
+- Esquecer multi-tenancy desde o início (retrofit é doloroso).
+- Adicionar armazenamento extra sem provar que o datastore primário não atende (princípio #3 — central).
+- Migrations não-reversíveis sem aviso.
+- Hard-delete onde soft seria correto (perde rastro, atrapalha LGPD).
+
+**Exigências adicionais:**
+
+- **Diagrama ER ou de agregados** (princípio: topologia de dados é território de diagrama). Veja `diagrams.md`.
+- **Plano de migração**: ferramenta, processo, estratégia para volume.
+- **Justificativa datastore-first** quando capacidades/extensões do banco forem usadas — não é desvio, é uso pleno (princípio #3).
+
+**Nota sobre geo no Quantah:** a **verificação-de-localização** (PDR-008 — alerta-e-registra na confirmação) e o cálculo de distância entre Colaborador e local (algoritmo de match) podem ser implementados com cálculo simples (ex: Haversine) no app **ou** com **capacidade geo do banco** (se a stack ativa oferecer). Vale pesar em ADR de Persistência: a capacidade geo abre porta para queries eficientes ("registros a menos de 5 km" indexado), buffer/área para a verificação, distância em metros sem aproximação. Custo: capacidade a habilitar e operar. Para o MVP com raio fixo e baixa cardinalidade, o cálculo simples pode bastar; para volume real, a capacidade geo do datastore é o caminho consistente com princípio #3. O que o banco ativo oferece em geo é da sub-skill de stack (ver `stacks/...`).
+
+**Mini-checklist:**
+- [ ] Agregados identificados pela razão de negócio.
+- [ ] Diagrama ER ou equivalente.
+- [ ] Multi-tenancy: mecanismo + automação de filtro.
+- [ ] Migrations: ferramenta + padrão (reversíveis, idempotentes, sem downtime).
+- [ ] Audit log no modelo.
+- [ ] Capacidades/extensões do datastore explicitamente listadas (e por quê) — vocabulário da sub-skill de stack ativa.
+- [ ] Estratégia de soft vs hard delete + LGPD.
+
+**Exemplo ilustrativo (vocabulário de domínio genérico):**
+
+> "Modelo orientado a agregado: `EntidadeB` (root), `RegistroDeDomínio` (filho), `TransaçãoDeDomínio` (parte do registro). Multi-tenancy via coluna `entidade_b_id` (FK) + ORM scope global que filtra automaticamente. Migrations via ferramenta de migrações, todas reversíveis. Audit log em tabela `audit_log` append-only, populada via mecanismo nativo do banco (triggers ou app-side — ver sub-skill de stack). Capacidades do datastore para busca por similaridade e para criptografar coluna de dado pessoal sensível conforme a stack ativa (ver `stacks/...`). Soft delete (coluna `deleted_at`) para entidades de negócio; hard delete via job de purga LGPD."
+
+---
+
+## Tipo 5 — Infra
+
+> Onde e como o sistema roda — cloud, IaC, ambientes, rede.
+
+**O que essa ADR cobre:**
+
+- Provedor cloud / hospedagem.
+- IaC: ferramenta (Terraform, Pulumi, etc — quando aplicável).
+- Ambientes: dev local, homologação, produção (princípio entrega desde dia 1).
+- Estratégia de deploy (CI/CD).
+- Rede: VPC, subnets, regras.
+- Observabilidade básica (sinais coletados, ferramentas — cruza com `nfr-architecture.md`).
+- Backup, restore, recovery (cruza com `nfr-architecture.md`).
+
+**Perguntas centrais:**
+
+- Onde roda? (Provedor, região.)
+- Como provisionamos do zero? (IaC ou processo manual documentado — IaC ganha.)
+- Custo recorrente? (Princípio #11.)
+- Como funcionam os 3 ambientes (local, homologação, produção)?
+- O que difere entre eles e por quê?
+
+**Armadilhas comuns:**
+
+- Clicar manualmente no painel da cloud — viola princípio "automatização" do PO.
+- Ambiente local divergindo de produção (viola princípio #6 e #8).
+- Lock-in profundo sem reconhecer o trade-off.
+- Custo subestimado por falta de orçamento explícito.
+
+**Exigências adicionais:**
+
+- **Diagrama de infra** (Mermaid: componentes, rede, edge) — recomendado.
+- **Estimativa de custo** mensal por ambiente (ordem de magnitude).
+- **Como ambiente é recriado do zero** (idealmente IaC + processo documentado).
+
+**Mini-checklist:**
+- [ ] Provedor + região + serviços principais nomeados.
+- [ ] IaC (ou justificativa para não ter — sempre tem que ter no Quantah, princípio do PO).
+- [ ] 3 ambientes (local, homologação, produção) configurados desde dia 1.
+- [ ] Diferenças entre ambientes nomeadas e justificadas.
+- [ ] Estimativa de custo recorrente por ambiente.
+- [ ] Como recriar do zero.
+- [ ] Backup + restore com runbook automatizado.
+
+---
+
+## Tipo 6 — Observabilidade
+
+> Que sinais coletamos, como, com quais ferramentas, com quais alertas.
+
+**O que essa ADR cobre:**
+
+- Ferramenta de logs (centralizadora).
+- Ferramenta de métricas.
+- Ferramenta de tracing (se aplicável).
+- Formato de log estruturado padrão do projeto.
+- Métricas básicas (RED — Rate, Errors, Duration).
+- Métricas de negócio relevantes.
+- Health checks (liveness, readiness).
+- Alertas (o que dispara alerta, para quem).
+- Retenção de logs e métricas.
+
+**Perguntas centrais:**
+
+- Onde os logs vão? (Cloud do provedor, serviço dedicado, self-hosted?)
+- Onde as métricas vão?
+- Custo recorrente da observabilidade — alto comparado ao app?
+- Alertas: para quem? Como? (Telegram? E-mail? PagerDuty?)
+- Retenção: quanto tempo?
+
+**Armadilhas comuns:**
+
+- Logar tudo e pagar caro por ruído (anti-padrão `observability-discipline.md`).
+- Sem alerta — incidente descoberto pelo cliente.
+- Sem trace ID — debug em produção vira arqueologia.
+- Logar dado sensível (cruza com `security-architecture.md`).
+
+**Mini-checklist:**
+- [ ] Stack de observabilidade definida (logs, métricas, tracing).
+- [ ] Formato de log estruturado padrão do projeto definido.
+- [ ] Health checks definidos (liveness, readiness).
+- [ ] Métricas RED automaticamente coletadas em endpoints.
+- [ ] Política de mascaramento de PII em log (automatizada).
+- [ ] Alertas mínimos: serviço down, taxa de erro alta, latência ruim.
+- [ ] Estimativa de custo.
+
+---
+
+## Tipo 7 — Frontend / PWA
+
+> Decisões estruturais do(s) cliente(s) web — framework de FE, estratégia PWA, render, dados em tempo real no cliente, performance mobile.
+
+Esta decisão é **separada da de Stack** porque o Quantah tem duas interfaces (PDR-003) e operação majoritariamente mobile, em campo, com rede ruim. Tratar o FE como apêndice do BE leva a escolhas erradas (SSR pesado para um app que vai rodar offline; framework sem service worker maduro; etc.). Esta ADR pertence ao Arquiteto; a UX/UI dentro do framework escolhido é do Designer.
+
+**O que essa ADR cobre:**
+
+- Framework de FE (React, Vue, Svelte, Solid, Lit, etc) — para WebApp e para Backoffice (podem ser diferentes).
+- Estratégia de render: SPA pura, SSR, SSG, ilhas (Astro/Qwik), hidratação.
+- **Estratégia PWA**: manifest, instalabilidade, service worker (cache, offline, atualização), notificação push web.
+- **Offline-first vs online-first**: o quanto o WebApp continua funcional sem rede. (PDR-008 verificação-de-localização + uso em campo torna isto não-trivial.)
+- **Tempo real**: como o cliente recebe eventos vindos do servidor — polling, SSE, WebSocket, push. A transação-de-domínio pode ter cronômetro bilateral e eventos cruzados (ex: Colaborador chegou, Analista B2B validou) — não é decoração.
+- **Estado no cliente**: padrão (Redux/Zustand/signals/nada — só estado local), cache de servidor (React Query/SWR/etc).
+- **Build e bundle**: tooling (Vite, esbuild, etc), code-splitting, performance budget.
+- **Compatibilidade móvel**: viewport mínimo suportado, browsers alvo, dispositivos com pouca RAM.
+
+**Perguntas centrais:**
+
+- Quantas interfaces? (PDR-003 fixa duas — WebApp e Backoffice.) Mesmo framework para ambos ou diferente, com qual justificativa?
+- O WebApp **precisa** funcionar offline ou só "tolerar" rede ruim? Diferença grande na complexidade do service worker.
+- Push notification web é exigência do produto ou nice-to-have? (Impacta auth/identidade do device, integração com servidor.)
+- Tempo real é exigência forte (ex: cronômetro vivo de transação) ou aceitável via polling curto?
+- Como o E2E rola? (Princípio #10.) E2E em browser real contra o que sobe local — a ferramenta concreta de E2E é da sua stack (ver sub-skill ativa).
+- Como o ambiente local sobe (princípio #6)? Mesmo `docker compose up` que o backend?
+- Performance budget mobile: qual o LCP/INP/CLS alvo no 3G ruim?
+
+**Armadilhas comuns:**
+
+- Escolher framework "moderno" sem PWA maduro (manifest, SW, push) e descobrir depois que precisa.
+- Service worker complexo desde o dia 1 sem necessidade — vira fonte de bugs invisíveis ("por que a versão velha apareceu pro usuário?").
+- Estado global elaborado quando o problema era cache de servidor.
+- Bundle gigante sem code-splitting — mobile 3G sofre.
+- Ignorar atualização do service worker — usuário fica preso em versão antiga.
+- Decidir UX/UI nesta ADR (não é seu papel — é do Designer).
+
+**Exigências adicionais:**
+
+- **Performance budget explícito** (LCP, INP, CLS, bundle size por rota) — princípio #11 (custo) + UX em rua.
+- **Estratégia de atualização do service worker** documentada (skipWaiting, prompt ao usuário, etc).
+- **Como mocks/dev local funcionam** com PWA habilitado (SW pode atrapalhar HMR — ADR diz como tratar).
+- **Spike de "hello world PWA instalável + push"** quando push for exigência — não basta papel.
+
+**Mini-checklist:**
+
+- [ ] Framework de FE escolhido para cada interface (PDR-003) — com alternativas rejeitadas.
+- [ ] Estratégia de render definida (SPA/SSR/etc) e por quê.
+- [ ] PWA: manifest, service worker, política de cache, política de update.
+- [ ] Offline strategy: o que funciona offline, o que degrada, o que falha.
+- [ ] Tempo real: protocolo (polling/SSE/WebSocket/push) por caso de uso.
+- [ ] Push notification: usado? Como o device se registra? Como o servidor envia?
+- [ ] Performance budget mobile (números, não adjetivos).
+- [ ] Como ambiente local sobe + como E2E roda contra ele.
+
+**Exemplo ilustrativo (não real do projeto):**
+
+> "Frontend WebApp em **<stack de FE escolhida>**, PWA instalável com cache gerenciado (precaching de shell, runtime caching para `/api/registros`). Atualização do SW com prompt explícito ("Nova versão disponível — atualizar?"). Offline degradado: lista de registros e transações em andamento ficam disponíveis em modo leitura; ações que mudam estado pedem rede. Tempo real: SSE para cronômetro de transação e eventos de contraparte; fallback para polling 10s quando SSE falha. Push notification via Web Push API + VAPID (registro de subscription por usuário, persistido no datastore). Performance budget: LCP < 2.5s no 3G simulado, bundle inicial < 180kB gzipped. Backoffice em stack separada, sem PWA, com bundle maior aceitável (uso interno em desktop)."
+>
+> *(O *como-fazer* específico de cada stack de FE — biblioteca de PWA, padrão de estado, ferramenta de build — vive nas sub-skills de stack ativas; ex.: `stacks/livewire/SKILL.md`, `stacks/inertia-react/SKILL.md`, `stacks/flutter/SKILL.md`. Aqui o exemplo só mostra o **formato** da decisão.)*
+
+---
+
+## Tipo 8 — Política de evolução
+
+> Como o código e o sistema evoluem ao longo do tempo — branching, releases, feature flags.
+
+**O que essa ADR cobre:**
+
+- Modelo de branching (trunk-based, GitFlow, etc).
+- Estratégia de release (continuous deployment, releases agendadas).
+- Feature flags: ferramenta, padrão de uso.
+- Versionamento do produto (semver, calver, ou não-versionado).
+- Migração contínua vs janela de manutenção.
+- Política de hotfix.
+
+**Perguntas centrais:**
+
+- Como código entra em produção? (PR mergeado → deploy automático, ou gate manual?)
+- Releases continuas ou batched?
+- Feature flags: usamos? Para o quê (rollout gradual, A/B, kill switch)?
+- Como reverter um deploy ruim?
+- Janela de manutenção é aceitável?
+
+**Armadilhas comuns:**
+
+- Branching complexo demais para time pequeno (GitFlow em time de 2 pessoas é overkill).
+- Releases batched sem necessidade — atrasa entrega.
+- Feature flags sem mecanismo de remoção — viram dívida.
+- Sem mecanismo de rollback fácil.
+
+**Mini-checklist:**
+- [ ] Modelo de branching simples e claro.
+- [ ] Deploy automático para homologação a cada merge.
+- [ ] Deploy para produção: automatizado, possivelmente gated por aprovação.
+- [ ] Estratégia de rollback documentada.
+- [ ] Feature flags: ferramenta e política de remoção quando não mais necessárias.
+
+---
+
+## Quando seu ADR não cabe em nenhum tipo
+
+Tipos são guia, não camisa de força. Se sua decisão não cabe limpa em um tipo:
+
+- Pergunte: ela combina elementos de tipos diferentes? Use o tipo predominante e mencione os outros.
+- É uma decisão **meta**? (Ex: "vamos revisar o princípio X" — ADR `type: meta`.)
+- É um **enabling decision** que destrava várias outras? Continua sendo ADR — só descreva a abrangência.
+
+---
+
+## Resumo: como escolher o tipo
+
+| Sua decisão é sobre… | Tipo provável |
+|---|---|
+| Que linguagem/framework/runtime usar | Stack |
+| Quantos processos, monolito vs separação, sync vs async | Topológico |
+| Formato de API, protocolo, payload, versionamento | Contrato |
+| Modelo de dados, multi-tenancy, migrations, capacidades/extensões do datastore (ver `stacks/...`) | Persistência |
+| Provedor cloud, IaC, ambientes, rede | Infra |
+| Logs, métricas, alertas, tracing | Observabilidade |
+| Framework de FE, PWA, service worker, offline, tempo real no cliente, performance mobile | Frontend / PWA |
+| Branching, deploy, feature flags, releases | Política de evolução |
+| Revisar este próprio documento ou um princípio | `type: meta` |

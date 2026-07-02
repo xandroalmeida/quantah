@@ -1,0 +1,229 @@
+---
+id: SCREEN-STORY-XXX-<slug>
+story: STORY-XXX-<slug>      # estória do PO que originou
+epic: EPIC-XXX-<slug>
+status: draft                # draft | ready | in_implementation | shipped | superseded
+created_at: YYYY-MM-DD
+updated_at: YYYY-MM-DD
+owner_designer: <nome>
+related_ddrs: []             # DDRs que restringem este spec
+ds_components_used: []       # ids de componentes do Design System usados
+exceptions_to_ds: []         # divergências do DS justificadas neste spec
+viewports: [mobile, desktop] # tablet só se comportamento mudar relevantemente
+prototype_path: STORY-XXX-<slug>/index.html  # protótipo HTML fiel — obrigatório para sair de draft
+prototype_last_validated_at: null            # data da última validação humana do protótipo (preencher quando humano aprovar)
+---
+
+# Spec de tela — <nome da tela>
+
+> Referência: estória `STORY-XXX-<slug>` (CAs e contexto vêm de lá — **não duplique**).
+> Princípios aplicáveis: ver `docs/skills/designer/SKILL.md` (todos sempre — citar aqui se algum drove decisão).
+
+## 1. Objetivo da tela
+
+Em 1–3 linhas: qual é a **uma** tarefa principal que o usuário faz nesta tela? (Se você não consegue resumir em uma frase, a tela está pedindo simplificação — veja Princípio #1.)
+
+## 2. Fluxo
+
+### Entrada
+
+- De onde o usuário chega? (link, navegação, redirect, deep link)
+- O que precisa ser verdade antes (sessão, permissão, dado pré-carregado)?
+
+### Ações possíveis na tela
+
+- Ação primária: ...
+- Ações secundárias: ...
+- Saídas: para onde vai depois de cada ação?
+
+### Saída
+
+- Após sucesso: ...
+- Após cancelamento: ...
+- Após erro recuperável: ...
+
+## 3. Layout
+
+### Mobile (≥360px)
+
+```
++--------------------------------+
+| [header]                       |
++--------------------------------+
+|                                |
+| (área principal)               |
+|                                |
++--------------------------------+
+| [CTA primário]                 |
++--------------------------------+
+```
+
+- Componentes do DS usados: `<lista de ids>`
+- Espaçamento, alinhamento, hierarquia: descreva em prosa curta apoiada no sketch.
+- Alvo de toque mínimo: 44×44px.
+
+### Desktop (≥1024px)
+
+```
++---------+----------------------------------+
+| [nav    | [header]                         |
+| lateral +----------------------------------+
+| ]       | (área principal — uso pleno     |
+|         |  da largura, sem esticar)        |
+|         +----------------------------------+
+|         | [CTA primário] [secundário]      |
++---------+----------------------------------+
+```
+
+- Diferenças em relação ao mobile (não é "mobile esticado" — o espaço extra tem propósito).
+- Componentes do DS usados: `<lista de ids>`.
+
+### Tablet (768px) — **só se aplicável**
+
+Inclua só quando o comportamento muda relevantemente em relação a mobile/desktop. Caso contrário, omita.
+
+## 4. Estados
+
+> Toda spec entrega **todos** os estados aplicáveis. Esquecer um estado é entregar meio spec (Princípio #7).
+
+### 4.1. Caminho feliz (preenchido)
+
+Descrição visual + microcopy. Já coberto pelos sketches acima — detalhar microcopy aqui.
+
+### 4.2. Loading (primeiro fetch e refresh)
+
+- Skeleton ou estado parcial preenchido — **não** spinner em tela vazia.
+- Sketch:
+
+```
++--------------------------------+
+| ░░░░░░░░░░░░░░░░░░░░░░░░░░░░  |
+| ░░░░░░░░░░░░░░░░░░░░░░░░░░░░  |
++--------------------------------+
+```
+
+### 4.3. Vazio (sem dados ainda — primeira vez)
+
+- Mensagem clara + CTA primário que destrava a próxima ação.
+- **Não** "Nenhum resultado." sozinho — sempre instruir.
+- Sketch + microcopy.
+
+### 4.4. Erro
+
+Para cada tipo de erro previsível:
+
+- **Erro de rede** — mensagem + retry visível.
+- **Erro de permissão** — mensagem clara do que falta + a quem pedir.
+- **Erro de dado inválido** (em form) — associado ao campo, não global.
+- **Erro inesperado** — mensagem genérica honesta + caminho de suporte, sem stack trace.
+
+Para cada um: microcopy exata + sketch.
+
+### 4.5. Sem permissão
+
+Quem chega aqui sem permissão vê o quê? (Mensagem + caminho de saída.)
+
+### 4.6. Parcial / degradado
+
+Aplicável quando parte dos dados carrega e parte falha. Como a tela se comporta?
+
+### 4.7. Primeira vez vs recorrente (se aplicável)
+
+Onboarding contextual da primeira vez, ausente nas seguintes.
+
+## 5. Microcopy completo
+
+Liste **toda** copy visível, em um só lugar — facilita revisão de tom e tradução futura:
+
+| Lugar | Texto |
+|---|---|
+| Título da tela | ... |
+| Subtítulo | ... |
+| Label do campo X | ... |
+| Placeholder do campo X | ... |
+| Máscara/formato do campo X (se formatado: CPF, CNPJ, PIS, telefone, CEP, dinheiro) | ... (ex.: `000.000.000-00`) — máscara é UX; validação e persistência canônicas no servidor, sem máscara |
+| Campo de data/hora X (granularidade: só-data / só-hora / data+hora; limites min/max; fuso exibido) | ... (ex.: "só-data, não permite futuro") — entrada por **seletor** (`input.datetime`); valor canônico ISO 8601; validação/persistência com fuso no servidor |
+| Mensagem de erro do campo X (inválido) | ... |
+| Mensagem de erro do campo X (obrigatório) | ... |
+| CTA primário | ... |
+| CTA secundário | ... |
+| Mensagem de sucesso | ... |
+| Estado vazio (título) | ... |
+| Estado vazio (instrução) | ... |
+| Estado vazio (CTA) | ... |
+
+Vocabulário: `docs/skills/po/references/glossary.md`. Tom: `references/tone-and-voice.md`.
+
+## 6. Acessibilidade (notas específicas desta tela)
+
+Além do piso geral (`references/accessibility-basics.md`). As notas abaixo são **agnósticas de frontend**; a forma concreta de materializar cada uma na stack ativa está na sub-skill de FE (ver `_project.md` › Stack ativa):
+
+- Ordem de foco (tab em web / leitor de tela em mobile): ...
+- Foco inicial ao abrir a tela: ...
+- Rótulos semânticos para ícones-ação (verbo + objeto): ...
+- Mensagens de erro vinculadas ao campo (mensagem textual associada, anunciada por leitor de tela).
+- Live regions para mensagens dinâmicas (toast/banner, erro assíncrono): anunciadas ao leitor de tela.
+- Contraste verificado para todos os tokens usados (WCAG AA): ✅/❌ (anexar evidência se ❌ com justificativa).
+- Alvos de toque ≥48dp: ✅/❌.
+
+## 7. Identificadores estáveis sugeridos para teste
+
+Para os testes da stack (Inertia + React) ancorarem sem fragilidade. Sugestões abaixo são **nomes lógicos** (contrato no spec) — o Programador os materializa no identificador de teste estável da stack ativa (ver sub-skill de FE) no componente correspondente:
+
+| Elemento | Identificador lógico sugerido |
+|---|---|
+| CTA primário | `screen-<slug>-primary-cta` |
+| Campo X | `screen-<slug>-field-x` |
+| Mensagem de erro X | `screen-<slug>-error-x` |
+| Lista de itens | `screen-<slug>-list` |
+| Item da lista | `screen-<slug>-item-<id>` |
+
+> Esses identificadores facilitam os testes automatizados que o PO já exige (`quality-standards.md`) — não criam exigência nova.
+
+## 8. Exceções ao Design System
+
+Liste **toda** divergência do DS e justifique. Sem justificativa, não é exceção — é desvio. Cada exceção é candidata a virar DDR se se repetir.
+
+| O que diverge | Por quê | Vai virar DDR? |
+|---|---|---|
+| ... | ... | sim/não |
+
+## 9. Protótipo HTML fiel (validação humana)
+
+> Obrigatório — sem isto, spec não vai de `draft` para `ready`. Detalhe em `docs/skills/designer/references/html-prototype-craft.md`.
+
+- **Localização:** `STORY-XXX-<slug>/index.html` (sibling deste spec, mesma pasta `design/screens/`).
+- **Cobertura mínima:** todos os estados listados na seção 4 são alcançáveis via seletor visível (chips no topo ou `?state=...`); ambos os viewports da seção 3 (mobile + desktop, tablet se aplicável) são navegáveis.
+- **Fidelidade:** usa os tokens reais do DS (cores, tipografia, espaçamento, raios, motion). Microcopy = exatamente a tabela da seção 5. Identificadores estáveis da seção 7 aplicados como `id`/`data-testid` no HTML para o humano validar referindo-se ao mesmo nome.
+- **Restrições:** HTML/CSS/JS vanilla; sem rede em runtime; abre clicando no arquivo. Sem backend, sem chamada real de API — mocks inline. Topo do arquivo declara explicitamente "protótipo de validação, não código de produção".
+- **Como apresentar ao humano:** via `mcp__cowork__present_files` apontando para `index.html`. Captura sinal de "vai" (aprovado / ajustes / refaz) e registra data em `prototype_last_validated_at` do frontmatter + entrada na seção 11.
+
+### Checklist antes de marcar spec `ready`
+
+- [ ] `STORY-XXX-<slug>/index.html` existe e abre sem erro em navegador moderno.
+- [ ] Todos os estados da seção 4 acessíveis a partir do protótipo.
+- [ ] Viewport mobile e desktop (e tablet, se aplicável) navegáveis.
+- [ ] Microcopy do protótipo bate, palavra por palavra, com a seção 5.
+- [ ] Identificadores estáveis da seção 7 presentes no HTML.
+- [ ] Caminho feliz percorrível ponta a ponta (telas relacionadas conectadas por links).
+- [ ] Tokens reais do DS aplicados — não placeholders.
+- [ ] Protótipo apresentado ao humano (via `mcp__cowork__present_files`) e sinal de validação capturado.
+
+## 10. Dependências e premissas
+
+- API/endpoint esperado: <referência ao contrato — não duplicar>
+- Permissões necessárias: ...
+- Premissas sobre o estado do back: ...
+- Spec depende de DDR pendente? Liste em `related_ddrs` e marque `status: draft` até resolvido.
+
+## 11. Histórico de mudanças
+
+| Data | Mudança | Quem | Motivo |
+|---|---|---|---|
+| YYYY-MM-DD | criação | <nome> | rabisco inicial pós-sync com Programador |
+| YYYY-MM-DD | refino | <nome> | adicionados estados de erro e microcopy completo |
+| YYYY-MM-DD | protótipo v1 | <nome> | `index.html` cobrindo caminho feliz mobile/desktop |
+| YYYY-MM-DD | protótipo refinado | <nome> | estados vazio/erro/loading; apresentado ao humano para validação |
+| YYYY-MM-DD | validação humana | <quem validou> | protótipo aprovado / ajustes pedidos: ... |
+
+> **Mudança depois que o código começou** é mudança consciente — registre aqui e em "Notas do agente" da estória. Sem registro, é silêncio que vira retrabalho.

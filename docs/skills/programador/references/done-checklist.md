@@ -1,0 +1,207 @@
+# Done Checklist — antes de marcar a estória como pronta
+
+> "Done" significa **done**. Não "está quase pronto". Não "passa em quase todos os testes". Não "depois eu ajusto". Pressão de tempo não muda a verdade — se algum item abaixo está ❌, a estória **continua em `in_progress` ou `blocked`**.
+
+Este checklist te protege e protege o projeto. Se já caiu em "pegadinha" alguma vez, ele está aqui para você não cair de novo.
+
+---
+
+## Versão sintética — as 6 perguntas (com prova)
+
+Para estória pequena e rotineira, este filtro rápido cobre o essencial. Se você responde **sim com confiança e consegue mostrar a prova** para todas, está OK. Se hesita em alguma, vá para a versão completa abaixo.
+
+1. **TDD evidenciado:** o histórico de commits mostra teste antes do código para cada CA? (Não "implementei e adicionei testes depois".)
+2. **Mapeamento CA → teste:** consigo dizer o nome do teste que prova cada CA, sem olhar a estória?
+3. **Caminho feliz + caso inválido + exceção + borda:** existe pelo menos um teste de cada categoria para cada funcionalidade tocada?
+4. **E2E em browser real** rodando local **e** anexado ao PR (vídeo/print/link), se a estória mexe em FE web — **um cenário por caminho mapeado** (feliz, alternativos, erro), não só o feliz?
+5. **Suíte completa local verde** (unit + integração + E2E) — não só meus testes?
+6. **Eu colocaria isso em produção real e dormiria tranquilo?**
+
+Se sim para as 6 → marca `in_review` e segue.
+
+Se não → use a versão completa abaixo para identificar o que falta.
+
+---
+
+## Versão completa — quando precisa de checklist detalhado
+
+Use a versão completa quando:
+
+- A estória é **grande ou crítica** (núcleo de negócio, segurança, integração nova).
+- Você está fechando estória depois de muito tempo (esquecer detalhe é mais provável).
+- Algum item das 5 perguntas acima deu desconforto e você quer ser sistemático.
+
+### Antes de começar a fechar — uma respirada
+
+Pare 2 minutos. Pergunte:
+
+- Eu entendi os critérios de aceite **inteiros**, não só o título?
+- O que eu implementei resolve **o problema do usuário**, ou só faz os testes passarem?
+- Tem coisa que eu sei que está fragiozinha e estou esperando ninguém perceber?
+
+Se algo soou desconfortável, **investigue antes**.
+
+---
+
+#### Bloco 1 — Critérios de aceite cobertos com TDD evidenciado
+
+- [ ] **CA-1:** existe ao menos um teste que falha sem o código e passa com o código. **Commit do teste precede commit do código** no histórico do PR.
+- [ ] **CA-2:** idem.
+- [ ] **CA-N:** idem.
+- [ ] Nenhum CA da estória ficou "implícito" — todos têm referência clara a um ou mais testes nominados nas Notas do agente.
+- [ ] Tabela CA → teste documentada no corpo do PR.
+
+**Como verificar:** abra a estória. Para cada CA, identifique o teste que o exercita pelo nome. Rode `git log --oneline -- <arquivo-de-teste> <arquivo-de-código>` e confirme que o teste aparece primeiro. Se você implementou antes e adicionou teste depois "que passa", **não é TDD** — registre nas Notas que recomeçou esse CA seguindo o ciclo correto, ou abra uma estória de débito de teste com o PO.
+
+---
+
+### Bloco 2 — Não só caminho feliz
+
+Para cada funcionalidade nova/alterada, eu cobri:
+
+- [ ] **Caminho feliz** — comportamento esperado com input válido.
+- [ ] **Casos inválidos** — input malformado, ausente, tipo errado, fora de range.
+- [ ] **Exceções esperadas** — falhas de rede, banco indisponível, integração externa falhando.
+- [ ] **Bordas** — valores limite, lista vazia, primeiro/último, encoding inesperado.
+
+**Como verificar:** olhe a lista de testes da funcionalidade. Se você só vê `test_funciona_com_dados_validos`, **está faltando muita coisa**. Veja `testing-discipline.md`.
+
+---
+
+### Bloco 3 — Cobertura
+
+- [ ] Rodei o relatório de cobertura **local**.
+- [ ] Meta geral (80%) atingida no código novo desta estória.
+- [ ] Meta de núcleo/regras de negócio (98%) atingida onde aplicável.
+- [ ] Olhei as **linhas descobertas** e cada uma tem justificativa concreta (não é caso de exceção esquecido).
+
+**Como verificar:** comando de cobertura do projeto, ler relatório, abrir cada arquivo descoberto.
+
+**Não inflame cobertura** com testes que tocam o código sem asserção — isso é se enganar.
+
+---
+
+### Bloco 4 — E2E (gate duro para FE web)
+
+- [ ] Se a estória envolve fluxo de usuário, **mapeei todos os caminhos do processo** (feliz, alternativos, exceção/erro) a partir dos CAs e do diagrama/fluxo da estória.
+- [ ] Há **um cenário E2E para cada caminho mapeado** — não apenas para o caminho feliz. Um único E2E de caminho feliz **não fecha o gate**.
+- [ ] Se há frontend web tocado, o E2E roda em **browser real via automação** (a ferramenta concreta é da sua stack — ver sub-skill ativa; a escolha entre as disponíveis, quando houver, é decisão de ADR). **NÃO** vale jsdom, NÃO vale teste manual, NÃO vale "eu cliquei na UI e funcionou".
+- [ ] Os E2E novos passam **localmente** (não só em CI).
+- [ ] O E2E (e a suíte toda) rodou contra o **banco de teste dedicado**, **não** o de dev — rodar os testes **não apagou** meu dado de trabalho local (ver `stacks/database/database-method.md` › "Bancos segmentados por ambiente").
+- [ ] Os E2E cobrem o **fluxo de sucesso, cada caminho alternativo, e cada fluxo de erro** alcançável pelo usuário. Micro-validações de input ficam no unit/integração, não na suíte E2E.
+- [ ] **Evidência anexada ao PR**: vídeo do runner, screenshots, ou link para a execução em CI mostrando os E2E verdes — um por cenário mapeado.
+
+**Como verificar:** rode o E2E local. Se não consegue, está quebrado (lembre que princípio arquitetural #6: tudo sobe local). **Sem E2E em browser real anexado, PR de FE web não merge — não é negociável.**
+
+---
+
+### Bloco 5 — Suíte completa verde
+
+- [ ] **Rodei a suíte inteira do projeto** (unit + integração + E2E), **não só os meus testes**.
+- [ ] Está toda verde.
+- [ ] Para cada teste vermelho, **identifiquei se eu quebrei ou se já estava quebrado**.
+- [ ] Tests que **eu quebrei** (passavam antes do meu commit, falham depois): **consertei como parte da estória**.
+- [ ] Tests que **já estavam quebrados** ou flaky **antes** do meu trabalho: **registrei como bug com PO**, **não bloqueei minha estória** por causa deles.
+- [ ] Não há teste em `skip` / `pending` introduzido por mim sem justificativa explícita.
+
+**Como verificar:** comando que roda a suíte completa. Lê o resultado **inteiro**. Para cada teste vermelho, rode `git checkout <commit-antes-de-eu-mexer>` (ou rode na branch `main`) e veja se passava. Se passava → você quebrou. Se já estava vermelho → pré-existente.
+
+**Por que importa a distinção:** você é responsável **pelo que você quebra**, não por toda dívida pré-existente do projeto. Tratar pré-existente como "meu" trava sua estória; tratar regressão sua como "não é meu" empurra problema pra frente. Veja `testing-discipline.md`, seção "Eu quebrei vs já estava quebrado".
+
+---
+
+### Bloco 6 — Lint, formatação, build
+
+> **Atenção máxima neste bloco.** Pipeline de CI quebrada por lint é falha evitável que custa tempo do time inteiro. Esse bloco precisa ser **rodado localmente antes de cada push**, não só no fim da estória.
+
+- [ ] **Linter rodado LOCALMENTE** (não confiei no CI pra descobrir).
+- [ ] **Zero warnings, zero errors** — sem exceção. Warning suprimido tem comentário justificando a supressão e foi mencionado no PR.
+- [ ] Formatador rodou — arquivos com formatação consistente.
+- [ ] Build do projeto roda sem erro (tipos, transpilação, etc).
+- [ ] Hook de pre-commit/pre-push (se existir) **não foi bypassado** com `--no-verify`.
+- [ ] Não há código comentado, `console.log`/`print` esquecido, ou `TODO` órfão.
+- [ ] Não desliguei regra global de lint sem ADR/IDR aprovado.
+
+**Como verificar:** rode o comando exato do linter, do formatador e do build do projeto **antes do push**. Se não sabe qual é, descubra no `package.json`/`Makefile`/README — não suba sem rodar.
+
+**Se o CI quebrar por lint depois do push:** pare o que está fazendo e conserte imediatamente. Pipeline vermelha bloqueia o time. Não acumule "fix lint" como commit pra depois.
+
+---
+
+### Bloco 7 — Bibliotecas adicionadas
+
+> Aplicável só se adicionou lib(s) nesta estória.
+
+- [ ] Cada lib nova passou pelo roteiro mental (`library-discipline.md`).
+- [ ] Lib **local**: justificativa no PR (descrição + commit).
+- [ ] Lib **transversal**: IDR criado **antes** de adicionar, no `decisions/idr/`.
+- [ ] Versão fixada (não `^` ou `~` ambíguo se a convenção do projeto for fixar; siga a convenção).
+- [ ] Adicionei no manifesto correto (`package.json`/`requirements.txt`/etc) e o lock file foi commitado.
+
+---
+
+### Bloco 8 — Migrações de banco
+
+> Aplicável só se a estória mexe em schema.
+
+- [ ] Migração **escrita** (não direto no banco).
+- [ ] Migração **idempotente** ou testada que roda em ambiente do zero.
+- [ ] Migração **reversível** (down) escrita, mesmo se a chance de usar for baixa.
+- [ ] Migração testada em **banco de homologação** antes do merge — não só local.
+- [ ] Se a migração toca dados (não só schema), tem plano de execução documentado.
+
+---
+
+### Bloco 9 — Deploy de homologação
+
+- [ ] PR aberto, linkado à estória, citando os CAs cobertos.
+- [ ] CI verde no PR.
+- [ ] **Após merge:** deploy automático para homologação aconteceu **e foi verificado funcionando**.
+- [ ] Smoke manual rápido em homologação: a funcionalidade nova está acessível e o fluxo principal funciona.
+- [ ] Logs em homologação não mostram erro anormal logo após o deploy.
+
+**Como verificar:** abra a URL de homologação, navegue até o fluxo, exercite o caminho principal. Veja painel de logs/observabilidade.
+
+**Importante:** "merguei o PR e o pipeline está verde" **não** é o mesmo que "verifiquei funcionando". O pipeline garante automação; você garante o **resultado**.
+
+---
+
+### Bloco 10 — Estado do projeto
+
+- [ ] Frontmatter da estória atualizado: `status: in_review`, `updated_at: <hoje>`.
+- [ ] **Notas do agente** preenchidas:
+  - [ ] Decisões locais tomadas.
+  - [ ] Descobertas relevantes.
+  - [ ] Bloqueios que enfrentei e como resolvi.
+  - [ ] IDRs criados (com link).
+  - [ ] Cobertura final atingida.
+  - [ ] Links de evidência (PR, pipeline, deploy).
+- [ ] `index.json` atualizado refletindo o novo status.
+- [ ] Se criei IDRs, eles estão registrados em `index.json` na seção `decisions.idr`.
+
+---
+
+### Bloco 11 — Honestidade final
+
+Antes de marcar `in_review`, responda **honestamente**:
+
+- [ ] Eu rodaria essa estória em **produção real** e dormiria tranquilo?
+- [ ] Eu deixaria um colega revisar isso sem vergonha de explicar o porquê de cada decisão?
+- [ ] Eu encontraria isso em código de outra pessoa e ficaria satisfeito?
+
+Se a resposta para qualquer uma é **não**, **conserte primeiro**, marca pronto depois.
+
+---
+
+## Quando uma estória entra em revisão e algo é apontado
+
+- Recebeu feedback do revisor humano ou de teste de validação: trata como **trabalho não terminado**. Volta a status `in_progress`, resolve, repete o checklist inteiro de novo, sobe pra `in_review` de novo.
+- Não trate sugestões como opcionais sem alinhar — se você acha que o feedback está errado, **conversa antes** de ignorar.
+
+---
+
+## Mantra do programador sênior
+
+> **Não diga "está pronto" quando ainda não está.**
+
+Adiar 30 minutos para fazer direito hoje vale dias de retrabalho amanhã. Esse é o cálculo que vale.
