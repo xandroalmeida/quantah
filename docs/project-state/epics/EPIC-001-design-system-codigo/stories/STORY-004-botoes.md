@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: in_review
+status: done
 owner_agent: claude-programador-story004
 created_at: 2026-07-02
 updated_at: 2026-07-02
