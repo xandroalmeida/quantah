@@ -39,16 +39,14 @@ export default function Switch({
                     {...controlProps}
                     {...props}
                 >
+                    {/* Flex mantém o thumb dentro do padding do trilho — sem overflow.
+                        justify-start/end move o thumb; items-center centra na vertical. */}
                     <span
-                        className={`relative h-xl w-3xl rounded-full border border-ink transition-colors duration-fast ${
-                            checked ? 'bg-primary' : 'bg-canvas-soft'
+                        className={`flex h-xl w-3xl items-center rounded-full border border-ink px-xxs transition-colors duration-fast ${
+                            checked ? 'justify-end bg-primary' : 'justify-start bg-canvas-soft'
                         }`}
                     >
-                        <span
-                            className={`absolute top-xxs h-lg w-lg rounded-full bg-ink transition-transform duration-fast ${
-                                checked ? 'translate-x-lg' : 'translate-x-xxs'
-                            }`}
-                        />
+                        <span className="h-lg w-lg rounded-full bg-ink" />
                     </span>
                 </button>
             )}
