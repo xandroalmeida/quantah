@@ -79,8 +79,8 @@
       "type": "spike",
       "target_role": "arquiteto",
       "requires_design": false,
-      "status": "ready",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-arquiteto-story000",
       "path": "epics/EPIC-000-foundation/stories/STORY-000-spike-stack.md",
       "created_at": "2026-07-02",
       "updated_at": "2026-07-02"

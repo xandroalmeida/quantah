@@ -1,0 +1,69 @@
+{
+  "url": "https://www.nfce.fazenda.sp.gov.br/NFCeConsultaPublica/Paginas/ConsultaQRCode.aspx?p=35240845543915098211650170000016801096369037|2|1|4|8994FCD60797644364394702B897B1839F040D3F",
+  "chaveDaUrl": "35240845543915098211650170000016801096369037",
+  "ok": true,
+  "erroPortal": null,
+  "estabelecimento": "HIPER Presidente Prudente",
+  "cnpj": "45.543.915/0982-11",
+  "chave": "35240845543915098211650170000016801096369037",
+  "total": "80,39",
+  "itens": [
+    {
+      "descricao": "AMC ROUP CONCE DOWNY",
+      "codigo": "3397270",
+      "qtd": "1",
+      "unidade": "un",
+      "valorUnit": "54,99",
+      "valorTotal": "54,99"
+    },
+    {
+      "descricao": "LA DE ACO ASSOLAN MA",
+      "codigo": "5411220",
+      "qtd": "1",
+      "unidade": "un",
+      "valorUnit": "1,89",
+      "valorTotal": "1,89"
+    },
+    {
+      "descricao": "TOALHA UMED CARREFOU",
+      "codigo": "5904374",
+      "qtd": "1",
+      "unidade": "un",
+      "valorUnit": "8,69",
+      "valorTotal": "8,69"
+    },
+    {
+      "descricao": "BALA GELAT BUBBALOO",
+      "codigo": "6588000",
+      "qtd": "1",
+      "unidade": "un",
+      "valorUnit": "1,79",
+      "valorTotal": "1,79"
+    },
+    {
+      "descricao": "BOLINHO CHOCOLATE CB",
+      "codigo": "6729703",
+      "qtd": "2",
+      "unidade": "un",
+      "valorUnit": "1,99",
+      "valorTotal": "3,98"
+    },
+    {
+      "descricao": "AG MINALBA S GAS 15",
+      "codigo": "708941",
+      "qtd": "1",
+      "unidade": "un",
+      "valorUnit": "3,49",
+      "valorTotal": "3,49"
+    },
+    {
+      "descricao": "CHOC GAROTO BATON AO",
+      "codigo": "7880456",
+      "qtd": "4",
+      "unidade": "un",
+      "valorUnit": "1,39",
+      "valorTotal": "5,56"
+    }
+  ],
+  "qtdItens": "7"
+}
