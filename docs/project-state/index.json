@@ -153,8 +153,8 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": null,
-      "status": "ready",
-      "owner_agent": null,
+      "status": "in_review",
+      "owner_agent": "claude-programador-story004",
       "sprint_id": "SPRINT-2026-W27",
       "path": "epics/EPIC-001-design-system-codigo/stories/STORY-004-botoes.md",
       "blocked_by": [],
@@ -328,6 +328,19 @@
         "related_story": "STORY-002",
         "related_adrs": [
           "ADR-000"
+        ]
+      },
+      {
+        "id": "IDR-002",
+        "title": "Teste de componente do DS via contrato-em-fonte (Feature) + Dusk; Vitest/RTL adiado",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-002-teste-de-componente-ds-feature-contract-mais-dusk.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "programador",
+        "related_story": "STORY-004",
+        "related_adrs": [
+          "ADR-000",
+          "ADR-008"
         ]
       }
     ],
