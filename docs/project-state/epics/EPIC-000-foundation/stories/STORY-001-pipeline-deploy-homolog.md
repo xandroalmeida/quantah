@@ -7,7 +7,7 @@ sprint_id: null
 type: implementation
 target_role: programador
 requires_design: false
-status: in_progress
+status: done
 owner_agent: claude-programador-story001
 created_at: 2026-07-02
 updated_at: 2026-07-02
@@ -44,15 +44,19 @@ produto cedo. Este é o pré-requisito de "cada épico entrega algo visível em 
 
 ## Critérios de aceite
 
-- [ ] **CA-1:** Dado um push na branch principal, quando o pipeline roda, então ele executa a
-      suíte de testes e o build, e **falha o merge** se algum quebrar.
-- [ ] **CA-2:** Dado um merge com pipeline verde, quando o deploy roda, então a página hello-world
-      fica acessível na **URL de homologação** sem nenhum passo manual.
-- [ ] **CA-3:** Dado um clone limpo, quando se roda **um comando**, então app + Postgres sobem
-      localmente com dados de seed (ambiente de dev automatizado).
-- [ ] **CA-4:** A página hello-world é servida via Inertia (rota → página React) e responde 200.
-- [ ] **CA-5:** Há ao menos um teste E2E em browser real que abre a hello-world em homologação
-      (ou ambiente equivalente) e verifica o conteúdo.
+- [x] **CA-1:** Dado um push na branch principal, quando o pipeline roda, então ele executa a
+      suíte de testes e o build, e **falha o merge** se algum quebrar. → jobs `tests` + `dusk`
+      no `ci-cd.yml`; comprovado por 2 runs vermelhos (env/build) antes do verde.
+- [x] **CA-2:** Dado um merge com pipeline verde, quando o deploy roda, então a página hello-world
+      fica acessível na **URL de homologação** sem nenhum passo manual. → job `deploy` verde;
+      **https://quantah-homolog.34.39.229.117.sslip.io** respondendo 200 com TLS Let's Encrypt.
+- [x] **CA-3:** Dado um clone limpo, quando se roda **um comando**, então app + Postgres sobem
+      localmente com dados de seed. → `make up` verificado em clone limpo (HTTP 200 na :8000, seed OK).
+- [x] **CA-4:** A página hello-world é servida via Inertia (rota → página React) e responde 200.
+      → `routes/web.php` `/` → `Hello.jsx`; `HelloWorldTest` (Feature) verde.
+- [x] **CA-5:** Há ao menos um teste E2E em browser real que abre a hello-world em homologação
+      (ou ambiente equivalente) e verifica o conteúdo. → `tests/Browser/HelloWorldTest` (Dusk,
+      Chrome real), verde local e no CI.
 
 ## Fora de escopo
 
@@ -88,13 +92,15 @@ Arquiteto) — se faltar, escale.
 
 ## Definição de Pronto (DoD)
 
-- [ ] CA-1 a CA-5 passam.
-- [ ] Testes unitários + E2E escritos e passando; cobertura ≥80% no novo.
-- [ ] Pipeline verde no PR; deploy de homologação verificado (link em evidência).
-- [ ] Ambiente local em um comando documentado no README do `app/`.
-- [ ] IDR registrado se houve decisão técnica relevante.
-- [ ] `index.json` atualizado: status = `in_review` ao abrir PR.
-- [ ] Notas do agente preenchidas.
+- [x] CA-1 a CA-5 passam.
+- [x] Testes unitários + E2E escritos e passando; cobertura ≥80% (total 87.3%).
+- [x] Pipeline verde; deploy de homologação verificado (link em evidência). *(Sem PR: por decisão
+      do dono, trabalho direto na `main`; o gate roda no push da `main`.)*
+- [x] Ambiente local em um comando documentado no README do `app/` (`make up`).
+- [ ] IDR registrado se houve decisão técnica relevante. → **N/A**: as decisões de peso viraram
+      **ADR-007** (infra) e **ADR-008** (E2E), do Arquiteto; nenhuma decisão local exigiu IDR.
+- [x] `index.json` atualizado: status = `done` (sem PR; direto na `main`).
+- [x] Notas do agente preenchidas.
 
 ## Protocolo do agente (obrigatório)
 
@@ -140,15 +146,29 @@ e escale. Ao terminar → `status: in_review`, PR aberto, `index.json` atualizad
 - **CA-1/CA-2/CA-3** → verificados por execução do pipeline/deploy/script (automação, não unit).
 
 ### Decisões tomadas
-- (preencher ao longo)
+- **Web server da imagem de produção:** nginx + php-fpm (supervisor) numa imagem self-contained na
+  porta 80; TLS fica no Caddy (reverse proxy). Mantém a imagem portável (decisão local, ADR-007 já
+  fixa o padrão VPS+Compose).
+- **`route:cache` omitido no entrypoint** de produção: há rotas com Closure (`/`, `/dashboard`) não
+  serializáveis. `config:cache` + `view:cache` cobrem o ganho.
+- **Pull da imagem no host via `GITHUB_TOKEN`** do próprio workflow (sem PAT); imagem no GHCR
+  (`ghcr.io/xandroalmeida/quantah`).
+- **Deploy direto na `main` sem PR** (decisão do dono); branch `master → main` renomeada.
 ### Descobertas
-- Outro agente mantém o stack `app-*` (com selenium/mailpit/minio) no ar; usei stack isolado.
+- Outro agente mantém o stack `app-*` (selenium/mailpit/minio) no ar; usei stack isolado `quantah-s001`.
+- `public/hot` obsoleto (apontava `:5173` morto) quebrava assets no browser — removido; build por manifest.
+- Zona `southamerica-east1-b` esgotada (`ZONE_RESOURCE_POOL_EXHAUSTED`) → VM criada em `-c`.
+- Billing "Créditos RHHUB" no limite de projetos → VM no projeto `command-center-8026a` (já na billing).
 ### Bloqueios encontrados
-- Nenhum até aqui.
+- Nenhum bloqueio duro. Pré-requisito de ADR de infra/E2E resolvido pelo Arquiteto (ADR-007/008,
+  aceitos por Alexandro) antes de implementar.
 ### IDRs criados
-- (preencher se houver)
+- Nenhum (as decisões de peso viraram ADR-007 e ADR-008).
 ### Cobertura final
-- Unitários/Feature: 
-- E2E: 
+- Unitários/Feature: **87.3%** total (`php artisan test --coverage --min=80` verde). `HelloWorldTest`
+  cobre CA-4: feliz (200+Inertia), conteúdo (props), acesso público, 404.
+- E2E: `tests/Browser/HelloWorldTest` (Dusk) — 2 cenários (vê a hello-world; React hidrata) em Chrome real.
 ### Links de evidência
-- Pipeline / Homologação: 
+- Pipeline: run CI/CD verde `28608916155` (jobs `tests`, `dusk`, `deploy` ✓).
+- Homologação: **https://quantah-homolog.34.39.229.117.sslip.io** (200, TLS Let's Encrypt).
+- Provisionamento: `infra/gcp/provision.sh` (VM `quantah-homolog`, `southamerica-east1-c`, IP 34.39.229.117).

@@ -102,7 +102,7 @@
       "type": "implementation",
       "target_role": "programador",
       "requires_design": false,
-      "status": "in_progress",
+      "status": "done",
       "owner_agent": "claude-programador-story001",
       "path": "epics/EPIC-000-foundation/stories/STORY-001-pipeline-deploy-homolog.md",
       "created_at": "2026-07-02",

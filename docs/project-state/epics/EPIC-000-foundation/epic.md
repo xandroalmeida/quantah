@@ -63,7 +63,7 @@ os **tokens do design system** aplicados, e todo commit passa por um pipeline au
 Decompostas no Fluxo B (2026-07-02). Sequência: spike → pipeline → tema → validação.
 
 - [ ] STORY-000 (spike, arquiteto) — validar stack scaffoldada + viabilidade de leitura do QR → `stories/STORY-000-spike-stack.md`
-- [ ] STORY-001 (programador) — pipeline CI/CD + deploy homolog com hello-world → `stories/STORY-001-pipeline-deploy-homolog.md`
+- [x] STORY-001 (programador) — pipeline CI/CD + deploy homolog com hello-world → `stories/STORY-001-pipeline-deploy-homolog.md` ✅ **done** (homolog no ar)
 - [ ] STORY-002 (programador, requires_design) — tema Tailwind a partir dos tokens do DS (Inter) → `stories/STORY-002-tema-tailwind-tokens-ds.md`
 - [ ] STORY-003 (validação, validador) — validação final do épico → `stories/STORY-003-validacao-epic-000.md`
 
