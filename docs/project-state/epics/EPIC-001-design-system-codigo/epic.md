@@ -3,7 +3,7 @@ epic_id: EPIC-001
 slug: design-system-codigo
 title: Design System em código — biblioteca de componentes React
 wave: WAVE-2026-01
-status: ready
+status: done
 owner_role: po
 created_at: 2026-07-02
 updated_at: 2026-07-02
@@ -63,12 +63,10 @@ mostra todos os componentes e seus estados.
 Decomposto em 2026-07-02 (PO). Cada componente/grupo é estória com `requires_design: true`
 (Designer valida em paralelo, PDR-002).
 
-- [ ] **STORY-004** — botões (primary/secondary/tertiary/danger/icon) + spec · `ready`
-- [ ] **STORY-005** — inputs (text/masked/datetime/select/checkbox/radio/switch) + spec · `ready`
-- [ ] **STORY-006** — cards, badges, snackbar, empty-state, skeleton, nav + vitrine · `draft`
-      (bloqueada por STORY-004 e STORY-005)
-- [ ] **STORY-007** (validação) — validação final do épico · `draft`
-      (bloqueada por STORY-004/005/006)
+- [x] **STORY-004** — botões (primary/secondary/tertiary/danger/icon) + spec · `done`
+- [x] **STORY-005** — inputs (text/masked/datetime/select/checkbox/radio/switch) + spec · `done`
+- [x] **STORY-006** — cards, badges, snackbar, empty-state, skeleton, nav + vitrine · `done`
+- [x] **STORY-007** (validação) — validação final do épico · `done` (veredito `approved`)
 
 ## Validação final
 
@@ -80,3 +78,7 @@ testes; a11y mínima verificada; validação `approved`.
 ## Histórico
 
 - 2026-07-02 — criado por PO (Fluxo A, WAVE-2026-01).
+- 2026-07-02 — decomposto em STORY-004..007 (PO); SPRINT-2026-W27 aberto.
+- 2026-07-02 — validação `approved` (STORY-007, validador 0dae5a52). Épico `done` (transição do PO,
+  CA-5): vitrine `/ds` no ar, lista mínima de componentes com estados/a11y, CI verde (cobertura
+  87,3%). Ressalvas registradas no relatório de validação.
