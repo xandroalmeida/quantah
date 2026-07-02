@@ -32,7 +32,7 @@
       "slug": "foundation",
       "title": "Foundation — ambiente, pipeline e tokens do DS em produção",
       "wave": "WAVE-2026-01",
-      "status": "ready",
+      "status": "done",
       "path": "epics/EPIC-000-foundation/epic.md",
       "story_ids": [
         "STORY-000",
