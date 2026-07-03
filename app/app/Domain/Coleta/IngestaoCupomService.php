@@ -2,12 +2,14 @@
 
 namespace App\Domain\Coleta;
 
+use App\Domain\Coleta\Events\CupomValidado;
 use App\Domain\Coleta\Sefaz\CupomExtraido;
 use App\Domain\Coleta\Sefaz\SefazAdapter;
 use App\Domain\Coleta\Sefaz\SefazExtracaoException;
 use App\Jobs\ExtrairCupomJob;
 use App\Models\ColetaEvento;
 use App\Models\Cupom;
+use App\Models\CupomAtribuicao;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -37,14 +39,16 @@ final class IngestaoCupomService
     /**
      * Captura + handoff assíncrono (produção): persiste `pendente` e enfileira a extração.
      */
-    public function capturar(string $entrada, string $origem = 'scan'): ResultadoIngestao
+    public function capturar(string $entrada, string $origem = 'scan', ?int $userId = null): ResultadoIngestao
     {
         $parse = $this->validarChave($entrada);
         if ($parse instanceof ResultadoIngestao) {
             return $this->registrar($parse); // rejeitado na porta
         }
 
-        [$cupom, $novo] = $this->persistirPendente($parse, $origem, $entrada);
+        // O Colaborador logado (coleta autenticada, STORY-015) é atribuído ao cupom NOVO,
+        // para receber o cashback quando ele validar. Dedup (ADR-003): só o 1º coletor.
+        [$cupom, $novo] = $this->persistirPendente($parse, $origem, $entrada, $userId);
 
         // Enfileira a extração para cupom novo ou em falha (reprocessável) — ADR-002.
         if ($novo || $cupom->status === Cupom::STATUS_FALHA) {
@@ -177,14 +181,14 @@ final class IngestaoCupomService
      *
      * @return array{0: Cupom, 1: bool} o cupom e se foi criado agora
      */
-    private function persistirPendente(ChaveAcesso $chave, string $origem, string $qrConteudo): array
+    private function persistirPendente(ChaveAcesso $chave, string $origem, string $qrConteudo, ?int $userId = null): array
     {
         // LGPD (ADR-006): o QR colado pode trazer CPF grudado como lixo de colagem, e
         // `qr_conteudo` é coluna da tabela canônica — escova ANTES de gravar (STORY-011
         // CA-1). O `p=chave|...` assinado é preservado; só o padrão de CPF sai.
         $qrConteudo = AnonimizadorCpf::limparTexto($qrConteudo);
 
-        return DB::transaction(function () use ($chave, $origem, $qrConteudo) {
+        return DB::transaction(function () use ($chave, $origem, $qrConteudo, $userId) {
             $cupom = Cupom::firstOrCreate(
                 ['chave_acesso' => $chave->valor()],
                 [
@@ -197,6 +201,13 @@ final class IngestaoCupomService
                     'qr_conteudo' => $qrConteudo,
                 ],
             );
+
+            // Atribuição do cupom NOVO ao Colaborador logado (STORY-015), na MESMA transação
+            // da criação — na base de pagamento segregada (ADR-006). Só o 1º coletor (dedup,
+            // ADR-003): reenvio de terceiro cai em `wasRecentlyCreated === false` e não reatribui.
+            if ($cupom->wasRecentlyCreated && $userId !== null) {
+                CupomAtribuicao::create(['cupom_id' => $cupom->id, 'user_id' => $userId]);
+            }
 
             // Reenvio de um cupom em falha trazendo o QR assinado (antes só a chave) → atualiza.
             if (! $cupom->wasRecentlyCreated
@@ -238,5 +249,10 @@ final class IngestaoCupomService
                 ]);
             }
         });
+
+        // Cupom válido-único-novo → avisa o contexto de Cashback (STORY-015). Disparado
+        // APÓS o commit (o listener enfileirado só deve ver o cupom já persistido). O
+        // crédito é idempotente, então o reprocessamento (que revalida) não duplica.
+        CupomValidado::dispatch($cupom->id);
     }
 }
