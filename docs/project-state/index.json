@@ -315,8 +315,8 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-programador-story011",
       "sprint_id": null,
       "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-011-anonimizacao-cpf.md",
       "blocked_by": [
@@ -327,7 +327,7 @@
         "STORY-013"
       ],
       "created_at": "2026-07-02",
-      "updated_at": "2026-07-02"
+      "updated_at": "2026-07-03"
     },
     {
       "id": "STORY-012",
@@ -588,6 +588,19 @@
           "ADR-002",
           "ADR-003",
           "ADR-006"
+        ]
+      },
+      {
+        "id": "IDR-005",
+        "title": "Anonimização de CPF também no conteúdo do QR (qr_conteudo), na fronteira de ingestão",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-005-anonimizacao-cpf-no-conteudo-do-qr.md",
+        "decided_at": "2026-07-03",
+        "decided_by": "programador",
+        "related_story": "STORY-011",
+        "related_adrs": [
+          "ADR-006",
+          "ADR-001"
         ]
       }
     ],
