@@ -3,10 +3,10 @@ epic_id: EPIC-003
 slug: carteira-e-cashback
 title: Carteira e cashback — a recompensa que fecha o loop
 wave: WAVE-2026-01
-status: draft
+status: ready
 owner_role: po
 created_at: 2026-07-02
-updated_at: 2026-07-02
+updated_at: 2026-07-03
 target_completion: 2026-10-15
 ---
 
@@ -61,13 +61,19 @@ saldo — tudo em homologação.
 
 ## Estórias
 
-(Preenchido no Fluxo B.)
+Decomposto em 2026-07-03 (PO, Fluxo B). Começa pelo **spike** (STORY-014) que produz o ADR-005 e
+define o escopo do saque — só então a estória de resgate ganha contorno. O crédito de cashback
+(STORY-015) não depende do spike (incide sobre o cupom válido do EPIC-002) e é a fundação do saldo.
 
-- [ ] STORY-XXX (spike) — pagamento/PIX + escopo de saque (target_role: arquiteto)
-- [ ] STORY-XXX — cálculo e crédito de cashback sobre cupom válido
-- [ ] STORY-XXX — tela de carteira: saldo + histórico (requires_design)
-- [ ] STORY-XXX — resgate/saque (escopo conforme ADR-005)
-- [ ] STORY-XXX (validação) — validação final do épico
+- [ ] **STORY-014** (spike) — pagamento/PIX + escopo de saque → **ADR-005** (`target_role: arquiteto`) ·
+      `draft` · bloqueia STORY-017.
+- [ ] **STORY-015** — cálculo e crédito automático de cashback (0,1% sobre cupom válido) ·
+      `draft` · bloqueada por EPIC-002 (done); fundação do saldo.
+- [ ] **STORY-016** — tela de carteira: saldo em reais + histórico de cupons/créditos, mobile
+      (`requires_design`) · `draft` · bloqueada por STORY-015.
+- [ ] **STORY-017** — resgate/saque do saldo (escopo conforme ADR-005; MVP pode ser PIX assistido) ·
+      `draft` · bloqueada por STORY-014 e STORY-015.
+- [ ] **STORY-018** (validação) — validação final do épico · `draft` · bloqueada por STORY-014..017.
 
 ## Validação final
 
@@ -80,3 +86,5 @@ homologação; regra de cashback com 98% de cobertura; caminho de resgate existe
 ## Histórico
 
 - 2026-07-02 — criado por PO (Fluxo A, WAVE-2026-01).
+- 2026-07-03 — EPIC-002 concluído; épico iniciado e **decomposto em estórias** (STORY-014..018,
+  Fluxo B). Status `draft → ready`. Próximo: executar STORY-014 (spike de pagamento/PIX).

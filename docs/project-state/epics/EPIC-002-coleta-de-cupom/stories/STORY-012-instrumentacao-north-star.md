@@ -8,12 +8,18 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
+design_waiver: DDR-003
 status: done
 owner_agent: claude-programador-story012
 created_at: 2026-07-02
 updated_at: 2026-07-03
 estimated_session_size: M
 ---
+
+> **Exceção de design (F-NB-2 / DDR-003):** esta estória é `requires_design: true` mas foi
+> **dispensada** de artefato de Designer — o painel `/interno/metricas` é interno, de leitura, e
+> compõe componentes já aprovados do DS. Decisão registrada em
+> `decisions/ddr/DDR-003-excecao-design-story012-painel-metricas.md` (aprovada por Alexandro, PO).
 
 # STORY-012 — Instrumentação da north-star
 

@@ -3,11 +3,13 @@ epic_id: EPIC-002
 slug: coleta-de-cupom
 title: Coleta de cupom — do QR da NFC-e ao dado válido, único e novo
 wave: WAVE-2026-01
-status: ready
+status: done
 owner_role: po
 created_at: 2026-07-02
-updated_at: 2026-07-02
+updated_at: 2026-07-03
 target_completion: 2026-09-15
+completed_at: 2026-07-03
+validation_verdict: approved_with_findings
 ---
 
 # EPIC-002 — Coleta de cupom
@@ -35,8 +37,8 @@ como dado **válido, único e novo** (deduplicado por chave de acesso, validado 
 
 ## Entregável visível no fim do épico
 
-- [ ] Fluxo de coleta (escanear/compartilhar → confirmar → "cupom aceito") em homologação, mobile.
-- [ ] Cupom enviado é validado contra a SEFAZ-SP, deduplicado por chave de 44 dígitos e persistido
+- [x] Fluxo de coleta (escanear/compartilhar → confirmar → "cupom aceito") em homologação, mobile.
+- [x] Cupom enviado é validado contra a SEFAZ-SP, deduplicado por chave de 44 dígitos e persistido
       no modelo canônico.
 - [ ] CPF, quando presente na nota, é anonimizado na coleta.
 - [ ] Painel/rota interna que mostra a contagem da north-star (cupons válidos-únicos-novos/semana).
@@ -76,9 +78,10 @@ de implementação. Checklist de validação (`validation/checklist.md`) autorad
       (spec de tela + Captura.jsx + @zxing/browser (IDR-007); Feature + E2E Dusk verdes)
 - [x] **STORY-010** — validação SEFAZ-SP + deduplicação por chave + persistência canônica · `done`
       (pipeline assíncrono; núcleo 100%; **extração ao vivo confirmada** com QR real — 18 itens, R$235,43, sem captcha → IDR-004)
-- [ ] **STORY-011** — anonimização de CPF na coleta (LGPD, ADR-006) · `draft` (bloqueada por STORY-008/010)
-- [ ] **STORY-012** — instrumentação da north-star (válidos-únicos-novos/semana) · `draft` (bloqueada por STORY-010)
-- [ ] **STORY-013** (validação) — validação final do épico · `draft` (bloqueada por STORY-008..012)
+- [x] **STORY-011** — anonimização de CPF na coleta (LGPD, ADR-006) · `done` (IDR-005; sem CPF em claro)
+- [x] **STORY-012** — instrumentação da north-star (válidos-únicos-novos/semana) · `done`
+      (IDR-006; painel `/interno/metricas`; exceção de design DDR-003 — F-NB-2)
+- [x] **STORY-013** (validação) — validação final do épico · `done` (APPROVED com pendências; 0 bloqueantes)
 
 ## Validação final
 
@@ -90,3 +93,8 @@ SP virando dado válido-único-novo; north-star instrumentada; validação `appr
 ## Histórico
 
 - 2026-07-02 — criado por PO (Fluxo A, WAVE-2026-01).
+- 2026-07-02 — decomposto em estórias (STORY-008..013); spike primeiro.
+- 2026-07-03 — validação final (STORY-013): **APPROVED com pendências**, 0 bloqueantes
+  (sha `b321eac`; CI verde; cobertura 92,5%; LGPD sem CPF em claro).
+- 2026-07-03 — F-NB-1 resolvida (IDR-003-zxing → IDR-007, indexado). F-NB-2 dispensada via DDR-003.
+- 2026-07-03 — **épico fechado** pelo PO (`status: done`).

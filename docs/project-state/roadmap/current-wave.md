@@ -19,12 +19,12 @@ ratificada (ADR-000) e o design system adotado (PDR-001).
 
 ## Épicos da onda (em ordem)
 
-| # | Épico | Outcome | Critério de pronto (observável) |
-|---|---|---|---|
-| 1 | **EPIC-000 Foundation** | Ambiente + pipeline + tokens do DS vivos | Hello world em homologação com paleta/tipografia do DS; CI/CD verde; ambiente 1-comando. |
-| 2 | **EPIC-001 Design System em código** | Biblioteca de componentes React do DS | Vitrine em homologação com os componentes mínimos e seus estados. |
-| 3 | **EPIC-002 Coleta de cupom** | Cupom vira dado válido, único e novo | Fluxo de coleta em homologação; cupom SP validado+deduplicado+persistido; north-star instrumentada. |
-| 4 | **EPIC-003 Carteira e cashback** | Enviar cupom vira saldo | Saldo credita 0,1% sobre cupons válidos, visível em homologação; caminho de resgate existe. |
+| # | Épico | Status | Outcome | Critério de pronto (observável) |
+|---|---|---|---|---|
+| 1 | **EPIC-000 Foundation** | ✅ done | Ambiente + pipeline + tokens do DS vivos | Hello world em homologação com paleta/tipografia do DS; CI/CD verde; ambiente 1-comando. |
+| 2 | **EPIC-001 Design System em código** | ✅ done | Biblioteca de componentes React do DS | Vitrine em homologação com os componentes mínimos e seus estados. |
+| 3 | **EPIC-002 Coleta de cupom** | ✅ done (approved c/ pendências) | Cupom vira dado válido, único e novo | Fluxo de coleta em homologação; cupom SP validado+deduplicado+persistido; north-star instrumentada. |
+| 4 | **EPIC-003 Carteira e cashback** | 🔜 ready (em decomposição) | Enviar cupom vira saldo | Saldo credita 0,1% sobre cupons válidos, visível em homologação; caminho de resgate existe. |
 
 ## Justificativa da sequência
 
@@ -60,5 +60,7 @@ simplificado); baixa recorrência no piloto sem gamificação (aceito para a Ond
 
 ## Próximo passo
 
-Fluxo B: decompor **EPIC-000** em estórias (começando pelo STORY-000 spike de stack). Não
-detalhar estórias dos épicos seguintes ainda.
+EPIC-000, EPIC-001 e EPIC-002 **concluídos**. Fluxo B: **EPIC-003 (Carteira e cashback)** decomposto
+em estórias (STORY-014..018), começando pelo **STORY-014** — spike de pagamento/PIX + escopo de
+saque (`target_role: arquiteto`, produz ADR-005), que destrava a estória de resgate. Detalhar as
+demais estórias conforme forem entrando em execução.
