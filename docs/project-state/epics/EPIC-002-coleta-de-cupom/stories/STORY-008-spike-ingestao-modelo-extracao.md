@@ -99,14 +99,59 @@ Se uma decisão for de produto (não técnica), **pare e escale ao PO**.
 
 ## Notas do agente (preenchido durante/após execução)
 
-### Decisões tomadas (ADRs)
-- 
+> **Status:** spike executado; produto entregue (4 ADRs `proposed` + spike vertical com teste verde).
+> A estória fica em `in_review` **aguardando aprovação humana das ADRs** (protocolo do arquiteto: ADR só
+> vira `accepted` com aceite explícito de Alexandro). Ao aprovar, ADRs → `accepted` e STORY-008 → `done`.
+
+### Decisões tomadas (ADRs) — todas `proposed`, aguardando aceite
+- **ADR-001 — Ingestão + modelo canônico do cupom** (persistência/topológico). Módulo `App\Domain\Coleta`
+  com fronteira `IngestaoCupomService`, interface `SefazAdapter` (adaptador por estado), e agregado
+  `Cupom` (raiz) + `CupomItem` cuja **chave natural é `chave_acesso` (44 dígitos, UNIQUE)**. Ingestão
+  **assíncrona e idempotente**; modelo **sem coluna de CPF**. Contém a tabela do modelo canônico que
+  010/011 devem usar sem reabrir decisão. → CA-2.
+- **ADR-002 — Extração resiliente SEFAZ-SP** (integração). Fila **no Postgres** (`database` queue,
+  `FOR UPDATE SKIP LOCKED`) + worker + adaptador-ACL por estado. Falha **tipada**: transitória
+  (retry/backoff + dead-letter), estrutural (layout/captcha → **parar e alertar**, sem retry), negócio
+  (rejeita). Rate limit próprio; snapshot bruto sem PII. Datastore-first, sem broker. → CA-4.
+- **ADR-003 — Dedup + validação por chave** (persistência). `UNIQUE(chave_acesso)` + upsert idempotente
+  (à prova de corrida, garantia do banco). Validação **só pela chave, pré-portal**: formato, **DV mod 11**,
+  UF=35 (SP), modelo=65 (NFC-e). "Válido-único-novo" = `validado` + primeira ocorrência. Independe de CPF. → CA-3.
+- **ADR-006 — Anonimização de CPF + segregação** (persistência/segurança). Decisão: **descartar** o CPF na
+  normalização (minimização máxima — o dado que não existe não vaza). Modelo analítico sem PII; base de
+  pagamento (EPIC-003) segregada. Threat model + teste de regressão anti-CPF. → CA-5.
 
 ### Descobertas
-- 
+- A chave de 44 dígitos permite rejeitar **malformada / DV inválido / não-SP / não-NFC-e** antes de gastar
+  a extração frágil (visao §6.1) — implementado no VO `ChaveAcesso` + escopo no `IngestaoCupomService`.
+- A stack já entrega o que a extração resiliente precisa **sem serviço extra**: `QUEUE_CONNECTION=database`
+  (Postgres) já é o default do `.env` do projeto — coerente com o princípio datastore-first.
+- Distinguir falha **transitória** de **estrutural** (layout/captcha) é o ponto-chave da resiliência: a
+  primeira se resolve com retry; a segunda tem de **parar e alertar** (não martelar o portal público).
+
+### Recomendações para as estórias de implementação (009–012)
+- **STORY-009 (captura/UI):** chamar **apenas** `IngestaoCupomService::ingerir($chaveOuUrl, $origem)`; nunca
+  tocar o Eloquent do cupom. Estados de UI: `pendente` (recebido) → `validado` (aceito) / `falha` / `rejeitado`.
+- **STORY-010 (persistência/validação):** trocar a extração síncrona do spike por um **Job enfileirado**
+  (ADR-002) com retry/backoff/reprocessamento; implementar o `SpSefazAdapter` **real** (scraping + throttle);
+  manter a cobertura do núcleo de dedup/validação ≥98% (o VO já é 100% testável sem banco).
+- **STORY-011 (LGPD):** o `AnonimizadorCpf` já existe e é aplicado no ponto de normalização; adicionar o
+  **teste de regressão** que falha se qualquer coluna/log/telemetria voltar a conter CPF (o spike já tem o
+  embrião: `test_cpf_nunca_e_persistido_em_claro`).
+- **STORY-012 (north-star):** contar "válido-único-novo" = `status='validado'` sobre `chave_acesso` distinta;
+  taxa de sucesso = `validado / (validado+falha+rejeitado)`; nenhum sinal com PII.
+- **Teste arquitetural (recomendado):** proibir imports dos modelos `Cupom`/`CupomItem` fora de `App\Domain\Coleta`.
 
 ### Bloqueios encontrados
-- 
+- Nenhum bloqueio técnico. **Pendência de processo:** as 4 ADRs precisam do aceite humano (Alexandro) para
+  virarem `accepted` e a estória fechar como `done`. Não há decisão de produto pendente (o escopo — só SP,
+  dedup por chave, anonimizar CPF — já estava fixado na visão).
 
 ### Links de evidência
-- 
+- ADRs: `docs/project-state/decisions/adr/ADR-001..003,006-*.md` (indexadas em `index.json` › `decisions.adr`, `proposed`).
+- Spike vertical: `app/app/Domain/Coleta/**` (VO `ChaveAcesso`, `SefazAdapter`/`SpSefazAdapter`,
+  `AnonimizadorCpf`, `IngestaoCupomService`), modelos `app/app/Models/Cupom.php`/`CupomItem.php`,
+  migração `app/database/migrations/2026_07_02_000001_create_cupons_table.php`.
+- Testes (verde, 18/18 · 73 asserts; suíte total 82/82): `app/tests/Unit/Coleta/*`,
+  `app/tests/Feature/Coleta/IngestaoCupomSpikeTest.php`, fake `app/tests/Support/Coleta/FakeSefazSpFetcher.php`.
+  Comando: `make test` (ou `./vendor/bin/sail artisan test tests/Unit/Coleta tests/Feature/Coleta`).
+- Chave de exemplo de SP usada no spike: `35260112345678000195650010001234561000000019` (DV mod 11 válido).
