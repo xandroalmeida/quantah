@@ -4,7 +4,9 @@ namespace Tests\Feature\Coleta;
 
 use App\Jobs\ExtrairCupomJob;
 use App\Models\Cupom;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -24,10 +26,55 @@ class ColetaControllerTest extends TestCase
 
     private const URL_QR = 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=35260112345678000195650010001234561000000019|2|1|1|ABC';
 
+    private User $colaborador;
+
     protected function setUp(): void
     {
         parent::setUp();
         Queue::fake();
+        // A coleta agora exige Colaborador logado (STORY-015) — ele é o dono do cashback.
+        $this->colaborador = User::factory()->create();
+        $this->actingAs($this->colaborador);
+    }
+
+    public function test_coletar_exige_autenticacao(): void
+    {
+        Auth::logout();
+
+        $this->get('/coletar')->assertRedirect('/login');
+        $this->post('/coletar', ['entrada' => self::CHAVE_SP])->assertRedirect('/login');
+        $this->assertDatabaseCount('cupons', 0);
+    }
+
+    public function test_captura_autenticada_atribui_o_cupom_ao_colaborador(): void
+    {
+        $this->post('/coletar', ['entrada' => self::CHAVE_SP, 'origem' => 'scan'])
+            ->assertRedirect();
+
+        $cupom = Cupom::where('chave_acesso', self::CHAVE_SP)->firstOrFail();
+        $this->assertDatabaseHas('cupom_atribuicoes', [
+            'cupom_id' => $cupom->id,
+            'user_id' => $this->colaborador->id,
+        ]);
+    }
+
+    public function test_reenvio_por_outro_colaborador_nao_reatribui(): void
+    {
+        // 1º coletor cria o cupom e ganha a atribuição.
+        $this->post('/coletar', ['entrada' => self::CHAVE_SP]);
+        $cupom = Cupom::where('chave_acesso', self::CHAVE_SP)->firstOrFail();
+
+        // 2º Colaborador reenvia a mesma chave → duplicado (dedup ADR-003): não reatribui.
+        $outro = User::factory()->create();
+        $this->actingAs($outro)
+            ->post('/coletar', ['entrada' => self::CHAVE_SP])
+            ->assertSessionHas('coleta', fn ($c) => $c['situacao'] === 'duplicado');
+
+        $this->assertDatabaseCount('cupom_atribuicoes', 1);
+        $this->assertDatabaseHas('cupom_atribuicoes', [
+            'cupom_id' => $cupom->id,
+            'user_id' => $this->colaborador->id,
+        ]);
     }
 
     public function test_tela_de_captura_renderiza(): void
