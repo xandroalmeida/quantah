@@ -4,6 +4,7 @@ namespace Tests\Feature\Coleta;
 
 use App\Domain\Coleta\AnonimizadorCpf;
 use App\Domain\Coleta\IngestaoCupomService;
+use App\Domain\Coleta\Sefaz\SefazExtracaoException;
 use App\Domain\Coleta\Sefaz\SpSefazAdapter;
 use App\Models\ColetaEvento;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -73,7 +74,7 @@ class TelemetriaColetaTest extends TestCase
     public function test_falha_de_extracao_registra_evento(): void
     {
         $fetcher = (new FakeSefazSpFetcher)->falharCom(
-            \App\Domain\Coleta\Sefaz\SefazExtracaoException::transitoria('portal fora do ar')
+            SefazExtracaoException::transitoria('portal fora do ar')
         );
 
         $this->servico($fetcher)->ingerir(self::CHAVE_SP);

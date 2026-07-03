@@ -4,6 +4,7 @@ namespace App\Domain\Coleta\Metricas;
 
 use App\Models\ColetaEvento;
 use App\Models\Cupom;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -83,7 +84,7 @@ final class MetricasColeta
     /**
      * Conta linhas por semana de coleta (segunda-feira, fuso SP), como mapa semana→total.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<covariant \Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<covariant \Illuminate\Database\Eloquent\Model>  $query
      * @return array<string, int>
      */
     private function porSemanaBruto($query): array

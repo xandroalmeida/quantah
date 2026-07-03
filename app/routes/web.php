@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ColetaController;
+use App\Http\Controllers\Interno\MetricasController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,12 @@ Route::post('/coletar', [ColetaController::class, 'store'])
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Painel interno da north-star (STORY-012). Atrás de `auth` — mostra a contagem de
+// cupons válidos-únicos-novos por semana e a taxa de sucesso de envio.
+Route::get('/interno/metricas', [MetricasController::class, 'index'])
+    ->middleware('auth')
+    ->name('interno.metricas');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
