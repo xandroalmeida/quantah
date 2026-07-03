@@ -86,9 +86,9 @@
         "STORY-012",
         "STORY-013"
       ],
-      "validation_report": null,
+      "validation_report": "epics/EPIC-002-coleta-de-cupom/validation/report.md",
       "created_at": "2026-07-02",
-      "updated_at": "2026-07-02"
+      "updated_at": "2026-07-03"
     },
     {
       "id": "EPIC-003",
@@ -358,8 +358,8 @@
       "target_role": "validador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "validador-e2d9a721",
       "sprint_id": null,
       "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-013-validacao-epic-002.md",
       "blocked_by": [
@@ -371,7 +371,7 @@
       ],
       "blocks": [],
       "created_at": "2026-07-02",
-      "updated_at": "2026-07-02"
+      "updated_at": "2026-07-03"
     }
   ],
   "sprints": [

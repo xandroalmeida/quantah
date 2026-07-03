@@ -8,10 +8,10 @@ type: validation
 target_role: validador
 requires_design: false
 design_screen_id: null
-status: draft
-owner_agent: null
+status: done
+owner_agent: validador-e2d9a721
 created_at: 2026-07-02
-updated_at: 2026-07-02
+updated_at: 2026-07-03
 estimated_session_size: M
 ---
 
@@ -82,13 +82,32 @@ Siga `docs/skills/validador/*` e `agent-task-format.md`. Veredito segue `verdict
 ## Notas do agente (preenchido durante/após execução)
 
 ### Decisões tomadas
-- 
+- **Veredito: APPROVED com pendências.** Zero fails bloqueantes; 2 fails não-bloqueantes
+  (documentação/estado). 20 pass, 5 pass com ressalva, 1 n/a. Relatório completo em
+  `validation/report.md`.
+- **Não alterei o status do épico** — por CA-5 desta estória, a transição fica a cargo do PO. Preenchi
+  apenas `EPIC-002.validation_report` e `STORY-013.status = done` no `index.json`.
+- **Pré-condição de deploy**: no início, STORY-011/012 estavam commitadas na `main` local mas **não
+  publicadas** (homolog em STORY-010, `/interno/metricas` → 404). Com aprovação humana, a `main` foi
+  publicada (push → CI verde → deploy automático), e então validei contra o homolog completo. Registro
+  factual: a validação ocorreu após esse deploy (sha `b321eac`).
 
 ### Descobertas
-- 
+- **F-NB-1**: `IDR-003-zxing-browser-decode-qr.md` (STORY-009, criado no épico) **não indexado** no
+  `index.json` e **colide de id** com o IDR-003 (STORY-005, máscara).
+- **F-NB-2**: STORY-012 é `requires_design: true` mas sem artefato de Designer (`design_screen_id: null`,
+  sem tela em `design/screens/`); painel composto do DS existente pelo programador.
+- **Ressalva de cobertura**: núcleo de dedup/validação-por-chave em 99–100% (atende ≥98%); o adaptador
+  de scraping SEFAZ (I/O) em 95,6–96,8% com linhas descobertas defensivas — sem lacuna de lógica.
 
 ### Bloqueios encontrados
-- 
+- Nenhum bloqueio de validação. O único impedimento inicial (código não publicado) foi resolvido com o
+  deploy autorizado antes de validar.
 
 ### Links de evidência
-- 
+- Relatório: `epics/EPIC-002-coleta-de-cupom/validation/report.md`.
+- CI run `28668610185` (sha `b321eac`): Testes+build (151 testes/678 asserções, gate --min=80), E2E Dusk
+  e Deploy homologação — todos verdes.
+- Homolog (curl 2026-07-03): `/up` 200, `/coletar` 200 (component `Coleta/Captura`),
+  `/interno/metricas` 302→/login.
+- Cobertura local (`b321eac`): total 92,5%; `IngestaoCupomService` 99,0%, `ChaveAcesso` 100%.
