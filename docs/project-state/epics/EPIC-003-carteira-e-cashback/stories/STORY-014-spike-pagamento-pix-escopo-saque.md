@@ -8,10 +8,11 @@ type: spike
 target_role: arquiteto
 requires_design: false
 design_screen_id: null
-status: draft
-owner_agent: null
+status: done
+owner_agent: claude-arquiteto-story014
 created_at: 2026-07-03
 updated_at: 2026-07-03
+status_note: concluída — ADR-005 accepted por Alexandro (2026-07-03)
 estimated_session_size: L
 ---
 
@@ -56,3 +57,23 @@ KYC mínimo para saque, e o **escopo do resgate no MVP** — automatizado vs. **
 
 ADR-005 `accepted` e indexado; escopo do saque recomendado; `index.json` = `done`; Notas do agente
 preenchidas.
+
+## Notas do agente
+
+**2026-07-03 — Arquiteto (claude-arquiteto-story014):** produzido o **ADR-005** em `proposed`
+(`decisions/adr/ADR-005-escopo-saque-pix-assistido-kyc-carteira.md`) e indexado no `index.json`.
+
+- **Decisão recomendada:** saque no MVP via **PIX assistido** (solicitação no app → operação manual no
+  backoffice com KYC mínimo: CPF + chave PIX do tipo CPF + comprovante), com a **automação via PSP
+  deferida para a Onda 2** sob gatilho explícito (volume > ~30 saques/semana ou north-star validada).
+  Custo ~zero, sem lead time de PSP, reversível para automatizar sem retrabalho.
+- **KYC mínimo:** CPF do titular + chave PIX do tipo CPF (titularidade por construção) + base
+  legal/consentimento registrados + valor mínimo de saque. PII de pagamento na **base segregada**
+  (ADR-006), nunca na base analítica.
+- **Modelo mínimo esboçado** (destrava STORY-015/016): `carteiras` (saldo em centavos, cache
+  reconciliável, ≥ 0) + `carteira_transacoes` (ledger append-only, fonte da verdade do saldo, crédito
+  idempotente por cupom) + `saques` (máquina de estados solicitado→…→pago/rejeitado; estorno no ledger).
+- **Contorno da STORY-017:** resgate = solicitação (reserva via ledger) + tela de backoffice de operação
+  + máquina de estados + estorno. Nenhuma integração de PSP nesta onda.
+- **2026-07-03 — ADR-005 aceito** por Alexandro → `accepted`. STORY-014 fechada (`done`). Destrava a
+  STORY-017 (resgate/saque) e entrega o modelo de carteira/ledger para STORY-015/016.

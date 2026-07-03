@@ -65,8 +65,8 @@ Decomposto em 2026-07-03 (PO, Fluxo B). Começa pelo **spike** (STORY-014) que p
 define o escopo do saque — só então a estória de resgate ganha contorno. O crédito de cashback
 (STORY-015) não depende do spike (incide sobre o cupom válido do EPIC-002) e é a fundação do saldo.
 
-- [ ] **STORY-014** (spike) — pagamento/PIX + escopo de saque → **ADR-005** (`target_role: arquiteto`) ·
-      `draft` · bloqueia STORY-017.
+- [x] **STORY-014** (spike) — pagamento/PIX + escopo de saque → **ADR-005** (`accepted`) ·
+      `done` · destravou STORY-017 (saque = PIX assistido no MVP; automação via PSP na Onda 2).
 - [ ] **STORY-015** — cálculo e crédito automático de cashback (0,1% sobre cupom válido) ·
       `draft` · bloqueada por EPIC-002 (done); fundação do saldo.
 - [ ] **STORY-016** — tela de carteira: saldo em reais + histórico de cupons/créditos, mobile
