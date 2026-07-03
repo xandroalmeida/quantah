@@ -6,6 +6,7 @@ use App\Domain\Coleta\Sefaz\CupomExtraido;
 use App\Domain\Coleta\Sefaz\SefazAdapter;
 use App\Domain\Coleta\Sefaz\SefazExtracaoException;
 use App\Jobs\ExtrairCupomJob;
+use App\Models\ColetaEvento;
 use App\Models\Cupom;
 use Illuminate\Support\Facades\DB;
 
@@ -40,7 +41,7 @@ final class IngestaoCupomService
     {
         $parse = $this->validarChave($entrada);
         if ($parse instanceof ResultadoIngestao) {
-            return $parse; // rejeitado
+            return $this->registrar($parse); // rejeitado na porta
         }
 
         [$cupom, $novo] = $this->persistirPendente($parse, $origem, $entrada);
@@ -50,9 +51,9 @@ final class IngestaoCupomService
             ExtrairCupomJob::dispatch($cupom->id);
         }
 
-        return $novo
+        return $this->registrar($novo
             ? ResultadoIngestao::capturado($cupom)
-            : ResultadoIngestao::duplicado($cupom);
+            : ResultadoIngestao::duplicado($cupom));
     }
 
     /**
@@ -62,16 +63,16 @@ final class IngestaoCupomService
     {
         $parse = $this->validarChave($entrada);
         if ($parse instanceof ResultadoIngestao) {
-            return $parse;
+            return $this->registrar($parse);
         }
 
         [$cupom, $novo] = $this->persistirPendente($parse, $origem, $entrada);
 
         if (! $novo && $cupom->status !== Cupom::STATUS_FALHA) {
-            return ResultadoIngestao::duplicado($cupom);
+            return $this->registrar(ResultadoIngestao::duplicado($cupom));
         }
 
-        return $this->processarExtracao($cupom);
+        return $this->registrar($this->processarExtracao($cupom));
     }
 
     /** Reprocessa um cupom em `falha` (ADR-002) — re-enfileira; idempotente, não duplica. */
@@ -128,6 +129,24 @@ final class IngestaoCupomService
         $this->normalizarEpersistir($cupom, $extraido);
 
         return ResultadoIngestao::aceito($cupom->fresh('itens'));
+    }
+
+    /**
+     * Telemetria da coleta (STORY-012): registra UM evento por tentativa de envio, na
+     * porta de entrada — inclusive os desfechos que não persistem cupom (rejeição de
+     * parse, duplicata). É o denominador da taxa de sucesso da north-star. Sem PII
+     * (ADR-006): só situação, motivo e o uuid técnico do cupom. Não é chamado por
+     * `processarExtracao` (reprocessamento assíncrono não é um novo envio).
+     */
+    private function registrar(ResultadoIngestao $resultado): ResultadoIngestao
+    {
+        ColetaEvento::create([
+            'situacao' => $resultado->situacao,
+            'motivo' => $resultado->motivo,
+            'cupom_id' => $resultado->cupom?->id,
+        ]);
+
+        return $resultado;
     }
 
     /**
