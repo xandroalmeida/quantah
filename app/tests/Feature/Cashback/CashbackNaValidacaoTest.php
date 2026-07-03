@@ -5,6 +5,7 @@ namespace Tests\Feature\Cashback;
 use App\Domain\Cashback\CreditarCashbackService;
 use App\Domain\Coleta\Events\CupomValidado;
 use App\Domain\Coleta\IngestaoCupomService;
+use App\Domain\Coleta\Sefaz\SefazExtracaoException;
 use App\Domain\Coleta\Sefaz\SefazSpFetcher;
 use App\Models\Carteira;
 use App\Models\CarteiraTransacao;
@@ -93,11 +94,19 @@ class CashbackNaValidacaoTest extends TestCase
         );
     }
 
+    public function test_listener_ignora_cupom_inexistente(): void
+    {
+        // Exceção: o cupom sumiu entre o evento e o processamento na fila → no-op, sem erro.
+        CupomValidado::dispatch('019f0000-0000-7000-8000-000000000000');
+
+        $this->assertDatabaseCount('carteira_transacoes', 0);
+    }
+
     public function test_cupom_rejeitado_nao_dispara_credito(): void
     {
         // Portal diz que o cupom não existe/está cancelado (negócio) → rejeitado, sem crédito.
         $this->comFetcher((new FakeSefazSpFetcher)->falharCom(
-            \App\Domain\Coleta\Sefaz\SefazExtracaoException::negocio('cupom cancelado')
+            SefazExtracaoException::negocio('cupom cancelado')
         ));
         $user = User::factory()->create();
 

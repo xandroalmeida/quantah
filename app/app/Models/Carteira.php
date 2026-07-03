@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,5 +41,16 @@ class Carteira extends Model
     public function transacoes(): HasMany
     {
         return $this->hasMany(CarteiraTransacao::class);
+    }
+
+    /**
+     * Carteiras com saldo positivo — base da métrica de apoio do épico (nº de
+     * Colaboradores com saldo > 0). Ver `scopeValidosUnicosNovos` em Cupom (STORY-012).
+     *
+     * @param  Builder<Carteira>  $query
+     */
+    public function scopeComSaldoPositivo($query)
+    {
+        return $query->where('saldo_centavos', '>', 0);
     }
 }

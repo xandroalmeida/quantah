@@ -140,6 +140,20 @@ class CreditarCashbackServiceTest extends TestCase
         $this->assertSame($somaLedger, $carteira->saldo_centavos);
     }
 
+    public function test_colaboradores_com_saldo_positivo_e_mensuravel(): void
+    {
+        // Métrica de apoio do épico: nº de Colaboradores com saldo > 0 (STORY-015).
+        $comSaldo = User::factory()->create();
+        $cupom = $this->cupomValidado('1000.00', self::CHAVE_A);
+        $this->atribuir($cupom, $comSaldo);
+        $this->service->creditarPorCupom($cupom);
+
+        // Uma carteira zerada (sem crédito) não conta.
+        Carteira::create(['user_id' => User::factory()->create()->id, 'saldo_centavos' => 0]);
+
+        $this->assertSame(1, Carteira::comSaldoPositivo()->count());
+    }
+
     public function test_saldo_negativo_e_barrado_pelo_banco(): void
     {
         // Invariante saldo >= 0 é a última linha de defesa (CHECK no banco), não só no app.
