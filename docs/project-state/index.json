@@ -337,8 +337,8 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-programador-story012",
       "sprint_id": null,
       "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-012-instrumentacao-north-star.md",
       "blocked_by": [
@@ -348,7 +348,7 @@
         "STORY-013"
       ],
       "created_at": "2026-07-02",
-      "updated_at": "2026-07-02"
+      "updated_at": "2026-07-03"
     },
     {
       "id": "STORY-013",
@@ -601,6 +601,20 @@
         "related_adrs": [
           "ADR-006",
           "ADR-001"
+        ]
+      },
+      {
+        "id": "IDR-006",
+        "title": "Telemetria de coleta em tabela append-only e denominador da taxa de sucesso",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-006-telemetria-de-coleta-e-denominador-da-taxa.md",
+        "decided_at": "2026-07-03",
+        "decided_by": "programador",
+        "related_story": "STORY-012",
+        "related_adrs": [
+          "ADR-001",
+          "ADR-003",
+          "ADR-006"
         ]
       }
     ],
