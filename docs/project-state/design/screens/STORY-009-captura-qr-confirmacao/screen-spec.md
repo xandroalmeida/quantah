@@ -11,7 +11,7 @@ ds_components_used: [button, card, snackbar, badge, input.text, icon]
 exceptions_to_ds: []
 viewports: [mobile, desktop]
 prototype_path: STORY-009-captura-qr-confirmacao/index.html
-prototype_last_validated_at: null
+prototype_last_validated_at: 2026-07-02
 ---
 
 # Spec de tela — Capturar cupom
@@ -193,7 +193,8 @@ novo é o **ícone de QR** (`QrIcon`), acrescido ao set de ícones do DS seguind
 - **Fidelidade:** tokens reais do DS (cores/tipografia/raio), microcopy = seção 5, ids da seção 7.
 - **Restrições:** HTML/CSS vanilla, sem rede; a câmera é simulada por um placeholder (protótipo de
   validação, não código de produção).
-- **Validação humana:** pendente (`prototype_last_validated_at: null`) — apresentar ao Alexandro.
+- **Validação humana:** ✅ aprovada por Alexandro em 2026-07-02 (testada em homologação, no celular,
+  por HTTPS — `https://quantah-homolog.34.39.229.117.sslip.io/coletar`).
 
 ## 10. Dependências e premissas
 
@@ -210,3 +211,4 @@ novo é o **ícone de QR** (`QrIcon`), acrescido ao set de ícones do DS seguind
 |---|---|---|---|
 | 2026-07-02 | criação (spec + estados + microcopy) | Designer | decomposição do EPIC-002; sync com o contrato ADR-001 |
 | 2026-07-02 | protótipo v1 (mobile/desktop, estados por `?state=`) | Designer | cobrir seção 4; pendente validação humana |
+| 2026-07-02 | validação humana | Alexandro | tela testada em homologação (celular, HTTPS) — **aprovada** |

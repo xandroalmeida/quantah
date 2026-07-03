@@ -119,9 +119,8 @@ decisão de arquitetura → `blocked` + escalar (não decida sozinho).
 
 ### Bloqueios encontrados
 - Nenhum. Dependência da STORY-008 (contrato ADR-001, formato da chave ADR-003) já estava aceita.
-- **Pendência leve (Designer):** validação humana do protótipo (`prototype_last_validated_at: null`) —
-  o protótipo cobre todos os estados; recomendo um olhar do Alexandro, mas não bloqueia o `done`
-  (nesta sessão o papel Designer confirmou a spec).
+- **Resolvido:** validação humana da tela — Alexandro **aprovou em 2026-07-02** após testar em
+  homologação, no celular, por HTTPS (`prototype_last_validated_at: 2026-07-02`).
 
 ### Links de evidência
 - Spec de tela: `design/screens/STORY-009-captura-qr-confirmacao/screen-spec.md` (+ protótipo
