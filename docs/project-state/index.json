@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-07-03T00:00:16Z",
+  "generated_at": "2026-07-03T00:06:17Z",
   "project": {
     "name": "Quantah",
     "current_wave": "WAVE-2026-01",
@@ -248,7 +248,7 @@
       "target_role": "arquiteto",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "in_review",
+      "status": "done",
       "owner_agent": "claude-arquiteto",
       "sprint_id": null,
       "path": "epics/EPIC-002-coleta-de-cupom/stories/STORY-008-spike-ingestao-modelo-extracao.md",
@@ -437,11 +437,11 @@
       {
         "id": "ADR-001",
         "title": "Módulo de ingestão de cupom e modelo canônico da NFC-e",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-001-ingestao-modelo-canonico-cupom.md",
-        "decided_at": null,
+        "decided_at": "2026-07-02",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-002"
         ],
@@ -455,11 +455,11 @@
       {
         "id": "ADR-002",
         "title": "Extração resiliente da SEFAZ-SP — fila no Postgres, reprocessamento e monitoramento",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-002-extracao-resiliente-sefaz-sp.md",
-        "decided_at": null,
+        "decided_at": "2026-07-02",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-002"
         ],
@@ -473,11 +473,11 @@
       {
         "id": "ADR-003",
         "title": "Deduplicação e validação pela chave de acesso de 44 dígitos",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-003-deduplicacao-validacao-chave-acesso.md",
-        "decided_at": null,
+        "decided_at": "2026-07-02",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-002"
         ],
@@ -491,11 +491,11 @@
       {
         "id": "ADR-006",
         "title": "Anonimização de CPF na coleta e segregação de bases (LGPD)",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-006-anonimizacao-cpf-segregacao-bases.md",
-        "decided_at": null,
+        "decided_at": "2026-07-02",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-002"
         ],

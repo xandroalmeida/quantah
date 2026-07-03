@@ -99,11 +99,10 @@ Se uma decisão for de produto (não técnica), **pare e escale ao PO**.
 
 ## Notas do agente (preenchido durante/após execução)
 
-> **Status:** spike executado; produto entregue (4 ADRs `proposed` + spike vertical com teste verde).
-> A estória fica em `in_review` **aguardando aprovação humana das ADRs** (protocolo do arquiteto: ADR só
-> vira `accepted` com aceite explícito de Alexandro). Ao aprovar, ADRs → `accepted` e STORY-008 → `done`.
+> **Status:** `done`. Spike executado (teste verde) e as 4 ADRs **aceitas por Alexandro em 2026-07-02**
+> (`accepted`, indexadas em `index.json`). Desbloqueia STORY-009/010/011/012.
 
-### Decisões tomadas (ADRs) — todas `proposed`, aguardando aceite
+### Decisões tomadas (ADRs) — todas `accepted` (2026-07-02)
 - **ADR-001 — Ingestão + modelo canônico do cupom** (persistência/topológico). Módulo `App\Domain\Coleta`
   com fronteira `IngestaoCupomService`, interface `SefazAdapter` (adaptador por estado), e agregado
   `Cupom` (raiz) + `CupomItem` cuja **chave natural é `chave_acesso` (44 dígitos, UNIQUE)**. Ingestão

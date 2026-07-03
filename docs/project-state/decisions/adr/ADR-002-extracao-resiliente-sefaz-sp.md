@@ -2,10 +2,10 @@
 adr_id: ADR-002
 slug: extracao-resiliente-sefaz-sp
 title: Extração resiliente da SEFAZ-SP — fila no Postgres, reprocessamento e monitoramento
-status: proposed  # proposed | accepted | superseded | rejected | deferred
-decided_at: null
+status: accepted  # proposed | accepted | superseded | rejected | deferred
+decided_at: 2026-07-02
 decided_by: arquiteto
-approved_by: null
+approved_by: Alexandro
 supersedes: null
 superseded_by: null
 related_adrs: [ADR-000, ADR-001, ADR-003, ADR-006]
@@ -184,14 +184,15 @@ escala que ainda não existe; o síncrono (C) quebra a fricção mínima. O trad
 
 ## Aprovação humana
 
-- **Status final:** ⬜ pendente
-- **Aprovado por:** —
-- **Data:** —
-- **Forma do aceite:** —
-- **Condicionantes do aceite:** —
+- **Status final:** ✅ aceita
+- **Aprovado por:** Alexandro
+- **Data:** 2026-07-02
+- **Forma do aceite:** aprovação explícita em sessão de Cowork (papel Arquiteto), lote do spike STORY-008.
+- **Condicionantes do aceite:** nenhuma.
 
 ---
 
 ## Histórico
 
 - 2026-07-02 — criada como `proposed` por Arquiteto (spike STORY-008 do EPIC-002).
+- 2026-07-02 — **aceita** por Alexandro → `accepted`.

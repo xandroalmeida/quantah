@@ -70,8 +70,8 @@ como dado **válido, único e novo** (deduplicado por chave de acesso, validado 
 Decomposto em 2026-07-02 (PO). Começa pelo spike de arquitetura (produz as ADRs) antes das estórias
 de implementação. Checklist de validação (`validation/checklist.md`) autorado já nesta decomposição.
 
-- [ ] **STORY-008** (spike) — ingestão + modelo canônico + extração SP + dedup + LGPD → ADR-001/002/003/006
-      (target_role: arquiteto) · `in_review` (spike + 4 ADRs `proposed`; aguardando aceite humano p/ `done`)
+- [x] **STORY-008** (spike) — ingestão + modelo canônico + extração SP + dedup + LGPD → ADR-001/002/003/006
+      (target_role: arquiteto) · `done` (spike verde + 4 ADRs `accepted` em 2026-07-02)
 - [ ] **STORY-009** — captura do QR (scan + compartilhar) e confirmação, mobile (`requires_design`) · `draft`
       (bloqueada por STORY-008)
 - [ ] **STORY-010** — validação SEFAZ-SP + deduplicação por chave + persistência canônica · `draft`
