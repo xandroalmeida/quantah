@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: in_progress
+status: in_review
 owner_agent: claude-programador-story015
 created_at: 2026-07-03
 updated_at: 2026-07-03
@@ -104,3 +104,62 @@ houve decisão técnica; Notas do agente preenchidas.
   - **Fluxo ponta-a-ponta** (feature): user autenticado envia cupom → job valida → carteira creditada;
     cupom sem atribuição (CLI) valida sem crédito; cupom rejeitado/falha não credita.
   - **E2E (Dusk):** coleta autenticada (caminho feliz) segue funcionando; guest é levado ao login.
+
+### 2026-07-03 — Implementação concluída (in_review)
+
+**Arquitetura entregue:** base de pagamento **segregada** (ADR-006): `carteiras` (saldo cache
+≥0), `carteira_transacoes` (ledger append-only, fonte da verdade), `cupom_atribuicoes` (ponte
+cupom→coletor). Crédito de 0,1% **meio-para-cima em centavos** disparado por evento de domínio
+`CupomValidado` → listener enfileirado idempotente → `CreditarCashbackService` (crédito + saldo
+na mesma transação, sob lock, idempotente por cupom). Coleta agora **autenticada**; cupom novo
+atribuído ao Colaborador logado (só o 1º coletor — dedup ADR-003). Decisão de padrão em **IDR-008**.
+
+**Cobertura do núcleo (regra de negócio):** `CalculadoraCashback` **100%**, `CreditarCashbackService`
+**100%**, `CreditarCashbackAoValidar`/`CupomValidado` 100% — acima da meta de 98%. Suíte completa:
+**179 PHPUnit + 43 Dusk** verdes.
+
+**Mapa CA → teste:**
+
+- **CA — crédito de 0,1% ao validar, idempotente por chave/cupom:**
+  - `CalculadoraCashbackTest::test_mil_reais_credita_um_real` (feliz) · `test_arredonda_meio_para_cima`
+    · `test_fracao_exatamente_meio_arredonda_para_cima` (borda) · `test_valor_pequeno_arredonda_para_zero`
+    · `test_valor_zero_credita_zero` (borda) · `test_valor_negativo_e_invalido` (inválido) —
+    `tests/Unit/Cashback/CalculadoraCashbackTest.php`.
+  - `CreditarCashbackServiceTest::test_credita_a_carteira_do_coletor` (feliz) ·
+    `test_credito_e_idempotente_por_cupom` (borda) · `test_sem_atribuicao_nao_credita` (inválido) ·
+    `test_cupom_nao_validado_nao_credita` (inválido) · `test_credito_zero_nao_gera_transacao` (borda) —
+    `tests/Feature/Cashback/CreditarCashbackServiceTest.php`.
+  - `CashbackNaValidacaoTest::test_cupom_validado_credita_o_coletor` (feliz, ponta-a-ponta) ·
+    `test_reprocessamento_nao_duplica_credito` (borda) · `test_cupom_rejeitado_nao_dispara_credito`
+    (exceção) · `test_listener_ignora_cupom_inexistente` (exceção) —
+    `tests/Feature/Cashback/CashbackNaValidacaoTest.php`.
+- **CA — modelo carteira/transações append-only, saldo reconciliável, sem divergência:**
+  - `CreditarCashbackServiceTest::test_reconciliacao_saldo_igual_soma_do_ledger` ·
+    `test_saldo_negativo_e_barrado_pelo_banco` (invariante ≥0 no banco).
+- **CA — arredondamento e moeda (centavos) definidos e testados:** todo o `CalculadoraCashbackTest`
+  (incl. `test_converte_reais_para_centavos`, `test_converte_reais_com_um_decimal`,
+  `test_reais_negativo_e_invalido`).
+- **CA — telemetria: nº de Colaboradores com saldo > 0 mensurável:**
+  `CreditarCashbackServiceTest::test_colaboradores_com_saldo_positivo_e_mensuravel` (scope
+  `Carteira::comSaldoPositivo`).
+- **Atribuição/auth (habilitador do crédito):**
+  `ColetaControllerTest::test_coletar_exige_autenticacao` ·
+  `test_captura_autenticada_atribui_o_cupom_ao_colaborador` ·
+  `test_reenvio_por_outro_colaborador_nao_reatribui` (dedup) —
+  `tests/Feature/Coleta/ColetaControllerTest.php`.
+- **E2E (Dusk, browser real):** `ColetaCapturaTest::test_captura_por_link_valido_mostra_confirmacao`
+  (feliz, autenticado, com atribuição) · `test_link_invalido_mostra_erro_no_campo` (erro) ·
+  `test_camera_indisponivel_degrada_para_colar` (alternativo) · `test_anonimo_e_barrado_para_o_login`
+  (exceção) — `tests/Browser/ColetaCapturaTest.php`.
+
+**TDD evidenciado:** commits `test(CA-*): ... (vermelho)` precedem os `feat(CA-*): ... (verde)`
+em cada ciclo (histórico da main).
+
+**Decisões técnicas locais:** dinheiro em centavos via bcmath (sem float); `cupom_id` como
+referência lógica (uuid, sem FK dura) entre bases; listener registrado explicitamente em
+`AppServiceProvider` (fora de `app/Listeners`). Ver **IDR-008**.
+
+**Pendências para as próximas estórias (não bloqueiam esta):** a **tela** de carteira (saldo +
+histórico) é a STORY-016; o **saque** (débito/estorno + backoffice) é a STORY-017 — o modelo já
+prevê os tipos `debito_saque`/`estorno_saque` no CHECK, mas nenhuma lógica de saque foi implementada
+aqui (fora de escopo).

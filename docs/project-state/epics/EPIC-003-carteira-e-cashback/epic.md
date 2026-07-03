@@ -68,7 +68,9 @@ define o escopo do saque — só então a estória de resgate ganha contorno. O 
 - [x] **STORY-014** (spike) — pagamento/PIX + escopo de saque → **ADR-005** (`accepted`) ·
       `done` · destravou STORY-017 (saque = PIX assistido no MVP; automação via PSP na Onda 2).
 - [ ] **STORY-015** — cálculo e crédito automático de cashback (0,1% sobre cupom válido) ·
-      `draft` · bloqueada por EPIC-002 (done); fundação do saldo.
+      `in_review` · fundação do saldo entregue: carteira + ledger append-only + crédito
+      idempotente (evento `CupomValidado`→listener), coleta autenticada com atribuição ao
+      Colaborador (IDR-008). Núcleo 100% coberto.
 - [ ] **STORY-016** — tela de carteira: saldo em reais + histórico de cupons/créditos, mobile
       (`requires_design`) · `draft` · bloqueada por STORY-015.
 - [ ] **STORY-017** — resgate/saque do saldo (escopo conforme ADR-005; MVP pode ser PIX assistido) ·

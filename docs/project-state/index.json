@@ -427,7 +427,7 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "in_progress",
+      "status": "in_review",
       "owner_agent": "claude-programador-story015",
       "sprint_id": null,
       "path": "epics/EPIC-003-carteira-e-cashback/stories/STORY-015-calculo-e-credito-de-cashback.md",
@@ -782,6 +782,21 @@
         "related_adrs": [
           "ADR-000",
           "ADR-001"
+        ]
+      },
+      {
+        "id": "IDR-008",
+        "title": "Crédito de cashback via evento de domínio CupomValidado + listener enfileirado",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-008-credito-cashback-via-evento-de-dominio-listener-enfileirado.md",
+        "decided_at": "2026-07-03",
+        "decided_by": "programador",
+        "related_story": "STORY-015",
+        "related_adrs": [
+          "ADR-005",
+          "ADR-006",
+          "ADR-003",
+          "ADR-002"
         ]
       }
     ],
