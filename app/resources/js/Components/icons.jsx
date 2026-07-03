@@ -98,3 +98,12 @@ export function UserIcon(props) {
         </Svg>
     );
 }
+
+export function QrIcon(props) {
+    return (
+        <Svg {...props}>
+            <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" />
+            <path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" />
+        </Svg>
+    );
+}

@@ -61,6 +61,38 @@ final class IngestaoCupomService
         return $this->extrair($cupom, $chave);
     }
 
+    /**
+     * Captura + handoff (STORY-009): valida a chave, aplica escopo e persiste o cupom
+     * `pendente` de forma idempotente — SEM extrair (a validação SEFAZ/normalização é a
+     * STORY-010, disparada por Job na fila, ADR-002). É a porta que a camada web usa.
+     *
+     * Retorna CAPTURADO (novo, aguardando validação), DUPLICADO (já recebido) ou
+     * REJEITADO (chave malformada / fora de escopo) — o web mapeia para a confirmação.
+     */
+    public function capturar(string $entrada, string $origem = 'scan'): ResultadoIngestao
+    {
+        try {
+            $chave = ChaveAcesso::deEntrada($entrada);
+        } catch (ChaveAcessoInvalidaException) {
+            return ResultadoIngestao::rejeitado('chave_malformada');
+        }
+
+        if ($chave->uf() !== '35') {
+            return ResultadoIngestao::rejeitado('fora_de_escopo_uf');
+        }
+        if ($chave->modelo() !== '65') {
+            return ResultadoIngestao::rejeitado('modelo_invalido');
+        }
+
+        [$cupom, $novo] = $this->persistirPendente($chave, $origem);
+
+        // Aqui é onde a STORY-010 vai despachar o ExtrairCupomJob para o novo cupom.
+
+        return $novo
+            ? ResultadoIngestao::capturado($cupom)
+            : ResultadoIngestao::duplicado($cupom);
+    }
+
     /** Reprocessa um cupom que ficou em `falha` (ADR-002) — idempotente, não duplica. */
     public function reprocessar(string $chaveAcesso): ResultadoIngestao
     {

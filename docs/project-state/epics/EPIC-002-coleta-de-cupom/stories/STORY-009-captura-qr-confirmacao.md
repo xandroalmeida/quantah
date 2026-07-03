@@ -89,14 +89,50 @@ decisão de arquitetura → `blocked` + escalar (não decida sozinho).
 
 ## Notas do agente (preenchido durante/após execução)
 
+> **Status:** `done`. Spec de tela (Designer) + implementação (Programador) + E2E em browser real,
+> tudo verde. Sessão única cobrindo os dois papéis (cowork).
+
 ### Decisões tomadas
-- 
+- **IDR-003 — `@zxing/browser` por import dinâmico** para o decode do QR pela câmera (CA-1), escolhido
+  pelo Alexandro por cobrir **iOS Safari + Android** (o `BarcodeDetector` nativo não cobre iOS). O
+  chunk fica **fora do bundle inicial** (só baixa ao abrir a câmera — verificado no build: chunk
+  `esm-*.js` separado do `app-*.js`). Scanner isolado em `Components/coleta/QrScanner.jsx`.
+- **Rota aberta** `/coletar` (sem auth nesta onda): a coleta pura não precisa de login (dedup é por
+  chave, não por usuário); a atribuição ao Colaborador/cashback vem com a Carteira (EPIC-003). POST
+  protegido por `throttle:30,1`.
+- **Handoff sem reimplementar regra (CA-5):** o controller delega a `IngestaoCupomService::capturar()`
+  (novo entrypoint) — parse + escopo (SP/NFC-e) + dedup + persiste `pendente`. **Não extrai**: a
+  validação SEFAZ/normalização é a STORY-010 (o cupom fica `pendente` até lá; o Job de extração será
+  despachado ali). Binding do serviço sem adaptador no `AppServiceProvider` (o `SpSefazAdapter` real
+  entra na 010).
+- **Erro ancorado no campo (CA-4):** rejeição vira `ValidationException` em `entrada` (não banner
+  global); microcopy centralizada no controller, espelhando o spec §5.
 
 ### Descobertas
-- 
+- A câmera (`getUserMedia`) exige **HTTPS** — homologação já é TLS; em local `localhost` é contexto
+  seguro. Em headless (Dusk) não há câmera → o scanner **degrada graciosamente** para colar link, o
+  que o E2E exercita.
+- `ResultadoIngestao` não pode ter método estático e de instância com o mesmo nome (`rejeitado`) —
+  PHP dá fatal ("premature end of PHP process"). Predicado renomeado para `foiRejeitado()`.
+- Flash do Inertia não vinha compartilhado; adicionei `flash.coleta` (sem PII) no
+  `HandleInertiaRequests` para a confirmação pós-`back()`.
 
 ### Bloqueios encontrados
-- 
+- Nenhum. Dependência da STORY-008 (contrato ADR-001, formato da chave ADR-003) já estava aceita.
+- **Pendência leve (Designer):** validação humana do protótipo (`prototype_last_validated_at: null`) —
+  o protótipo cobre todos os estados; recomendo um olhar do Alexandro, mas não bloqueia o `done`
+  (nesta sessão o papel Designer confirmou a spec).
 
 ### Links de evidência
-- 
+- Spec de tela: `design/screens/STORY-009-captura-qr-confirmacao/screen-spec.md` (+ protótipo
+  `index.html`), registrada em `index.json › design.screens` (`shipped`).
+- Frontend: `resources/js/Pages/Coleta/Captura.jsx`, `resources/js/Components/coleta/QrScanner.jsx`,
+  ícone `QrIcon` em `Components/icons.jsx`.
+- Backend: `Http/Controllers/ColetaController.php`, rota `routes/web.php` (`coleta.create`/`coleta.store`),
+  `IngestaoCupomService::capturar()`, `HandleInertiaRequests` (flash), `AppServiceProvider` (binding).
+- Decisão: `decisions/idr/IDR-003-zxing-browser-decode-qr.md` (indexada).
+- Testes (verdes): Feature `tests/Feature/Coleta/ColetaControllerTest.php` (contrato do handoff) +
+  `CapturaScreenContractTest.php` (microcopy/tokens/testids); **E2E browser real**
+  `tests/Browser/ColetaCapturaTest.php` (colar válido → confirmação; inválido → erro; câmera
+  indisponível → degrada; alvo de toque ≥48px). Suíte não-Dusk 95/95; Dusk 4/4.
+- Comandos: `make test` (unit+feature) e `make e2e` (Dusk em browser real).

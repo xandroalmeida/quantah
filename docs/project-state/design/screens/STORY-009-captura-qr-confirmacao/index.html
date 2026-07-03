@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protótipo — Capturar cupom (STORY-009)</title>
+<!--
+  PROTÓTIPO DE VALIDAÇÃO — NÃO É CÓDIGO DE PRODUÇÃO.
+  Tokens reais do DS Quantah (design/system/tokens.md). Microcopy = screen-spec §5.
+  Estados via ?state=idle|scan|camera-error|field-error|success|duplicate (ou chips no topo).
+  Sem rede: a câmera é um placeholder simulado.
+-->
+<style>
+  :root{
+    --primary:#9fe870; --on-primary:#0e0f0c; --primary-pale:#e2f6d5;
+    --canvas:#ffffff; --canvas-soft:#e8ebe6;
+    --ink:#0e0f0c; --ink-deep:#163300; --body:#454745; --mute:#868685;
+    --positive:#2ead4b; --positive-deep:#054d28;
+    --warning:#ffd11a; --warning-content:#4a3b1c; --negative:#d03238;
+    --r-xl:24px; --r-lg:16px; --r-pill:9999px;
+    --f-display:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f-display);background:var(--canvas-soft);color:var(--ink);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;
+    padding:24px 16px;gap:16px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px}
+  .chips a{font-size:13px;text-decoration:none;color:var(--body);background:var(--canvas);
+    border:1px solid var(--mute);border-radius:var(--r-pill);padding:4px 12px}
+  .chips a.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  main{width:100%;max-width:448px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;flex:1}
+  .card{width:100%;background:var(--canvas);border-radius:var(--r-xl);padding:24px;
+    box-shadow:0 1px 2px 0 rgb(14 15 12/.04);display:flex;flex-direction:column;gap:24px}
+  header.t{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+  h1{font-size:28px;font-weight:900}
+  .sub{font-size:15px;color:var(--body)}
+  .qr{width:48px;height:48px;color:var(--ink-deep)}
+  .btn{min-height:48px;border:none;border-radius:var(--r-xl);font-size:15px;font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:12px 24px}
+  .btn.primary{background:var(--primary);color:var(--on-primary)}
+  .btn.secondary{background:var(--canvas-soft);color:var(--ink)}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-size:13px;color:var(--mute)}
+  .field input{min-height:48px;border-radius:var(--r-lg);border:1px solid var(--mute);
+    padding:12px;font-size:16px}
+  .field.err input{border-color:var(--negative)}
+  .field .msg{font-size:13px;color:var(--negative)}
+  .snack{display:inline-flex;align-items:center;gap:12px;border-radius:var(--r-xl);
+    background:var(--canvas);padding:12px 16px;font-size:13px;box-shadow:0 1px 2px 0 rgb(14 15 12/.04)}
+  .snack .dot{color:var(--warning-content)}
+  .video{aspect-ratio:1;width:100%;background:var(--ink);border-radius:var(--r-xl);position:relative;
+    display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:13px}
+  .video .frame{position:absolute;inset:16px;border:2px solid var(--primary);border-radius:var(--r-lg)}
+  .center{text-align:center}
+  .badge{display:inline-flex;align-items:center;gap:4px;border-radius:var(--r-pill);
+    padding:2px 12px;font-size:13px;font-weight:600}
+  .badge.pos{background:var(--primary-pale);color:var(--positive-deep)}
+  .badge.info{background:var(--canvas-soft);color:var(--ink)}
+  .key{font-size:12px;color:var(--mute);word-break:break-all}
+  .rows{display:flex;flex-direction:column;gap:16px}
+  .col{display:flex;flex-direction:column;gap:24px}
+  .stack-success{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+  .stack-success .rc{width:48px;height:48px;color:var(--positive)}
+  svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+  <nav class="chips" id="chips"></nav>
+  <main id="app"></main>
+<script>
+  const QR = `<svg class="qr" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>`;
+  const REC = `<svg class="rc" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1V2l-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>`;
+  const CK = `<svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M20 6 9 17l-5-5"/></svg>`;
+
+  const header = `<header class="t">${QR}<h1 data-testid="screen-captura-title">Capturar cupom</h1><p class="sub">Escaneie o QR Code da sua nota ou cole o link.</p></header>`;
+
+  const pasteBlock = (err) => `
+    <div class="col">
+      <button class="btn primary" data-testid="screen-captura-scan-btn">${QR}Escanear QR Code</button>
+      <form class="rows" onsubmit="go('field-error');return false">
+        <div class="field ${err?'err':''}">
+          <label>Link ou chave da nota</label>
+          <input data-testid="screen-captura-paste-field" placeholder="cole aqui" />
+          ${err?`<span class="msg" data-testid="screen-captura-error-entrada">Esse código não parece um QR de NFC-e. Confira e tente de novo.</span>`:''}
+        </div>
+        <button class="btn primary" data-testid="screen-captura-submit-btn" type="submit">Enviar cupom</button>
+      </form>
+    </div>`;
+
+  const scanBlock = `
+    <div class="rows">
+      <div class="video" data-testid="screen-captura-video"><span class="frame"></span>câmera (simulada)</div>
+      <p class="center sub">Aponte a câmera para o QR Code da NFC-e.</p>
+      <button class="btn secondary" data-testid="screen-captura-cancel-btn" onclick="go('idle')">Cancelar</button>
+    </div>`;
+
+  const confirm = (novo) => `
+    <div class="card">
+      <div class="stack-success" data-testid="screen-captura-success">
+        ${REC}
+        <h1>${novo?'Cupom capturado!':'Você já tinha enviado esse cupom'}</h1>
+        <span class="badge ${novo?'pos':'info'}" data-testid="screen-captura-badge">${CK}${novo?'Cupom recebido':'Cada nota conta uma vez'}</span>
+        <p class="sub">${novo?'Recebemos sua nota. Vamos validar e confirmar em instantes.':'Esse cupom já está na sua contribuição. Cada nota conta uma vez só.'}</p>
+        <p class="key">3526 0112 3456 7800 0195 6500 1000 1234 5610 0000 0019</p>
+        <button class="btn primary" data-testid="screen-captura-another-btn" onclick="go('idle')">Enviar outro cupom</button>
+      </div>
+    </div>`;
+
+  const STATES = {
+    idle:        () => `<div class="card">${header}${pasteBlock(false)}</div>`,
+    scan:        () => `<div class="card">${header}${scanBlock}</div>`,
+    'field-error': () => `<div class="card">${header}${pasteBlock(true)}</div>`,
+    'camera-error': () => `<div class="card">${header}<div class="snack" data-testid="screen-captura-camera-error"><span class="dot">▲</span>Não conseguimos acessar a câmera. Cole o link da nota.</div>${pasteBlock(false)}</div>`,
+    success:     () => confirm(true),
+    duplicate:   () => confirm(false),
+  };
+
+  function go(s){ location.search = '?state=' + s; }
+  function render(){
+    const s = new URLSearchParams(location.search).get('state') || 'idle';
+    document.getElementById('app').innerHTML = (STATES[s]||STATES.idle)();
+    document.getElementById('chips').innerHTML = Object.keys(STATES)
+      .map(k=>`<a href="?state=${k}" class="${k===s?'on':''}">${k}</a>`).join('');
+    // liga o CTA de scan ao estado câmera
+    const scanBtn = document.querySelector('[data-testid=screen-captura-scan-btn]');
+    if(scanBtn) scanBtn.onclick = ()=>go('scan');
+  }
+  render();
+</script>
+</body>
+</html>

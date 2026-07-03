@@ -34,6 +34,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // Flash de resultado da coleta (STORY-009) — sem PII.
+            'flash' => [
+                'coleta' => fn () => $request->session()->get('coleta'),
+            ],
         ];
     }
 }

@@ -10,6 +10,8 @@ use App\Models\Cupom;
  */
 final class ResultadoIngestao
 {
+    public const CAPTURADO = 'capturado';      // recebido e persistido `pendente` (captura/handoff — STORY-009)
+
     public const ACEITO = 'aceito';           // novo cupom, extraído e validado
 
     public const DUPLICADO = 'duplicado';      // chave já existia (idempotente)
@@ -23,6 +25,11 @@ final class ResultadoIngestao
         public readonly ?Cupom $cupom,
         public readonly ?string $motivo,
     ) {}
+
+    public static function capturado(Cupom $cupom): self
+    {
+        return new self(self::CAPTURADO, $cupom, null);
+    }
 
     public static function aceito(Cupom $cupom): self
     {
@@ -47,5 +54,24 @@ final class ResultadoIngestao
     public function aceitoOuDuplicado(): bool
     {
         return in_array($this->situacao, [self::ACEITO, self::DUPLICADO], true);
+    }
+
+    public function foiRejeitado(): bool
+    {
+        return $this->situacao === self::REJEITADO;
+    }
+
+    /**
+     * Forma serializável para flash/props do Inertia (STORY-009). Sem PII.
+     *
+     * @return array{situacao: string, chave: ?string, motivo: ?string}
+     */
+    public function toArray(): array
+    {
+        return [
+            'situacao' => $this->situacao,
+            'chave' => $this->cupom?->chave_acesso,
+            'motivo' => $this->motivo,
+        ];
     }
 }
