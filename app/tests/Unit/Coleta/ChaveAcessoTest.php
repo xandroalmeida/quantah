@@ -52,4 +52,9 @@ class ChaveAcessoTest extends TestCase
     {
         $this->assertSame(9, ChaveAcesso::digitoVerificador(substr(self::CHAVE_SP, 0, 43)));
     }
+
+    public function test_converte_para_string_a_chave_crua(): void
+    {
+        $this->assertSame(self::CHAVE_SP, (string) ChaveAcesso::deEntrada(self::CHAVE_SP));
+    }
 }

@@ -88,14 +88,44 @@ Siga `agent-task-format.md`. Falta/conflito de ADR → `blocked` + escalar ao Ar
 
 ## Notas do agente (preenchido durante/após execução)
 
+> **Status:** `done` no nível do pipeline (CA-1..5 exercidos; núcleo dedup/validação **100%**).
+> **Atenção do PO/Arquiteto:** a extração **ao vivo** esbarra no **captcha** do portal — ver
+> "Bloqueios/limitação" e **IDR-004**. Não bloqueia os CAs desta estória, mas afeta o end-to-end ao
+> vivo da validação final (STORY-013).
+
 ### Decisões tomadas
-- 
+- **Extração assíncrona na fila Postgres (ADR-002):** `ExtrairCupomJob` (`tries=3`, backoff `[10,60,300]`).
+  `capturar()` (STORY-009) enfileira; `processarExtracao()` é o passo compartilhado; `ingerir()` é o
+  caminho síncrono (CLI/testes). Falha **transitória** → relança (retry); **estrutural** (captcha/layout)
+  → `falha` sem retry (alerta); **negócio** → `rejeitado`. `failed()` = dead-letter. **Worker** adicionado
+  ao `docker-compose.prod.yml`. Detalhe e limitação em **IDR-004**.
+- **Fetcher defensivo:** `HttpSefazSpFetcher` bate no portal QR e **classifica** a resposta; sem amostra
+  real do DANFE autenticado, não inventa parser — captcha/HTML inesperado vira falha estrutural
+  reprocessável (integridade > teatro).
+- **Válido/único/novo (CA-5):** `Cupom::scopeValidosUnicosNovos()` — unicidade e "novo" garantidos por
+  construção pela chave `UNIQUE` (ADR-003). Base pronta para a north-star (STORY-012).
 
 ### Descobertas
-- 
+- Em teste, `QUEUE_CONNECTION=sync` (phpunit) faria o Job rodar na hora e bater no portal real — por isso
+  os testes usam `Queue::fake()` ou injetam um `SefazSpFetcher` fake no container. Em CI-Dusk e homolog
+  o driver é `database` (não roda sem worker).
+- Faltava um **worker** no compose de produção — sem ele, o cupom ficaria `pendente` para sempre. Adicionado.
 
-### Bloqueios encontrados
-- 
+### Bloqueios encontrados / limitação (escalar ao PO/Arquiteto)
+- **Captcha na SEFAZ-SP:** o portal público exige captcha na consulta, então a extração automática ao
+  vivo **não retorna o cupom** — hoje termina em `falha` (estrutural, reprocessável). O happy-path é
+  provado por fixture/fake (ADR-002 autoriza "SEFAZ mockável em teste"). Para o **end-to-end ao vivo**
+  (critério do épico, STORY-013), é preciso decidir: captcha-solving (custo), **fonte oficial** (evolução
+  já prevista na visão §6.2), ou aceitar o MVP com fixture. **Recomendo abrir com o PO/Arquiteto antes da
+  STORY-013.** (IDR-004.)
 
 ### Links de evidência
-- 
+- Código: `app/Domain/Coleta/IngestaoCupomService.php` (capturar/ingerir/processarExtracao/reprocessar),
+  `app/Jobs/ExtrairCupomJob.php`, `app/Domain/Coleta/Sefaz/HttpSefazSpFetcher.php`,
+  `app/Console/Commands/ExtrairCupomCommand.php`, `app/Models/Cupom.php` (scope), binding em
+  `AppServiceProvider`, worker em `infra/docker-compose.prod.yml`.
+- Decisão: `decisions/idr/IDR-004-extracao-sefaz-sp-fila-e-limite-captcha.md` (indexada).
+- Testes (verdes): `tests/Feature/Coleta/ExtrairCupomJobTest.php` (núcleo dedup/validação/falha),
+  `HttpSefazSpFetcherTest.php` (classificação), `MigracaoCupomTest.php` (schema/reversibilidade),
+  `IngestaoCupomSpikeTest.php`, `ColetaControllerTest.php` (fila fake). **Núcleo 100%; total 91.5%**.
+- Comando de verificação em homolog: `php artisan coleta:extrair "<chave>"`.

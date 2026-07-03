@@ -31,6 +31,18 @@ services:
         condition: service_healthy
     networks: [quantah]
 
+  # Worker da fila (ADR-002): processa a extração SEFAZ fora do request, com
+  # retry/backoff. Mesma imagem da app; lê o mesmo .env (QUEUE_CONNECTION=database).
+  worker:
+    image: ${APP_IMAGE:-ghcr.io/xandroalmeida/quantah:latest}
+    restart: unless-stopped
+    env_file: .env
+    command: php artisan queue:work --tries=3 --backoff=10 --sleep=3 --max-time=3600
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    networks: [quantah]
+
   pgsql:
     image: postgres:18-alpine
     restart: unless-stopped

@@ -101,6 +101,18 @@ class IngestaoCupomSpikeTest extends TestCase
         $this->assertDatabaseCount('cupons', 0);
     }
 
+    /** ADR-003: documento que não é NFC-e (modelo ≠ 65) é rejeitado por escopo, sem extração. */
+    public function test_modelo_diferente_de_nfce_e_rejeitado(): void
+    {
+        // Chave de SP, DV válido, porém modelo 55 (NF-e), não 65 (NFC-e).
+        $fetcher = new FakeSefazSpFetcher;
+        $resultado = $this->servico($fetcher)->ingerir('35260112345678000195550010001234561000000016');
+
+        $this->assertSame(ResultadoIngestao::REJEITADO, $resultado->situacao);
+        $this->assertSame('modelo_invalido', $resultado->motivo);
+        $this->assertSame(0, $fetcher->chamadas);
+    }
+
     /** CA-3 / ADR-003: chave de outro estado (RJ) é rejeitada por escopo, sem extração. */
     public function test_chave_de_outro_estado_e_rejeitada_por_escopo(): void
     {
@@ -145,7 +157,7 @@ class IngestaoCupomSpikeTest extends TestCase
         $this->assertSame('estrutural', $resultado->cupom->motivo_falha);
     }
 
-    /** CA-4 / ADR-002: reprocessar um cupom em falha o valida, sem duplicar. */
+    /** CA-4 / ADR-002: reprocessar (o mesmo passo que o Job executa) valida o cupom, sem duplicar. */
     public function test_reprocessamento_valida_o_cupom_apos_falha(): void
     {
         // Primeira chamada falha (transitória), segunda (reprocesso) tem sucesso.
@@ -157,7 +169,9 @@ class IngestaoCupomSpikeTest extends TestCase
         $primeiro = $servico->ingerir(self::CHAVE_SP);
         $this->assertSame(ResultadoIngestao::FALHA_EXTRACAO, $primeiro->situacao);
 
-        $reprocesso = $servico->reprocessar(self::CHAVE_SP);
+        // O reprocessamento assíncrono (reprocessar()) só re-enfileira; o trabalho em si
+        // é processarExtracao() — exatamente o que o ExtrairCupomJob chama.
+        $reprocesso = $servico->processarExtracao($primeiro->cupom->fresh());
 
         $this->assertSame(ResultadoIngestao::ACEITO, $reprocesso->situacao);
         $this->assertSame(Cupom::STATUS_VALIDADO, $reprocesso->cupom->status);

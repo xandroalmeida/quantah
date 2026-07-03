@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -61,5 +62,17 @@ class Cupom extends Model
     public function validado(): bool
     {
         return $this->status === self::STATUS_VALIDADO;
+    }
+
+    /**
+     * Cupons "válidos, únicos e novos" (base da north-star — STORY-012). A unicidade e o
+     * "novo" são garantidos por construção: `chave_acesso` é UNIQUE (ADR-003), então todo
+     * cupom `validado` é, por definição, único e de primeira ocorrência.
+     *
+     * @param  Builder<Cupom>  $query
+     */
+    public function scopeValidosUnicosNovos($query)
+    {
+        return $query->where('status', self::STATUS_VALIDADO);
     }
 }

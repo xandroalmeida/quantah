@@ -2,14 +2,17 @@
 
 namespace Tests\Feature\Coleta;
 
+use App\Jobs\ExtrairCupomJob;
 use App\Models\Cupom;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 /**
  * Captura do cupom (STORY-009) — a tela faz handoff para a ingestão (ADR-001) sem
- * reimplementar validação/dedup (CA-5). Aqui só o contrato do controller.
+ * reimplementar validação/dedup (CA-5). A extração é assíncrona (STORY-010): a captura
+ * persiste `pendente` e enfileira o ExtrairCupomJob. Aqui a fila é fake (não bate no portal).
  */
 class ColetaControllerTest extends TestCase
 {
@@ -20,6 +23,12 @@ class ColetaControllerTest extends TestCase
     private const CHAVE_RJ = '33260112345678000195650010001234561000000014';
 
     private const URL_QR = 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=35260112345678000195650010001234561000000019|2|1|1|ABC';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Queue::fake();
+    }
 
     public function test_tela_de_captura_renderiza(): void
     {
@@ -44,13 +53,14 @@ class ColetaControllerTest extends TestCase
             ->assertSessionHas('coleta', fn ($c) => $c['situacao'] === 'capturado'
                 && $c['chave'] === self::CHAVE_SP);
 
-        // Handoff: fica `pendente` (a validação SEFAZ/normalização é STORY-010), sem CPF.
+        // Handoff: fica `pendente` e a extração é enfileirada (ADR-002), sem CPF.
         $this->assertDatabaseHas('cupons', [
             'chave_acesso' => self::CHAVE_SP,
             'status' => Cupom::STATUS_PENDENTE,
             'uf' => '35',
         ]);
         $this->assertDatabaseCount('cupons', 1);
+        Queue::assertPushed(ExtrairCupomJob::class);
     }
 
     public function test_captura_pela_url_do_qr_compartilhado(): void

@@ -51,11 +51,6 @@ final class ResultadoIngestao
         return new self(self::FALHA_EXTRACAO, $cupom, $motivo);
     }
 
-    public function aceitoOuDuplicado(): bool
-    {
-        return in_array($this->situacao, [self::ACEITO, self::DUPLICADO], true);
-    }
-
     public function foiRejeitado(): bool
     {
         return $this->situacao === self::REJEITADO;

@@ -5,25 +5,26 @@ namespace App\Domain\Coleta;
 use App\Domain\Coleta\Sefaz\CupomExtraido;
 use App\Domain\Coleta\Sefaz\SefazAdapter;
 use App\Domain\Coleta\Sefaz\SefazExtracaoException;
+use App\Jobs\ExtrairCupomJob;
 use App\Models\Cupom;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Fronteira de ingestão do cupom (ADR-001) — a única porta que a camada web conhece.
  *
- * Fluxo: parse/valida a chave (ADR-003) → decide escopo (SP, NFC-e) → deduplica de
- * forma idempotente (unique + firstOrCreate) → extrai/normaliza (ADR-002) descartando
- * CPF (ADR-006). Reenviar a mesma chave é no-op observável (DUPLICADO).
+ * Dois caminhos, mesma regra de negócio (ADR-003):
+ *  - `capturar()` (STORY-009/010, produção): valida a chave → dedup idempotente →
+ *    persiste `pendente` → **despacha o ExtrairCupomJob** (extração assíncrona na fila
+ *    Postgres, ADR-002). A fronteira responde em segundos; a validação SEFAZ roda depois.
+ *  - `ingerir()` (síncrono): faz o mesmo e **extrai na hora** — usado pelo comando de CLI
+ *    e pelos testes de núcleo. Compartilha `processarExtracao()` com o Job.
  *
- * NOTA DO SPIKE (STORY-008): aqui a extração roda de forma SÍNCRONA para provar o
- * caminho vertical fim a fim. Em produção (STORY-010) o passo de extração é um Job
- * enfileirado no Postgres com retry/backoff/reprocessamento (ADR-002); a fronteira e
- * a idempotência permanecem idênticas.
+ * A extração descarta CPF (ADR-006) e classifica falha (transitória/estrutural/negócio).
  */
 final class IngestaoCupomService
 {
     /** @var array<string, SefazAdapter> adaptador por UF (só SP no MVP) */
-    private array $adaptadores;
+    private array $adaptadores = [];
 
     public function __construct(SefazAdapter ...$adaptadores)
     {
@@ -32,44 +33,108 @@ final class IngestaoCupomService
         }
     }
 
-    public function ingerir(string $entrada, string $origem = 'scan'): ResultadoIngestao
+    /**
+     * Captura + handoff assíncrono (produção): persiste `pendente` e enfileira a extração.
+     */
+    public function capturar(string $entrada, string $origem = 'scan'): ResultadoIngestao
     {
-        // 1. Parse + validação estrutural da chave (formato + DV mod 11) — ADR-003.
-        try {
-            $chave = ChaveAcesso::deEntrada($entrada);
-        } catch (ChaveAcessoInvalidaException $e) {
-            return ResultadoIngestao::rejeitado('chave_malformada');
+        $parse = $this->validarChave($entrada);
+        if ($parse instanceof ResultadoIngestao) {
+            return $parse; // rejeitado
         }
 
-        // 2. Escopo da onda: só SP (UF 35) e NFC-e (modelo 65) — validado só pela chave.
-        if ($chave->uf() !== '35') {
-            return ResultadoIngestao::rejeitado('fora_de_escopo_uf');
-        }
-        if ($chave->modelo() !== '65') {
-            return ResultadoIngestao::rejeitado('modelo_invalido');
-        }
+        [$cupom, $novo] = $this->persistirPendente($parse, $origem);
 
-        // 3. Dedup idempotente: a unicidade é garantida pelo banco (à prova de corrida).
-        [$cupom, $novo] = $this->persistirPendente($chave, $origem);
-
-        if (! $novo && $cupom->status !== Cupom::STATUS_FALHA) {
-            // Já recebido antes (e não está em falha reprocessável) → no-op.
-            return ResultadoIngestao::duplicado($cupom);
+        // Enfileira a extração para cupom novo ou em falha (reprocessável) — ADR-002.
+        if ($novo || $cupom->status === Cupom::STATUS_FALHA) {
+            ExtrairCupomJob::dispatch($cupom->id);
         }
 
-        // 4. Extração + normalização (síncrona no spike; Job enfileirado em produção).
-        return $this->extrair($cupom, $chave);
+        return $novo
+            ? ResultadoIngestao::capturado($cupom)
+            : ResultadoIngestao::duplicado($cupom);
     }
 
     /**
-     * Captura + handoff (STORY-009): valida a chave, aplica escopo e persiste o cupom
-     * `pendente` de forma idempotente — SEM extrair (a validação SEFAZ/normalização é a
-     * STORY-010, disparada por Job na fila, ADR-002). É a porta que a camada web usa.
-     *
-     * Retorna CAPTURADO (novo, aguardando validação), DUPLICADO (já recebido) ou
-     * REJEITADO (chave malformada / fora de escopo) — o web mapeia para a confirmação.
+     * Ingestão síncrona (CLI/testes): persiste e extrai na hora, sem passar pela fila.
      */
-    public function capturar(string $entrada, string $origem = 'scan'): ResultadoIngestao
+    public function ingerir(string $entrada, string $origem = 'scan'): ResultadoIngestao
+    {
+        $parse = $this->validarChave($entrada);
+        if ($parse instanceof ResultadoIngestao) {
+            return $parse;
+        }
+
+        [$cupom, $novo] = $this->persistirPendente($parse, $origem);
+
+        if (! $novo && $cupom->status !== Cupom::STATUS_FALHA) {
+            return ResultadoIngestao::duplicado($cupom);
+        }
+
+        return $this->processarExtracao($cupom);
+    }
+
+    /** Reprocessa um cupom em `falha` (ADR-002) — re-enfileira; idempotente, não duplica. */
+    public function reprocessar(string $chaveAcesso): ResultadoIngestao
+    {
+        $cupom = Cupom::where('chave_acesso', $chaveAcesso)->firstOrFail();
+
+        if ($cupom->status !== Cupom::STATUS_FALHA) {
+            return ResultadoIngestao::duplicado($cupom);
+        }
+
+        ExtrairCupomJob::dispatch($cupom->id);
+
+        return ResultadoIngestao::capturado($cupom);
+    }
+
+    /**
+     * Extrai o cupom na SEFAZ, normaliza no modelo canônico e persiste — ou marca a falha
+     * classificada. Chamado pelo ExtrairCupomJob (fila) e por `ingerir()` (síncrono).
+     *
+     * Retorna:
+     *  - ACEITO           → validado e persistido;
+     *  - FALHA_EXTRACAO   → transitória/estrutural (reprocessável; o Job decide retry);
+     *  - REJEITADO        → negócio (cupom inexistente/cancelado na SEFAZ), sem retry.
+     */
+    public function processarExtracao(Cupom $cupom): ResultadoIngestao
+    {
+        $chave = ChaveAcesso::deEntrada($cupom->chave_acesso);
+
+        $adaptador = $this->adaptadores[$chave->uf()] ?? null;
+        if ($adaptador === null) {
+            $cupom->update(['status' => Cupom::STATUS_FALHA, 'motivo_falha' => 'sem_adaptador_uf']);
+
+            return ResultadoIngestao::falhaExtracao($cupom, SefazExtracaoException::ESTRUTURAL);
+        }
+
+        $cupom->update(['status' => Cupom::STATUS_EXTRAINDO, 'motivo_falha' => null]);
+
+        try {
+            $extraido = $adaptador->extrair($chave);
+        } catch (SefazExtracaoException $e) {
+            if ($e->tipo === SefazExtracaoException::NEGOCIO) {
+                $cupom->update(['status' => Cupom::STATUS_REJEITADO, 'motivo_falha' => $e->tipo]);
+
+                return ResultadoIngestao::rejeitado($e->tipo, $cupom);
+            }
+
+            // transitória/estrutural = reprocessável (ADR-002).
+            $cupom->update(['status' => Cupom::STATUS_FALHA, 'motivo_falha' => $e->tipo]);
+
+            return ResultadoIngestao::falhaExtracao($cupom, $e->tipo);
+        }
+
+        $this->normalizarEpersistir($cupom, $extraido);
+
+        return ResultadoIngestao::aceito($cupom->fresh('itens'));
+    }
+
+    /**
+     * Parse + validação estrutural e de escopo da chave (ADR-003). Retorna o VO válido,
+     * ou um ResultadoIngestao REJEITADO quando a chave não serve (sem tocar o banco/portal).
+     */
+    private function validarChave(string $entrada): ChaveAcesso|ResultadoIngestao
     {
         try {
             $chave = ChaveAcesso::deEntrada($entrada);
@@ -84,29 +149,11 @@ final class IngestaoCupomService
             return ResultadoIngestao::rejeitado('modelo_invalido');
         }
 
-        [$cupom, $novo] = $this->persistirPendente($chave, $origem);
-
-        // Aqui é onde a STORY-010 vai despachar o ExtrairCupomJob para o novo cupom.
-
-        return $novo
-            ? ResultadoIngestao::capturado($cupom)
-            : ResultadoIngestao::duplicado($cupom);
-    }
-
-    /** Reprocessa um cupom que ficou em `falha` (ADR-002) — idempotente, não duplica. */
-    public function reprocessar(string $chaveAcesso): ResultadoIngestao
-    {
-        $cupom = Cupom::where('chave_acesso', $chaveAcesso)->firstOrFail();
-
-        if ($cupom->status !== Cupom::STATUS_FALHA) {
-            return ResultadoIngestao::duplicado($cupom);
-        }
-
-        return $this->extrair($cupom, ChaveAcesso::deEntrada($cupom->chave_acesso));
+        return $chave;
     }
 
     /**
-     * Insere o cupom em estado `pendente` de forma idempotente.
+     * Insere o cupom em `pendente` de forma idempotente (unique na chave, à prova de corrida).
      *
      * @return array{0: Cupom, 1: bool} o cupom e se foi criado agora
      */
@@ -127,38 +174,6 @@ final class IngestaoCupomService
 
             return [$cupom, $cupom->wasRecentlyCreated];
         });
-    }
-
-    private function extrair(Cupom $cupom, ChaveAcesso $chave): ResultadoIngestao
-    {
-        $adaptador = $this->adaptadores[$chave->uf()] ?? null;
-        if ($adaptador === null) {
-            $cupom->update([
-                'status' => Cupom::STATUS_FALHA,
-                'motivo_falha' => 'sem_adaptador_uf',
-            ]);
-
-            return ResultadoIngestao::falhaExtracao($cupom, SefazExtracaoException::ESTRUTURAL);
-        }
-
-        $cupom->update(['status' => Cupom::STATUS_EXTRAINDO, 'motivo_falha' => null]);
-
-        try {
-            $extraido = $adaptador->extrair($chave);
-        } catch (SefazExtracaoException $e) {
-            $cupom->update([
-                'status' => $e->tipo === SefazExtracaoException::NEGOCIO
-                    ? Cupom::STATUS_REJEITADO
-                    : Cupom::STATUS_FALHA,   // transitória/estrutural = reprocessável (ADR-002)
-                'motivo_falha' => $e->tipo,
-            ]);
-
-            return ResultadoIngestao::falhaExtracao($cupom, $e->tipo);
-        }
-
-        $this->normalizarEpersistir($cupom, $extraido);
-
-        return ResultadoIngestao::aceito($cupom->fresh('itens'));
     }
 
     private function normalizarEpersistir(Cupom $cupom, CupomExtraido $extraido): void
