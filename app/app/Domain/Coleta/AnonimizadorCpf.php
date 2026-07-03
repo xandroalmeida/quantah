@@ -21,6 +21,9 @@ final class AnonimizadorCpf
     /** CPF formatado (000.000.000-00) ou 11 dígitos isolados. */
     private const PADRAO_CPF = '/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/';
 
+    /** Marcador que substitui qualquer trecho com cara de CPF — nunca o valor original. */
+    private const MARCADOR = '[CPF-REMOVIDO]';
+
     /**
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
@@ -49,7 +52,17 @@ final class AnonimizadorCpf
     /** Substitui qualquer trecho com cara de CPF por um marcador — nunca o valor original. */
     private function escovar(string $texto): string
     {
-        return preg_replace(self::PADRAO_CPF, '[CPF-REMOVIDO]', $texto) ?? $texto;
+        return self::limparTexto($texto);
+    }
+
+    /**
+     * Escova um texto avulso (mesma regra do payload). Usado no ponto de ingestão para
+     * o conteúdo do QR colado pelo usuário (`qr_conteudo`), que pode trazer CPF grudado
+     * como lixo de colagem e é persistido em tabela canônica (ADR-006, STORY-011 CA-1).
+     */
+    public static function limparTexto(string $texto): string
+    {
+        return preg_replace(self::PADRAO_CPF, self::MARCADOR, $texto) ?? $texto;
     }
 
     /** Utilitário de regressão: há CPF neste texto? (usado por testes anti-vazamento) */

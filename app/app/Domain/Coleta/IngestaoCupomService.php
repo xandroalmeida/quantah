@@ -160,6 +160,11 @@ final class IngestaoCupomService
      */
     private function persistirPendente(ChaveAcesso $chave, string $origem, string $qrConteudo): array
     {
+        // LGPD (ADR-006): o QR colado pode trazer CPF grudado como lixo de colagem, e
+        // `qr_conteudo` é coluna da tabela canônica — escova ANTES de gravar (STORY-011
+        // CA-1). O `p=chave|...` assinado é preservado; só o padrão de CPF sai.
+        $qrConteudo = AnonimizadorCpf::limparTexto($qrConteudo);
+
         return DB::transaction(function () use ($chave, $origem, $qrConteudo) {
             $cupom = Cupom::firstOrCreate(
                 ['chave_acesso' => $chave->valor()],
