@@ -73,7 +73,7 @@ de implementação. Checklist de validação (`validation/checklist.md`) autorad
 - [x] **STORY-008** (spike) — ingestão + modelo canônico + extração SP + dedup + LGPD → ADR-001/002/003/006
       (target_role: arquiteto) · `done` (spike verde + 4 ADRs `accepted` em 2026-07-02)
 - [x] **STORY-009** — captura do QR (scan + compartilhar) e confirmação, mobile (`requires_design`) · `done`
-      (spec de tela + Captura.jsx + @zxing/browser (IDR-003); Feature + E2E Dusk verdes)
+      (spec de tela + Captura.jsx + @zxing/browser (IDR-007); Feature + E2E Dusk verdes)
 - [x] **STORY-010** — validação SEFAZ-SP + deduplicação por chave + persistência canônica · `done`
       (pipeline assíncrono; núcleo 100%; **extração ao vivo confirmada** com QR real — 18 itens, R$235,43, sem captcha → IDR-004)
 - [ ] **STORY-011** — anonimização de CPF na coleta (LGPD, ADR-006) · `draft` (bloqueada por STORY-008/010)

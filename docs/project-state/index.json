@@ -76,7 +76,7 @@
       "slug": "coleta-de-cupom",
       "title": "Coleta de cupom — do QR da NFC-e ao dado válido, único e novo",
       "wave": "WAVE-2026-01",
-      "status": "ready",
+      "status": "done",
       "path": "epics/EPIC-002-coleta-de-cupom/epic.md",
       "story_ids": [
         "STORY-008",
@@ -86,7 +86,28 @@
         "STORY-012",
         "STORY-013"
       ],
-      "validation_report": "epics/EPIC-002-coleta-de-cupom/validation/report.md",
+      "validation_report": {
+        "path": "epics/EPIC-002-coleta-de-cupom/validation/report.md",
+        "verdict": "approved_with_findings",
+        "validated_at": "2026-07-03",
+        "validated_by": "validador",
+        "deployed_sha": "b321eac",
+        "blockers": 0,
+        "non_blocking_findings": [
+          {
+            "id": "F-NB-1",
+            "summary": "IDR do @zxing (STORY-009) colidia de id com IDR-003 e não estava indexado.",
+            "status": "resolved",
+            "resolution": "Renumerado para IDR-007 e indexado no index.json."
+          },
+          {
+            "id": "F-NB-2",
+            "summary": "STORY-012 é requires_design: true mas sem artefato de Designer (painel composto do DS existente).",
+            "status": "open",
+            "resolution": null
+          }
+        ]
+      },
       "created_at": "2026-07-02",
       "updated_at": "2026-07-03"
     },
@@ -615,6 +636,19 @@
           "ADR-001",
           "ADR-003",
           "ADR-006"
+        ]
+      },
+      {
+        "id": "IDR-007",
+        "title": "Decode do QR da NFC-e no cliente com @zxing/browser, por import dinâmico",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-007-zxing-browser-decode-qr.md",
+        "decided_at": "2026-07-02",
+        "decided_by": "programador",
+        "related_story": "STORY-009",
+        "related_adrs": [
+          "ADR-000",
+          "ADR-001"
         ]
       }
     ],

@@ -1,5 +1,5 @@
 ---
-idr_id: IDR-003
+idr_id: IDR-007
 slug: zxing-browser-decode-qr
 title: Decode do QR da NFC-e no cliente com @zxing/browser, por import dinâmico
 status: accepted
@@ -12,10 +12,11 @@ related_idrs: []
 supersedes: null
 superseded_by: null
 created_at: 2026-07-02
-updated_at: 2026-07-02
+updated_at: 2026-07-03
+note_renumber: "Renumerado de IDR-003 (colisão de id com o IDR-003 de STORY-005) para IDR-007 e indexado no index.json — F-NB-1 da validação do EPIC-002 (STORY-013)."
 ---
 
-# IDR-003 — Decode do QR da NFC-e no cliente com @zxing/browser
+# IDR-007 — Decode do QR da NFC-e no cliente com @zxing/browser
 
 ## Contexto
 

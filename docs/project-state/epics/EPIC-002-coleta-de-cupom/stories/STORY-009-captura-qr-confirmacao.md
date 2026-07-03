@@ -93,7 +93,7 @@ decisão de arquitetura → `blocked` + escalar (não decida sozinho).
 > tudo verde. Sessão única cobrindo os dois papéis (cowork).
 
 ### Decisões tomadas
-- **IDR-003 — `@zxing/browser` por import dinâmico** para o decode do QR pela câmera (CA-1), escolhido
+- **IDR-007 — `@zxing/browser` por import dinâmico** para o decode do QR pela câmera (CA-1), escolhido
   pelo Alexandro por cobrir **iOS Safari + Android** (o `BarcodeDetector` nativo não cobre iOS). O
   chunk fica **fora do bundle inicial** (só baixa ao abrir a câmera — verificado no build: chunk
   `esm-*.js` separado do `app-*.js`). Scanner isolado em `Components/coleta/QrScanner.jsx`.
@@ -129,7 +129,7 @@ decisão de arquitetura → `blocked` + escalar (não decida sozinho).
   ícone `QrIcon` em `Components/icons.jsx`.
 - Backend: `Http/Controllers/ColetaController.php`, rota `routes/web.php` (`coleta.create`/`coleta.store`),
   `IngestaoCupomService::capturar()`, `HandleInertiaRequests` (flash), `AppServiceProvider` (binding).
-- Decisão: `decisions/idr/IDR-003-zxing-browser-decode-qr.md` (indexada).
+- Decisão: `decisions/idr/IDR-007-zxing-browser-decode-qr.md` (indexada; renumerada de IDR-003 — F-NB-1).
 - Testes (verdes): Feature `tests/Feature/Coleta/ColetaControllerTest.php` (contrato do handoff) +
   `CapturaScreenContractTest.php` (microcopy/tokens/testids); **E2E browser real**
   `tests/Browser/ColetaCapturaTest.php` (colar válido → confirmação; inválido → erro; câmera
