@@ -159,6 +159,9 @@ em cada ciclo (histórico da main).
 referência lógica (uuid, sem FK dura) entre bases; listener registrado explicitamente em
 `AppServiceProvider` (fora de `app/Listeners`). Ver **IDR-008**.
 
+**Homologação:** push na `main` (2026-07-03) → CI/CD verde (testes + Dusk + build) e **deploy
+automático para homologação com smoke test passando** (run 28677419140). DoD de deploy satisfeito.
+
 **Pendências para as próximas estórias (não bloqueiam esta):** a **tela** de carteira (saldo +
 histórico) é a STORY-016; o **saque** (débito/estorno + backoffice) é a STORY-017 — o modelo já
 prevê os tipos `debito_saque`/`estorno_saque` no CHECK, mas nenhuma lógica de saque foi implementada
