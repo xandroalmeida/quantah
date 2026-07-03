@@ -32,13 +32,15 @@ Route::get('/ds', function () {
     return Inertia::render('DesignSystem/Showcase');
 })->name('ds.showcase');
 
-// Captura do cupom (STORY-009). Tela mobile de scan/colar o QR da NFC-e. Aberta
-// (a atribuição ao Colaborador/cashback vem com a Carteira, EPIC-003); o POST é
-// limitado por throttle. A validação/persistência canônica é a STORY-010.
-Route::get('/coletar', [ColetaController::class, 'create'])->name('coleta.create');
-Route::post('/coletar', [ColetaController::class, 'store'])
-    ->middleware('throttle:30,1')
-    ->name('coleta.store');
+// Captura do cupom (STORY-009). Tela mobile de scan/colar o QR da NFC-e. Agora atrás de
+// `auth` (STORY-015): a coleta atribui o cupom ao Colaborador logado, que recebe o cashback
+// quando o cupom valida. O POST é limitado por throttle. Validação canônica é a STORY-010.
+Route::middleware('auth')->group(function () {
+    Route::get('/coletar', [ColetaController::class, 'create'])->name('coleta.create');
+    Route::post('/coletar', [ColetaController::class, 'store'])
+        ->middleware('throttle:30,1')
+        ->name('coleta.store');
+});
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

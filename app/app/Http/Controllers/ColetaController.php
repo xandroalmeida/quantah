@@ -41,7 +41,12 @@ class ColetaController extends Controller
             'origem' => ['nullable', 'in:scan,compartilhado'],
         ]);
 
-        $resultado = $ingestao->capturar($dados['entrada'], $dados['origem'] ?? 'scan');
+        // O Colaborador logado é atribuído ao cupom novo (STORY-015) — dono do cashback.
+        $resultado = $ingestao->capturar(
+            $dados['entrada'],
+            $dados['origem'] ?? 'scan',
+            $request->user()->id,
+        );
 
         if ($resultado->foiRejeitado()) {
             // Erro ancorado no campo (CA-4), não global.
