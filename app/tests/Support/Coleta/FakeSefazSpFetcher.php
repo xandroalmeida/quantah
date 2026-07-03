@@ -35,7 +35,7 @@ final class FakeSefazSpFetcher implements SefazSpFetcher
         return $this;
     }
 
-    public function buscar(ChaveAcesso $chave): array
+    public function buscar(ChaveAcesso $chave, ?string $qrConteudo = null): array
     {
         $this->chamadas++;
 

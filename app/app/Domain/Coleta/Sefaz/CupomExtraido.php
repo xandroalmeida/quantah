@@ -12,7 +12,7 @@ final class CupomExtraido
 {
     /** @param list<ItemExtraido> $itens */
     public function __construct(
-        public readonly string $dataEmissao,
+        public readonly ?string $dataEmissao,
         public readonly string $valorTotal,
         public readonly int $numero,
         public readonly int $serie,

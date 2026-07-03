@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Coleta;
 
+use App\Domain\Coleta\AnonimizadorCpf;
 use App\Domain\Coleta\IngestaoCupomService;
 use App\Domain\Coleta\ResultadoIngestao;
 use App\Domain\Coleta\Sefaz\SefazExtracaoException;
@@ -9,6 +10,7 @@ use App\Domain\Coleta\Sefaz\SefazSpFetcher;
 use App\Jobs\ExtrairCupomJob;
 use App\Models\Cupom;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Tests\Support\Coleta\FakeSefazSpFetcher;
 use Tests\TestCase;
@@ -198,6 +200,33 @@ class ExtrairCupomJobTest extends TestCase
         (new ExtrairCupomJob($cupom->id))->failed(new \RuntimeException('esgotou'));
 
         $this->assertSame(Cupom::STATUS_FALHA, $cupom->refresh()->status);
+    }
+
+    /** CA-1 ponta a ponta: Job + fetcher REAL + DANFE real de SP → validado, 18 itens, sem CPF. */
+    public function test_extracao_ao_vivo_com_danfe_real(): void
+    {
+        // O fetcher real (binding padrão) roda; o portal é fakeado com o HTML real.
+        Http::fake(['*' => Http::response(
+            file_get_contents(base_path('tests/fixtures/coleta/danfe-sp.html')), 200
+        )]);
+
+        $cupom = Cupom::create([
+            'chave_acesso' => '35260743259548002883652030000666061954634872',
+            'uf' => '35', 'ano_mes' => '2607', 'cnpj_emitente' => '43259548002883',
+            'modelo' => '65', 'status' => Cupom::STATUS_PENDENTE, 'origem' => 'scan',
+            'qr_conteudo' => 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=35260743259548002883652030000666061954634872|2|1|1|4FBDA25AD2D9AD27A38431225D8C0788404236FC',
+        ]);
+
+        (new ExtrairCupomJob($cupom->id))->handle($this->app->make(IngestaoCupomService::class));
+
+        $cupom->refresh()->load('itens');
+        $this->assertSame(Cupom::STATUS_VALIDADO, $cupom->status);
+        $this->assertSame('235.43', (string) $cupom->valor_total);
+        $this->assertCount(18, $cupom->itens);
+        $this->assertFalse(
+            AnonimizadorCpf::contemCpf(json_encode($cupom->toArray(), JSON_UNESCAPED_UNICODE)),
+            'Nenhum CPF pode ser persistido (ADR-006).'
+        );
     }
 
     /** ADR-002: política de retry com backoff crescente configurada. */

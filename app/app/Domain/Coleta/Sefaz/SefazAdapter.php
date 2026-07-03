@@ -20,7 +20,10 @@ interface SefazAdapter
     /**
      * Extrai e normaliza o cupom, retornando o DTO canônico já sem PII.
      *
+     * @param  string|null  $qrConteudo  QR/URL original capturado (necessário para a
+     *                                   consulta assinada ao portal — ver SefazSpFetcher).
+     *
      * @throws SefazExtracaoException falha transitória, estrutural ou de negócio (ADR-002).
      */
-    public function extrair(ChaveAcesso $chave): CupomExtraido;
+    public function extrair(ChaveAcesso $chave, ?string $qrConteudo = null): CupomExtraido;
 }

@@ -17,9 +17,12 @@ interface SefazSpFetcher
      * Retorna o payload bruto do portal (associativo) para a chave dada.
      * PODE conter CPF do consumidor — que será descartado pelo AnonimizadorCpf.
      *
+     * @param  string|null  $qrConteudo  QR/URL original capturado (o `p` assinado que o
+     *                                   portal exige). Sem ele, a consulta ao vivo de SP
+     *                                   não é possível (só a chave não basta).
      * @return array<string, mixed>
      *
      * @throws SefazExtracaoException quando o portal falha (transitória/estrutural/negócio).
      */
-    public function buscar(ChaveAcesso $chave): array;
+    public function buscar(ChaveAcesso $chave, ?string $qrConteudo = null): array;
 }

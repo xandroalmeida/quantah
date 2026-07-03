@@ -32,6 +32,26 @@ updated_at: 2026-07-03
 > **provavelmente viável sem captcha-solving** — o próximo passo é obter um QR real e finalizar o parser,
 > não contratar captcha-solving. As seções abaixo ficam como registro histórico da decisão original.
 
+## Resolução (2026-07-03) — extração ao vivo IMPLEMENTADA e confirmada
+
+Com um QR real de um cupom de SP (decodificado da foto), a extração ao vivo foi **implementada e
+comprovada ponta a ponta**, sem captcha nem fonte oficial:
+
+- **Persistência do QR:** nova coluna `cupons.qr_conteudo` (migração `2026_07_03_000001`); a captura
+  guarda o QR completo assinado (`p=chave|versão|amb|token|hash`), que o job reenvia ao portal.
+- **Parser do DANFE:** `HttpSefazSpFetcher` parseia a "Consulta Resumida NFC-e" (itens via `tr#Item`
+  + `txtTit/RCod/Rqtd/RUN/RvlUnit/valor`, total, emissão; número/série da chave). Só a chave digitada
+  (sem assinatura) → falha **estrutural** (extração ao vivo exige o QR escaneado/colado).
+- **Confirmado ao vivo:** `php artisan coleta:extrair "<URL real>"` → cupom `validado`, **18 itens**,
+  total **R$ 235,43**, emissão 01/07/2026 16:43:54 — batendo com a nota física. **Zero CPF** persistido
+  (ADR-006); o CPF do consumidor não é extraído.
+- **Teste determinístico:** fixture `tests/fixtures/coleta/danfe-sp.html` (HTML real, **CPF mascarado**)
+  cobre o parser (18 itens, unidades UN/KG, valores) sem tocar a rede.
+
+**Conclusão:** o "limite do captcha" **não existe**; a extração ao vivo de SP funciona. O critério
+end-to-end ao vivo da STORY-013 está **destravado**. Fica como evolução (não bloqueio) migrar para a
+fonte oficial (§6.2) por robustez, e endurecer o parser contra variações de layout do portal.
+
 ## Contexto
 
 A STORY-010 implementa o núcleo servidor do épico: extrair o cupom da SEFAZ-SP, validar, deduplicar e

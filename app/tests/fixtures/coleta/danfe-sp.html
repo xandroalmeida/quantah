@@ -1,0 +1,648 @@
+
+
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr">
+<head id="Head"><title>
+	Consulta Resumida NFC-e - Secretaria da Fazenda - Governo do Estado de São Paulo
+</title><meta charset="utf-8" /><meta name="viewport" content="width=device-width,&#32;initial-scale=1" /><meta http-equiv="X-UA-Compatible" content="IE=9,&#32;IE=edge" /><meta name="format-detection" content="telephone=no" />
+    <script src="../Xsl/nfce_rj_v2.05/js/jquery.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('body').hide();
+            $('.ui-filterable input').placeholder();
+            ExibirImagemCancelada();
+            ExibirImagemDenegada();
+            setTimeout(AjustarExibicaoEPEC, 200);
+            setTimeout(function () {
+                $('body').show()
+            }, 400);
+        });
+
+        $(window).resize(function () {
+            setTimeout(AjustarExibicaoEPEC, 300);
+            $('body').hide();
+            setTimeout(function () {
+                $('body').show()
+            }, 400);
+        });
+    </script>
+
+    <script src="../Xsl/nfce_rj_v2.05/js/index.js"></script>
+    <script src="../Xsl/nfce_rj_v2.05/js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="../Xsl/nfce_rj_v1.00/js/jquery.placeholder.min.js"></script>
+    <link rel="stylesheet" media="all" href="../Xsl/nfce_rj_v2.05/css/jquery.mobile-1.4.5.min.css" type="text/css" /><link rel="stylesheet" media="all" href="../Xsl/nfce_rj_v2.05/css/nfceMob.css" type="text/css" /><link rel="stylesheet" media="all" href="../Xsl/nfce_rj_v2.05/css/nfceMob_ie.css" type="text/css" /><link rel="stylesheet" media="all" href="../Content/botoes.css" type="text/css" />
+    <style>
+        .msgErro {
+            font-size: 80%;
+            font-weight: bold;
+            color: Red;
+        }
+
+        .BotoesResponsivos input:first-child {
+            margin-left: 2px;
+        }
+
+        #erro {
+            margin-top:250px;
+        }
+
+        @media print {
+            .naoImprimir {
+                display: none;
+                visibility: hidden;
+            }
+            #erro {
+                max-height:none !important;
+            }
+            body {
+                height:99% !important;
+            }
+        }
+    </style>
+</head>
+<body >
+    <form method="post" action="ConsultaResponsiva/ConsultaResumidaRJFrame_v400.aspx" id="ctl00">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="bv6wEC7GuR9/upy33wqQ2DDzAqI8oFzymIdkKsLq057QSX9ByK+bHu+iRDR/cSCwVjFHlxidh2yMKMqZGYTGSGH8rwZoeuhI07qbwOHuGNPAnqR3i+x2ibHh9oPW8BCVSkMwzpD2CpwlZOj5ENeZjhYyNCVcu2MlfE90XQWTSsaker53uQgPiFCaTfeyQzKDqcZoOuYU4le7teUnDkqsCFAAWnPA7zTgXX42MB3wDbEDhgFBmsS3U7jqBbWBbubPuoGiibUFYmVCTk8w9QWjhw==" />
+</div>
+
+        <div style="width: 100%; max-width: 510px; margin: 10px auto;">
+            
+            
+            
+            <div data-role="page" style="position: relative;">
+                <div data-role="header" xmlns:n="http://www.portalfiscal.inf.br/nfe" xmlns:chave="http://exslt.org/chaveacesso" xmlns:r="http://www.serpro.gov.br/nfe/remessanfe.xsd">
+  <h1 class="tit">
+    <img src="../Xsl/nfce_rj_v2.05/imagens/logoNFCe.png" width="90" height="64" alt="NFC-e">
+    <p>DOCUMENTO AUXILIAR DA NOTA FISCAL DE CONSUMIDOR ELETRÔNICA</p>
+    <p>
+    </p>
+  </h1>
+</div>
+<div data-role="content" xmlns:n="http://www.portalfiscal.inf.br/nfe" xmlns:chave="http://exslt.org/chaveacesso" xmlns:r="http://www.serpro.gov.br/nfe/remessanfe.xsd">
+  <div id="conteudo">
+    <div id="avisos">
+    </div>
+    <div class="txtCenter">
+      <div id="u20" class="txtTopo">Supermercados Cavicchiolli Ltda</div>
+      <div class="text">
+								CNPJ:
+								43.259.548/0028-83</div>
+      <div class="text">Av. Tiradentes
+							,
+							0
+							,
+							
+							,
+							Chacara Sao Joao De Deus
+							,
+							Itu
+							,
+							SP</div>
+    </div>
+    <table border="0" align="center" cellpadding="0" cellspacing="0" id="tabResult" data-filter="true">
+      <tr id="Item + 1">
+        <td valign="top">
+          <span class="txtTit">SALSICHA HOT DOG SADIA 500G</span>
+          <span class="RCod">
+										(Código:
+										39900
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										14,85</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">14,85</span></td>
+      </tr>
+      <tr id="Item + 2">
+        <td valign="top">
+          <span class="txtTit">QJ MUCAR SCALA KG</span>
+          <span class="RCod">
+										(Código:
+										941344
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>0,506</span>
+          <span class="RUN">
+            <strong>UN: </strong>KG</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										69,9</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">35,37</span></td>
+      </tr>
+      <tr id="Item + 3">
+        <td valign="top">
+          <span class="txtTit">PRES COZ PERD S CP FAT VAC 200</span>
+          <span class="RCod">
+										(Código:
+										893765
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										12,49</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">12,49</span></td>
+      </tr>
+      <tr id="Item + 4">
+        <td valign="top">
+          <span class="txtTit">PRES COZ PERD S CP FAT VAC 200</span>
+          <span class="RCod">
+										(Código:
+										893765
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										12,49</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">12,49</span></td>
+      </tr>
+      <tr id="Item + 5">
+        <td valign="top">
+          <span class="txtTit">PAO QUEIJO M LEVE TRAD 400G</span>
+          <span class="RCod">
+										(Código:
+										723371
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										11,49</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">11,49</span></td>
+      </tr>
+      <tr id="Item + 6">
+        <td valign="top">
+          <span class="txtTit">PAO QUEIJO M LEVE TRAD 400G</span>
+          <span class="RCod">
+										(Código:
+										723371
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										11,49</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">11,49</span></td>
+      </tr>
+      <tr id="Item + 7">
+        <td valign="top">
+          <span class="txtTit">CAFE CAICARA GRAO MOIDO PCT500</span>
+          <span class="RCod">
+										(Código:
+										828840
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										31,9</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">31,90</span></td>
+      </tr>
+      <tr id="Item + 8">
+        <td valign="top">
+          <span class="txtTit">PAO BISNAG SEVEN B ZR GOR T300</span>
+          <span class="RCod">
+										(Código:
+										19705
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										5,98</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">5,98</span></td>
+      </tr>
+      <tr id="Item + 9">
+        <td valign="top">
+          <span class="txtTit">BOM NESTLE ESPECIALIDADES 220</span>
+          <span class="RCod">
+										(Código:
+										1123262
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										16,99</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">16,99</span></td>
+      </tr>
+      <tr id="Item + 10">
+        <td valign="top">
+          <span class="txtTit">BOM NESTLE ESPECIALIDADES 220</span>
+          <span class="RCod">
+										(Código:
+										1123262
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										16,99</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">16,99</span></td>
+      </tr>
+      <tr id="Item + 11">
+        <td valign="top">
+          <span class="txtTit">LING MISTA SADIA FIN215</span>
+          <span class="RCod">
+										(Código:
+										991066
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										8,99</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">8,99</span></td>
+      </tr>
+      <tr id="Item + 12">
+        <td valign="top">
+          <span class="txtTit">LING MISTA SADIA FIN215</span>
+          <span class="RCod">
+										(Código:
+										991066
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										8,99</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">8,99</span></td>
+      </tr>
+      <tr id="Item + 13">
+        <td valign="top">
+          <span class="txtTit">PAO BISNAG SEVEN B ZR GOR T300</span>
+          <span class="RCod">
+										(Código:
+										19705
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										5,98</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">5,98</span></td>
+      </tr>
+      <tr id="Item + 14">
+        <td valign="top">
+          <span class="txtTit">PAO BISNAG SEVEN B ZR GOR T300</span>
+          <span class="RCod">
+										(Código:
+										19705
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										5,98</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">5,98</span></td>
+      </tr>
+      <tr id="Item + 15">
+        <td valign="top">
+          <span class="txtTit">SUCO IN NAT XANDO LAR 900ML</span>
+          <span class="RCod">
+										(Código:
+										816418
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										14,79</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">14,79</span></td>
+      </tr>
+      <tr id="Item + 16">
+        <td valign="top">
+          <span class="txtTit">BOM LACTA OREO 20,1G</span>
+          <span class="RCod">
+										(Código:
+										1082310
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										2,25</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">2,25</span></td>
+      </tr>
+      <tr id="Item + 17">
+        <td valign="top">
+          <span class="txtTit">SUCO IN NAT XANDO LAR 900ML</span>
+          <span class="RCod">
+										(Código:
+										816418
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>1</span>
+          <span class="RUN">
+            <strong>UN: </strong>UN</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										14,79</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">14,79</span></td>
+      </tr>
+      <tr id="Item + 18">
+        <td valign="top">
+          <span class="txtTit">PAO FRANCES KG</span>
+          <span class="RCod">
+										(Código:
+										911968
+										)
+									</span>
+          <br>
+          <span class="Rqtd">
+            <strong>Qtde.:</strong>0,825</span>
+          <span class="RUN">
+            <strong>UN: </strong>KG</span>
+          <span class="RvlUnit">
+            <strong>Vl. Unit.:</strong>
+										 
+										16,99</span>
+        </td>
+        <td align="right" valign="top" class="txtTit noWrap">
+									Vl. Total
+									<br><span class="valor">14,02</span></td>
+      </tr>
+    </table>
+    <div id="totalNota" class="txtRight">
+      <div id="linhaTotal">
+        <label>Qtd. total de itens:</label>
+        <span class="totalNumb">18</span>
+      </div>
+      <div id="linhaTotal">
+        <label>Valor total R$:</label>
+        <span class="totalNumb">245,83</span>
+      </div>
+      <div id="linhaTotal">
+        <label>Descontos R$:</label>
+        <span class="totalNumb">10,40</span>
+      </div>
+      <div id="linhaTotal" class="linhaShade">
+        <label>Valor a pagar R$:</label>
+        <span class="totalNumb txtMax">235,43</span>
+      </div>
+      <div id="linhaForma">
+        <label>Forma de pagamento:</label>
+        <span class="totalNumb txtTitR">Valor pago R$:</span>
+      </div>
+      <div id="linhaTotal">
+        <label class="tx">
+											Cartão de Crédito
+										</label>
+        <span class="totalNumb">235,43</span>
+      </div>
+      <div id="linhaTotal">
+        <label class="tx">Troco </label>
+        <span class="totalNumb">0,00</span>
+      </div>
+      <div id="linhaTotal" class="spcTop">
+        <label class="txtObs">Informação dos Tributos Totais Incidentes
+									(Lei Federal 12.741/2012) R$</label>
+        <span class="totalNumb txtObs">54,67</span>
+      </div>
+    </div>
+  </div>
+  <div id="infos" class="txtCenter">
+    <div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+      <h4>Informações gerais da Nota</h4>
+      <ul data-role="listview" data-inset="false">
+        <li>
+          <strong>EMISSÃO NORMAL</strong>
+          <br>
+          <br>
+          <strong>Número: </strong>66606<strong> Série: </strong>203<strong> Emissão: </strong>01/07/2026 16:43:54
+								- Via Consumidor
+								<br><br><strong>Protocolo de Autorização: </strong>135264437962486       01/07/2026 16:43:57<br><br><strong>
+										Ambiente de Produção -
+									
+									Versão XML:
+									4.00
+									- Versão XSLT: 2.05
+								</strong></li>
+      </ul>
+    </div>
+    <div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+      <h4>Chave de acesso</h4>
+      <ul data-role="listview" data-inset="false">
+        <li>
+								Consulte pela Chave de Acesso em
+								
+								https://www.nfce.fazenda.sp.gov.br/consulta<br><br><strong>Chave de acesso:</strong><br><span class="chave">3526 0743 2595 4800 2883 6520 3000 0666 0619 5463 4872</span></li>
+      </ul>
+    </div>
+    <div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+      <h4>Consumidor</h4>
+      <ul data-role="listview" data-inset="false">
+        <li>
+          <strong>CPF: </strong>000.000.000-00</li>
+        <li>
+          <strong>Nome: </strong>
+        </li>
+      </ul>
+    </div>
+    <div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+      <h4>Informações de interesse do contribuinte</h4>
+      <ul data-role="listview" data-inset="false">
+        <li>PDV:203 CONTROLE:463487</li>
+      </ul>
+    </div>
+  </div>
+</div>
+            </div>
+        </div>
+        <div style="width: 100%; max-width: 510px; margin: 10px auto; background-color: white;">
+            <div>
+                <div style="width: 50%; float: left; text-align: left">
+                    
+<span class="timestampConsulta">Data/Hora: 03/07/2026 08:35</span>
+
+                </div>
+                <div style="width: 50%; float: right; text-align: right;">
+                    
+
+                </div>
+            </div>
+            <div id="Botoes" class="naoImprimir BotoesResponsivos" style="float: left; margin-top: 20px; margin-bottom: 80px; width: 100%;">
+                <div style="width: 39%; float: left;">
+                    
+                </div>
+                <div style="width: 34%; float: left;">
+                    
+                </div>
+                <div style="width: 25%; float: left">
+                    
+                </div>
+            </div>
+        </div>
+    
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="2CB5E186" />
+</div></form>
+    <script type="text/javascript">
+      
+        function ExibirImagemCancelada() {
+            var objImg = document.getElementById('imgInvalido1');
+            if ($('#hdfNotaCancelada').length) {
+                AcertarDivErro(objImg);
+            }
+        }
+
+        function ExibirImagemDenegada() {
+            var objImg = document.getElementById('imgInvalido2');
+            if ($('#hdfNotaDenegada').length) {
+                AcertarDivErro(objImg);
+            }
+        }
+
+        function AjustarExibicaoEPEC()
+        {
+            if ($('#hdfSomenteEPEC').length) {
+                $('.ui-page').css({ "minHeight": "500px" });
+            }
+        }
+
+        function AcertarDivErro(objImg) {
+            $('#erro').css({ "display": "block" });
+            $('#erro').css({ "maxWidth": "510px" });
+            $('#erro').css({ "maxHeight": "200px" });
+            objImg.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

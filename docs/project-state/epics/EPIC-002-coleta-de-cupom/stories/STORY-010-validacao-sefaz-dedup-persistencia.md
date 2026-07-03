@@ -88,10 +88,9 @@ Siga `agent-task-format.md`. Falta/conflito de ADR → `blocked` + escalar ao Ar
 
 ## Notas do agente (preenchido durante/após execução)
 
-> **Status:** `done` no nível do pipeline (CA-1..5 exercidos; núcleo dedup/validação **100%**).
-> **Atenção do PO/Arquiteto:** a extração **ao vivo** esbarra no **captcha** do portal — ver
-> "Bloqueios/limitação" e **IDR-004**. Não bloqueia os CAs desta estória, mas afeta o end-to-end ao
-> vivo da validação final (STORY-013).
+> **Status:** `done`. Pipeline + núcleo dedup/validação **100%** E **extração ao vivo confirmada**
+> ponta a ponta contra o portal real de SP (com um QR real: cupom `validado`, 18 itens, R$ 235,43,
+> sem CPF). O "captcha" não existia — ver correção/resolução no **IDR-004**.
 
 ### Decisões tomadas
 - **Extração assíncrona na fila Postgres (ADR-002):** `ExtrairCupomJob` (`tries=3`, backoff `[10,60,300]`).
@@ -111,16 +110,16 @@ Siga `agent-task-format.md`. Falta/conflito de ADR → `blocked` + escalar ao Ar
   o driver é `database` (não roda sem worker).
 - Faltava um **worker** no compose de produção — sem ele, o cupom ficaria `pendente` para sempre. Adicionado.
 
-### Bloqueios encontrados / limitação (escalar ao PO/Arquiteto)
-- **CORREÇÃO (2026-07-03): NÃO há captcha.** Uma sonda com navegador real na página do QR de SP mostrou
-  que **não existe captcha** — para um QR inválido, o portal só devolve um diálogo "QR Code inválido". A
-  minha afirmação anterior (captcha) foi feita sem verificar e está errada; corrigida no **IDR-004**.
-- **O que de fato falta para a extração ao vivo:** (1) reenviar o **QR completo assinado** que a captura
-  já recebe (hoje o fetcher fabrica `p=chave|2|1|1` → o portal recusa) e (2) um **parser do DANFE**
-  validado contra uma resposta real. **Ainda a confirmar** (precisa de um QR real de compra em SP): se o
-  QR válido renderiza o DANFE direto. **Boa notícia:** a extração ao vivo é **provavelmente viável sem
-  captcha-solving**. O pipeline (fila/retry/dedup/persistência) já está pronto e testado; falta plugar o
-  fetcher real com um QR de amostra. **Recomendo obter um QR real antes da STORY-013.**
+### Extração ao vivo — RESOLVIDA (2026-07-03)
+- **Não havia captcha.** Sonda com navegador real desmentiu minha alegação anterior (registro no IDR-004).
+- **Implementado e confirmado ao vivo** com um QR real fornecido pelo Alexandro: persistência do QR
+  (`cupons.qr_conteudo`), parser do DANFE ("Consulta Resumida NFC-e"), e `coleta:extrair "<URL>"` →
+  cupom `validado`, **18 itens**, R$ 235,43, emissão 01/07/2026, **sem CPF**. Fixture real (CPF mascarado)
+  em `tests/fixtures/coleta/danfe-sp.html`.
+- **Restrição honesta:** a extração ao vivo exige o **QR escaneado/colado** (com o hash assinado); só a
+  chave de 44 dígitos digitada não permite a consulta (vira falha estrutural — documentado). Isso é
+  natural: o valor da coleta vem do scan/compartilhar, não da digitação manual.
+- **STORY-013 destravada** para o end-to-end ao vivo.
 
 ### Links de evidência
 - Código: `app/Domain/Coleta/IngestaoCupomService.php` (capturar/ingerir/processarExtracao/reprocessar),

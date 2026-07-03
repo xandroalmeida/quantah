@@ -43,7 +43,7 @@ final class IngestaoCupomService
             return $parse; // rejeitado
         }
 
-        [$cupom, $novo] = $this->persistirPendente($parse, $origem);
+        [$cupom, $novo] = $this->persistirPendente($parse, $origem, $entrada);
 
         // Enfileira a extração para cupom novo ou em falha (reprocessável) — ADR-002.
         if ($novo || $cupom->status === Cupom::STATUS_FALHA) {
@@ -65,7 +65,7 @@ final class IngestaoCupomService
             return $parse;
         }
 
-        [$cupom, $novo] = $this->persistirPendente($parse, $origem);
+        [$cupom, $novo] = $this->persistirPendente($parse, $origem, $entrada);
 
         if (! $novo && $cupom->status !== Cupom::STATUS_FALHA) {
             return ResultadoIngestao::duplicado($cupom);
@@ -111,7 +111,7 @@ final class IngestaoCupomService
         $cupom->update(['status' => Cupom::STATUS_EXTRAINDO, 'motivo_falha' => null]);
 
         try {
-            $extraido = $adaptador->extrair($chave);
+            $extraido = $adaptador->extrair($chave, $cupom->qr_conteudo);
         } catch (SefazExtracaoException $e) {
             if ($e->tipo === SefazExtracaoException::NEGOCIO) {
                 $cupom->update(['status' => Cupom::STATUS_REJEITADO, 'motivo_falha' => $e->tipo]);
@@ -154,12 +154,13 @@ final class IngestaoCupomService
 
     /**
      * Insere o cupom em `pendente` de forma idempotente (unique na chave, à prova de corrida).
+     * Guarda o QR original (`$qrConteudo`) — necessário para a consulta assinada (STORY-010).
      *
      * @return array{0: Cupom, 1: bool} o cupom e se foi criado agora
      */
-    private function persistirPendente(ChaveAcesso $chave, string $origem): array
+    private function persistirPendente(ChaveAcesso $chave, string $origem, string $qrConteudo): array
     {
-        return DB::transaction(function () use ($chave, $origem) {
+        return DB::transaction(function () use ($chave, $origem, $qrConteudo) {
             $cupom = Cupom::firstOrCreate(
                 ['chave_acesso' => $chave->valor()],
                 [
@@ -169,8 +170,17 @@ final class IngestaoCupomService
                     'modelo' => $chave->modelo(),
                     'status' => Cupom::STATUS_PENDENTE,
                     'origem' => $origem,
+                    'qr_conteudo' => $qrConteudo,
                 ],
             );
+
+            // Reenvio de um cupom em falha trazendo o QR assinado (antes só a chave) → atualiza.
+            if (! $cupom->wasRecentlyCreated
+                && $cupom->status === Cupom::STATUS_FALHA
+                && str_contains($qrConteudo, '|')
+                && ! str_contains((string) $cupom->qr_conteudo, '|')) {
+                $cupom->update(['qr_conteudo' => $qrConteudo]);
+            }
 
             return [$cupom, $cupom->wasRecentlyCreated];
         });

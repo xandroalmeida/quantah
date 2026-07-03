@@ -40,6 +40,7 @@ class Cupom extends Model
         'valor_total',
         'status',
         'origem',
+        'qr_conteudo',
         'motivo_falha',
         'extraido_em',
     ];

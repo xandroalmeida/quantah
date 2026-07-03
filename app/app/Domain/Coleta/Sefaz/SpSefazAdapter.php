@@ -24,10 +24,10 @@ final class SpSefazAdapter implements SefazAdapter
         return '35';
     }
 
-    public function extrair(ChaveAcesso $chave): CupomExtraido
+    public function extrair(ChaveAcesso $chave, ?string $qrConteudo = null): CupomExtraido
     {
         // 1. Payload bruto do portal (pode conter CPF).
-        $bruto = $this->fetcher->buscar($chave);
+        $bruto = $this->fetcher->buscar($chave, $qrConteudo);
 
         // 2. LGPD (ADR-006): descarta CPF ANTES de qualquer normalização/persistência/log.
         $limpo = $this->anonimizador->limpar($bruto);
@@ -66,7 +66,7 @@ final class SpSefazAdapter implements SefazAdapter
         }
 
         return new CupomExtraido(
-            dataEmissao: (string) $p['data_emissao'],
+            dataEmissao: $p['data_emissao'] !== null ? (string) $p['data_emissao'] : null,
             valorTotal: (string) $p['valor_total'],
             numero: (int) $p['numero'],
             serie: (int) $p['serie'],
