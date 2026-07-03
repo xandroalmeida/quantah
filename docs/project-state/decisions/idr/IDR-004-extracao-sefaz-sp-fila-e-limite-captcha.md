@@ -17,6 +17,21 @@ updated_at: 2026-07-03
 
 # IDR-004 — Extração SEFAZ-SP: fila Postgres + fetcher defensivo; limite do captcha
 
+> **⚠️ CORREÇÃO (2026-07-03) — o "captcha" NÃO se confirmou.** Uma sonda com navegador real na página
+> `ConsultaQRCode.aspx` do portal de SP **não encontrou captcha** (nem no HTML, nem renderizado). Para
+> um QR inválido, o portal responde com um **diálogo de erro** ("QR Code inválido — Chave de Acesso com
+> menos de 44 caracteres"). Ou seja, a afirmação original abaixo ("o portal exige captcha, o happy-path
+> ao vivo está bloqueado por captcha") foi feita **sem verificação e não se sustenta**.
+>
+> **O que de fato bloqueia a extração ao vivo hoje:** (1) o fetcher fabrica o parâmetro `p` como
+> `chave|2|1|1` em vez de reenviar o **QR completo assinado** que a captura já recebe (o `p` do QR
+> carrega versão/ambiente/hash além da chave); e (2) falta um **parser do DANFE** validado contra uma
+> resposta real. Nenhum dos dois é captcha. **Ainda não confirmado** (exige um QR real de uma compra em
+> SP): se, com o QR válido completo, o portal renderiza o DANFE direto (provável, é o fluxo do
+> consumidor) ou se há alguma verificação adicional depois. **Revisão do rumo:** a extração ao vivo é
+> **provavelmente viável sem captcha-solving** — o próximo passo é obter um QR real e finalizar o parser,
+> não contratar captcha-solving. As seções abaixo ficam como registro histórico da decisão original.
+
 ## Contexto
 
 A STORY-010 implementa o núcleo servidor do épico: extrair o cupom da SEFAZ-SP, validar, deduplicar e

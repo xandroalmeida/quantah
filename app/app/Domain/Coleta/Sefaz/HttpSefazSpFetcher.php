@@ -10,16 +10,17 @@ use Illuminate\Support\Facades\Http;
  * Fetcher real do portal público da NFC-e de SP (ADR-002).
  *
  * Faz o GET da página do QR (`.../qrcode?p=<chave>|...`) e classifica a resposta em
- * transitória / negócio / estrutural. A conversão HTML→campos é **best-effort** e
- * conservadora: se a página não tiver a estrutura esperada do DANFE — o caso mais
- * provável hoje, porque o portal exige **captcha** na consulta — trata como falha
- * **ESTRUTURAL** (não persiste lixo; o cupom vira `falha` reprocessável + alerta),
- * exatamente o comportamento desenhado na ADR-002.
+ * transitória / negócio / estrutural. A conversão HTML→campos é conservadora: se a
+ * página não tiver a estrutura esperada do DANFE, trata como falha **ESTRUTURAL** (não
+ * persiste lixo; o cupom vira `falha` reprocessável), como desenhado na ADR-002.
  *
- * LIMITAÇÃO CONHECIDA (ver IDR-004): sem resolver o captcha, o caminho feliz de
- * extração ao vivo não fecha — o happy path é validado por fixture/fake (ADR-002:
- * "SEFAZ mockável em teste"). A extração ao vivo depende de resolver o captcha ou
- * migrar para a fonte oficial (decisão de produto/arquitetura).
+ * ESTADO / LIMITAÇÃO (ver IDR-004): uma sonda em navegador real mostrou que **NÃO há
+ * captcha** no portal — o que falta para a extração ao vivo é (1) reenviar o **QR
+ * completo assinado** que a captura já recebe (aqui ainda fabricamos `p=chave|2|1|1`,
+ * que o portal recusa) e (2) um **parser do DANFE** validado contra uma resposta real.
+ * Sem amostra real, não inventamos parser — falha seguro. O happy path é provado por
+ * fixture/fake (ADR-002: "SEFAZ mockável em teste"). Os marcadores de captcha abaixo
+ * ficam como salvaguarda defensiva, não como o bloqueio principal.
  */
 final class HttpSefazSpFetcher implements SefazSpFetcher
 {

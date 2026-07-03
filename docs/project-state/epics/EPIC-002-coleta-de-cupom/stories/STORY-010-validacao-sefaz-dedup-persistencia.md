@@ -112,12 +112,15 @@ Siga `agent-task-format.md`. Falta/conflito de ADR → `blocked` + escalar ao Ar
 - Faltava um **worker** no compose de produção — sem ele, o cupom ficaria `pendente` para sempre. Adicionado.
 
 ### Bloqueios encontrados / limitação (escalar ao PO/Arquiteto)
-- **Captcha na SEFAZ-SP:** o portal público exige captcha na consulta, então a extração automática ao
-  vivo **não retorna o cupom** — hoje termina em `falha` (estrutural, reprocessável). O happy-path é
-  provado por fixture/fake (ADR-002 autoriza "SEFAZ mockável em teste"). Para o **end-to-end ao vivo**
-  (critério do épico, STORY-013), é preciso decidir: captcha-solving (custo), **fonte oficial** (evolução
-  já prevista na visão §6.2), ou aceitar o MVP com fixture. **Recomendo abrir com o PO/Arquiteto antes da
-  STORY-013.** (IDR-004.)
+- **CORREÇÃO (2026-07-03): NÃO há captcha.** Uma sonda com navegador real na página do QR de SP mostrou
+  que **não existe captcha** — para um QR inválido, o portal só devolve um diálogo "QR Code inválido". A
+  minha afirmação anterior (captcha) foi feita sem verificar e está errada; corrigida no **IDR-004**.
+- **O que de fato falta para a extração ao vivo:** (1) reenviar o **QR completo assinado** que a captura
+  já recebe (hoje o fetcher fabrica `p=chave|2|1|1` → o portal recusa) e (2) um **parser do DANFE**
+  validado contra uma resposta real. **Ainda a confirmar** (precisa de um QR real de compra em SP): se o
+  QR válido renderiza o DANFE direto. **Boa notícia:** a extração ao vivo é **provavelmente viável sem
+  captcha-solving**. O pipeline (fila/retry/dedup/persistência) já está pronto e testado; falta plugar o
+  fetcher real com um QR de amostra. **Recomendo obter um QR real antes da STORY-013.**
 
 ### Links de evidência
 - Código: `app/Domain/Coleta/IngestaoCupomService.php` (capturar/ingerir/processarExtracao/reprocessar),

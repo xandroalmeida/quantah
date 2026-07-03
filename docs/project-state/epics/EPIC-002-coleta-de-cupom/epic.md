@@ -75,7 +75,7 @@ de implementação. Checklist de validação (`validation/checklist.md`) autorad
 - [x] **STORY-009** — captura do QR (scan + compartilhar) e confirmação, mobile (`requires_design`) · `done`
       (spec de tela + Captura.jsx + @zxing/browser (IDR-003); Feature + E2E Dusk verdes)
 - [x] **STORY-010** — validação SEFAZ-SP + deduplicação por chave + persistência canônica · `done`
-      (pipeline assíncrono na fila; núcleo dedup/validação 100%; **limite do captcha** p/ ao-vivo → IDR-004)
+      (pipeline assíncrono na fila; núcleo dedup/validação 100%; ao-vivo falta QR real+parser, **sem captcha** → IDR-004)
 - [ ] **STORY-011** — anonimização de CPF na coleta (LGPD, ADR-006) · `draft` (bloqueada por STORY-008/010)
 - [ ] **STORY-012** — instrumentação da north-star (válidos-únicos-novos/semana) · `draft` (bloqueada por STORY-010)
 - [ ] **STORY-013** (validação) — validação final do épico · `draft` (bloqueada por STORY-008..012)
