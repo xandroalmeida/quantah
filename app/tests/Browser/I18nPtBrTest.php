@@ -48,8 +48,8 @@ class I18nPtBrTest extends DuskTestCase
             $browser->visit('/login')
                 ->assertSee('E-mail')
                 ->assertSee('Senha')
-                ->assertSee('Lembrar-me')
-                ->assertSee('INICIAR SESSÃO') // botão (uppercase pelo DS)
+                ->assertSee('Manter conectado')
+                ->assertSee('Entrar') // CTA do DS (STORY-021, sem uppercase)
                 ->assertDontSee('Log in')
                 ->assertDontSee('Remember me')
                 ->assertDontSee('Password')
@@ -63,8 +63,8 @@ class I18nPtBrTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->visit('/register')
                 ->assertSee('Nome')
-                ->assertSee('Confirmar Senha')
-                ->assertSee('Já está registrado?')
+                ->assertSee('Confirmar senha')
+                ->assertSee('Já tem conta?')
                 ->assertDontSee('Confirm Password')
                 ->assertDontSee('Already registered');
         });
@@ -80,11 +80,11 @@ class I18nPtBrTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) {
             $browser->visit('/login')
-                ->type('email', self::EMAIL)
-                ->type('password', 'senha-errada')
-                ->click('form button[type="submit"], form button')
-                ->waitForText('credenciais')
-                ->assertSee('credenciais')
+                ->type('[data-testid=acesso-campo-email]', self::EMAIL)
+                ->type('[data-testid=acesso-campo-senha]', 'senha-errada')
+                ->click('[data-testid=acesso-entrar-submit]')
+                ->waitForText('incorret') // "E-mail ou senha incorretos." (STORY-021)
+                ->assertSee('incorret')
                 ->assertDontSee('credentials')
                 ->assertDontSee('do not match');
         });

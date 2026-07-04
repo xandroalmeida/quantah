@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-021-login-cadastro-coletador
-status: ready
-owner_agent: null
+status: in_progress
+owner_agent: Programador
 created_at: 2026-07-04
 updated_at: 2026-07-04
 estimated_session_size: M
