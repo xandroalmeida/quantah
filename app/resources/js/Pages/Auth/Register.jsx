@@ -1,10 +1,14 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import Button from '@/Components/Button';
+import AuthDivider from '@/Components/brand/AuthDivider';
+import GoogleButton from '@/Components/brand/GoogleButton';
+import TextField from '@/Components/inputs/TextField';
 import { t } from '@/i18n';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+
+const LINK =
+    'font-semibold text-ink underline underline-offset-2 hover:text-ink-deep rounded ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -16,7 +20,6 @@ export default function Register() {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('register'), {
             onFinish: () => reset('password', 'password_confirmation'),
         });
@@ -24,98 +27,89 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title={t('Register')} />
+            <Head title={t('Create account')} />
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="name" value={t('Name')} />
+            <div className="flex flex-col gap-lg">
+                <header>
+                    <h1 className="text-display-xs font-black text-ink">
+                        {t('Create account')}
+                    </h1>
+                    <p className="mt-xxs text-body-sm text-body">
+                        {t(
+                            'It takes less than a minute. Every receipt becomes money in your wallet.',
+                        )}
+                    </p>
+                </header>
 
-                    <TextInput
-                        id="name"
-                        name="name"
-                        value={data.name}
-                        className="mt-1 block w-full"
+                <GoogleButton label={t('Sign up with Google')} />
+                <AuthDivider>{t('or')}</AuthDivider>
+
+                <form onSubmit={submit} className="flex flex-col gap-lg">
+                    <TextField
+                        label={t('Name')}
                         autoComplete="name"
-                        isFocused={true}
+                        required
+                        data-testid="acesso-campo-nome"
+                        value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
-                        required
+                        error={errors.name}
                     />
-
-                    <InputError message={errors.name} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="email" value={t('Email')} />
-
-                    <TextInput
-                        id="email"
+                    <TextField
+                        label={t('Email')}
                         type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
                         autoComplete="username"
+                        required
+                        data-testid="acesso-campo-email"
+                        value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
-                        required
+                        error={errors.email}
                     />
-
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value={t('Password')} />
-
-                    <TextInput
-                        id="password"
+                    <TextField
+                        label={t('Password')}
                         type="password"
-                        name="password"
+                        autoComplete="new-password"
+                        required
+                        hint={t('Use at least 8 characters.')}
+                        data-testid="acesso-campo-senha"
                         value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
                         onChange={(e) => setData('password', e.target.value)}
-                        required
+                        error={errors.password}
                     />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value={t('Confirm Password')}
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
+                    <TextField
+                        label={t('Confirm password')}
                         type="password"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
                         autoComplete="new-password"
+                        required
+                        data-testid="acesso-campo-senha_conf"
+                        value={data.password_confirmation}
                         onChange={(e) =>
                             setData('password_confirmation', e.target.value)
                         }
-                        required
+                        error={errors.password_confirmation}
                     />
 
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
-                </div>
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        loading={processing}
+                        data-testid="acesso-criar-submit"
+                        className="w-full"
+                    >
+                        {t('Create account')}
+                    </Button>
+                </form>
 
-                <div className="mt-4 flex items-center justify-end">
+                <p className="text-center text-body-sm text-body">
+                    {t('Already have an account?')}{' '}
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className={LINK}
+                        data-testid="acesso-ir-entrar"
                     >
-                        {t('Already registered?')}
+                        {t('Sign in')}
                     </Link>
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        {t('Register')}
-                    </PrimaryButton>
-                </div>
-            </form>
+                </p>
+            </div>
         </GuestLayout>
     );
 }

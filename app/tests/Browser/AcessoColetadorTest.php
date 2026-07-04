@@ -126,7 +126,8 @@ class AcessoColetadorTest extends DuskTestCase
     /** (i) feliz ponta a ponta — cadastro → logout → login por e-mail/senha, em pt-BR (CA-6). */
     public function test_jornada_cadastro_logout_login(): void
     {
-        $email = 'dusk-acesso+'.Str::random(6).'@quantah.test';
+        // e-mail em minúsculas: o registro exige a regra `lowercase`.
+        $email = 'dusk-acesso+'.Str::lower(Str::random(8)).'@quantah.test';
 
         $this->browse(function (Browser $browser) use ($email) {
             // Cadastro

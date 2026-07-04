@@ -1,11 +1,16 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import Button from '@/Components/Button';
+import AuthCallout from '@/Components/brand/AuthCallout';
+import AuthDivider from '@/Components/brand/AuthDivider';
+import GoogleButton from '@/Components/brand/GoogleButton';
+import Checkbox from '@/Components/inputs/Checkbox';
+import TextField from '@/Components/inputs/TextField';
 import { t } from '@/i18n';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+
+const LINK =
+    'font-semibold text-ink underline underline-offset-2 hover:text-ink-deep rounded ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink';
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -14,88 +19,93 @@ export default function Login({ status, canResetPassword }) {
         remember: false,
     });
 
+    // CA-3: credencial inválida vira erro GLOBAL (sem vazar qual campo falhou).
+    const credentialError = errors.email || errors.password;
+
     const submit = (e) => {
         e.preventDefault();
-
-        post(route('login'), {
-            onFinish: () => reset('password'),
-        });
+        post(route('login'), { onFinish: () => reset('password') });
     };
 
     return (
         <GuestLayout>
-            <Head title={t('Log in')} />
+            <Head title={t('Sign in')} />
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
+            <div className="flex flex-col gap-lg">
+                <header>
+                    <h1 className="text-display-xs font-black text-ink">{t('Sign in')}</h1>
+                    <p className="mt-xxs text-body-sm text-body">
+                        {t('Good to see you again.')}
+                    </p>
+                </header>
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value={t('Email')} />
+                <GoogleButton label={t('Sign in with Google')} />
+                <AuthDivider>{t('or')}</AuthDivider>
 
-                    <TextInput
-                        id="email"
+                {status && <AuthCallout variant="ok">{status}</AuthCallout>}
+                {credentialError && (
+                    <AuthCallout variant="error" data-testid="acesso-erro-credencial">
+                        {credentialError}
+                    </AuthCallout>
+                )}
+
+                <form onSubmit={submit} className="flex flex-col gap-lg">
+                    <TextField
+                        label={t('Email')}
                         type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
                         autoComplete="username"
-                        isFocused={true}
+                        data-testid="acesso-campo-email"
+                        value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
                     />
-
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value={t('Password')} />
-
-                    <TextInput
-                        id="password"
+                    <TextField
+                        label={t('Password')}
                         type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
                         autoComplete="current-password"
+                        data-testid="acesso-campo-senha"
+                        value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
                     />
 
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4 block">
-                    <label className="flex items-center">
+                    <div className="flex flex-wrap items-center justify-between gap-md">
                         <Checkbox
-                            name="remember"
+                            label={t('Keep me signed in')}
                             checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
+                            onChange={(e) => setData('remember', e.target.checked)}
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            {t('Remember me')}
-                        </span>
-                    </label>
-                </div>
+                        {canResetPassword && (
+                            <Link
+                                href={route('password.request')}
+                                className={LINK}
+                                data-testid="acesso-esqueci-link"
+                            >
+                                {t('I forgot my password')}
+                            </Link>
+                        )}
+                    </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            {t('Forgot your password?')}
-                        </Link>
-                    )}
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        loading={processing}
+                        data-testid="acesso-entrar-submit"
+                        className="w-full"
+                    >
+                        {t('Sign in')}
+                    </Button>
+                </form>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        {t('Log in')}
-                    </PrimaryButton>
-                </div>
-            </form>
+                <p className="text-center text-body-sm text-body">
+                    {t("Don't have an account yet?")}{' '}
+                    <Link
+                        href={route('register')}
+                        className={LINK}
+                        data-testid="acesso-ir-criar-conta"
+                    >
+                        {t('Create account')}
+                    </Link>
+                </p>
+            </div>
         </GuestLayout>
     );
 }

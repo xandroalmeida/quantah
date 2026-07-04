@@ -77,8 +77,9 @@ class LocalizacaoTest extends TestCase
             'password' => 'senha-errada',
         ])->assertSessionHasErrors('email');
 
+        // STORY-021 (CA-3/DDR-004): mensagem genérica em pt-BR, sem vazar qual campo falhou.
         $msg = session('errors')->get('email')[0];
-        $this->assertStringContainsString('credenciais', mb_strtolower($msg));
+        $this->assertStringContainsString('incorret', mb_strtolower($msg));
         $this->assertStringNotContainsString('credentials', mb_strtolower($msg));
     }
 }
