@@ -2,7 +2,7 @@
 id: SCREEN-STORY-017-backoffice-saques
 story: STORY-017-resgate-saque
 epic: EPIC-003-carteira-e-cashback
-status: draft
+status: ready
 created_at: 2026-07-03
 updated_at: 2026-07-03
 owner_designer: claude-story017
@@ -11,7 +11,7 @@ ds_components_used: [card.content, badge.positive, badge.warning, badge.info, ba
 exceptions_to_ds: []
 viewports: [mobile, desktop]
 prototype_path: STORY-017-backoffice-saques/index.html
-prototype_last_validated_at: null
+prototype_last_validated_at: 2026-07-04
 ---
 
 # Spec de tela — Backoffice de saques (operador)
@@ -121,3 +121,4 @@ mobile/desktop; ações da máquina de estados navegáveis. Apresentado ao human
 | Data | Mudança | Quem |
 |---|---|---|
 | 2026-07-03 | criação spec + protótipo | claude-story017 |
+| 2026-07-04 | validação humana — aprovado ("continue") | Alexandro |
