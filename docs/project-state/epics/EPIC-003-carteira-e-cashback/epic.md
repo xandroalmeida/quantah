@@ -74,9 +74,9 @@ define o escopo do saque — só então a estória de resgate ganha contorno. O 
 - [x] **STORY-016** — tela de carteira: saldo em reais + histórico de cupons/créditos, mobile
       (`requires_design`) · `done` · spec+protótipo validados por Alexandro; saldo (card de marca) +
       histórico + estados, nav bottom/top; read-model 100% coberto; deploy homolog verde (run 28690992037).
-- [ ] **STORY-017** — resgate/saque do saldo (PIX assistido, ADR-005) · `in_review` · reserva sob lock +
+- [x] **STORY-017** — resgate/saque do saldo (PIX assistido, ADR-005) · `done` · reserva sob lock +
       máquina de estados (assumir→aprovar→pagar; rejeitar→estorno) + backoffice atrás do papel `operador`
-      (ADR-009/IDR-009). Núcleo 100%; 237 PHPUnit + 52 Dusk.
+      (ADR-009/IDR-009). Núcleo 100%; deploy homolog verde (run 28704231515).
 - [ ] **STORY-018** (validação) — validação final do épico · `draft` · bloqueada por STORY-014..017.
 
 ## Validação final

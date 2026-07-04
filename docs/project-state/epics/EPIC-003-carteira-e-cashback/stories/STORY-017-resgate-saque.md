@@ -8,9 +8,10 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: in_review
+status: done
 owner_agent: claude-story017
 design_screen_id: SCREEN-STORY-017-solicitar-saque
+status_note: aprovada por Alexandro; deploy homolog verde (run 28704231515)
 created_at: 2026-07-03
 updated_at: 2026-07-03
 estimated_session_size: M
