@@ -2,7 +2,7 @@
 id: SCREEN-STORY-016-carteira-saldo-historico
 story: STORY-016-tela-carteira-saldo-historico
 epic: EPIC-003-carteira-e-cashback
-status: draft
+status: ready
 created_at: 2026-07-03
 updated_at: 2026-07-03
 owner_designer: claude-story016
@@ -11,7 +11,7 @@ ds_components_used: [card.feature-dark, card.content, badge.positive, empty-stat
 exceptions_to_ds: []
 viewports: [mobile, desktop]
 prototype_path: STORY-016-carteira-saldo-historico/index.html
-prototype_last_validated_at: null
+prototype_last_validated_at: 2026-07-03
 ---
 
 # Spec de tela — Carteira do Colaborador
@@ -281,4 +281,5 @@ vírgula decimal). Crédito prefixado com `+`.
 | Data | Mudança | Quem | Motivo |
 |---|---|---|---|
 | 2026-07-03 | criação (spec + protótipo v1) | claude-story016 | rabisco→spec detalhado, todos os estados |
-| 2026-07-03 | validação humana | (pendente) | aguardando aprovação do protótipo por Alexandro |
+| 2026-07-03 | fix loading | claude-story016 | skeleton somia no fundo sage; placeholders com contraste (bloco cinza + cards brancos) |
+| 2026-07-03 | validação humana — **aprovado** | Alexandro | protótipo revisado no navegador (mobile/estados); nav incluída nesta estória; loading corrigido → `ready` |

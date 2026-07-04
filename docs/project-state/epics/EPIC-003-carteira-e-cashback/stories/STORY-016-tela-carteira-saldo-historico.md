@@ -7,7 +7,7 @@ sprint_id: null
 type: implementation
 target_role: programador
 requires_design: true
-design_screen_id: null
+design_screen_id: SCREEN-STORY-016-carteira-saldo-historico
 status: in_progress
 owner_agent: claude-story016
 created_at: 2026-07-03

@@ -84,11 +84,11 @@
     display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;text-decoration:none}
   .btn.primary{background:var(--primary);color:var(--on-primary)}
 
-  /* skeleton */
-  .sk{background:var(--canvas-soft);border-radius:var(--r-sm);animation:pulse 1.2s ease-in-out infinite}
-  .sk.block{height:120px;border-radius:var(--r-xl)}
-  .sk.line{height:56px;border-radius:var(--r-xl)}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  /* skeleton — placeholders com contraste sobre a página sage (não some no fundo) */
+  .sk-saldo{height:132px;border-radius:var(--r-xl);background:#c9cec6;animation:pulse 1.2s ease-in-out infinite}
+  .skcard{background:var(--canvas);border-radius:var(--r-xl);padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+  .sk{height:16px;border-radius:var(--r-sm);background:var(--canvas-soft);animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
 
   /* error snackbar */
   .snack{display:flex;align-items:center;gap:12px;background:var(--negative-bg);color:var(--canvas);
@@ -178,12 +178,12 @@
 
   const skeleton = () => `
     <div data-testid="screen-carteira-skeleton" style="display:flex;flex-direction:column;gap:24px">
-      <div class="sk block"></div>
-      <div><div class="sk line" style="width:40%;height:20px;margin-bottom:12px"></div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="sk line"></div><div class="sk line"></div><div class="sk line"></div>
-        </div>
-      </div>
+      <div class="sk-saldo"></div>
+      ${[0,1,2].map(()=>`
+        <div class="skcard">
+          <div class="sk" style="width:55%"></div>
+          <div class="sk" style="width:32%"></div>
+        </div>`).join('')}
     </div>`;
 
   const errorSnack = () => `
