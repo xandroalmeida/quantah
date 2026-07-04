@@ -71,9 +71,9 @@ define o escopo do saque — só então a estória de resgate ganha contorno. O 
       `in_review` · fundação do saldo entregue: carteira + ledger append-only + crédito
       idempotente (evento `CupomValidado`→listener), coleta autenticada com atribuição ao
       Colaborador (IDR-008). Núcleo 100% coberto.
-- [ ] **STORY-016** — tela de carteira: saldo em reais + histórico de cupons/créditos, mobile
-      (`requires_design`) · `in_review` · spec+protótipo validados por Alexandro; saldo (card de
-      marca) + histórico + estados, nav bottom/top; read-model 100% coberto; 188 PHPUnit + 46 Dusk.
+- [x] **STORY-016** — tela de carteira: saldo em reais + histórico de cupons/créditos, mobile
+      (`requires_design`) · `done` · spec+protótipo validados por Alexandro; saldo (card de marca) +
+      histórico + estados, nav bottom/top; read-model 100% coberto; deploy homolog verde (run 28690992037).
 - [ ] **STORY-017** — resgate/saque do saldo (escopo conforme ADR-005; MVP pode ser PIX assistido) ·
       `draft` · bloqueada por STORY-014 e STORY-015.
 - [ ] **STORY-018** (validação) — validação final do épico · `draft` · bloqueada por STORY-014..017.

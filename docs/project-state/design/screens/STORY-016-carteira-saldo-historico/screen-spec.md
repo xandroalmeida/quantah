@@ -2,7 +2,7 @@
 id: SCREEN-STORY-016-carteira-saldo-historico
 story: STORY-016-tela-carteira-saldo-historico
 epic: EPIC-003-carteira-e-cashback
-status: in_implementation
+status: shipped
 created_at: 2026-07-03
 updated_at: 2026-07-03
 owner_designer: claude-story016

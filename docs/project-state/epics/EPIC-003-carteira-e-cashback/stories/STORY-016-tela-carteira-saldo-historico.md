@@ -8,8 +8,9 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-016-carteira-saldo-historico
-status: in_review
+status: done
 owner_agent: claude-story016
+status_note: aprovada por Alexandro (2026-07-03); deploy homolog verde (run 28690992037)
 created_at: 2026-07-03
 updated_at: 2026-07-03
 estimated_session_size: M
