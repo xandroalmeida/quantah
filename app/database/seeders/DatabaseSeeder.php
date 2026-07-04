@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,11 +16,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Papéis de autorização (ADR-009 · RBAC). `operador` opera o backoffice de saque.
+        $operador = Role::firstOrCreate(['nome' => Role::OPERADOR]);
 
-        User::factory()->create([
+        // Usuário de dev; também é operador para exercitar o backoffice em homologação.
+        $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+        $user->roles()->syncWithoutDetaching($operador);
     }
 }

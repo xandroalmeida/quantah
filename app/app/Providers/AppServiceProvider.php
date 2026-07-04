@@ -8,7 +8,10 @@ use App\Domain\Coleta\IngestaoCupomService;
 use App\Domain\Coleta\Sefaz\HttpSefazSpFetcher;
 use App\Domain\Coleta\Sefaz\SefazSpFetcher;
 use App\Domain\Coleta\Sefaz\SpSefazAdapter;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,5 +42,9 @@ class AppServiceProvider extends ServiceProvider
         // explicitamente porque o listener vive fora de `app/Listeners` (auto-discovery não
         // o alcança). Listener enfileirado, idempotente — ver CreditarCashbackAoValidar.
         Event::listen(CupomValidado::class, CreditarCashbackAoValidar::class);
+
+        // Acesso ao backoffice de saque (ADR-009 · RBAC): concedido a quem tem o papel
+        // `operador`. Rotas administrativas ficam atrás de `can:operar-saques`.
+        Gate::define('operar-saques', fn (User $user) => $user->hasRole(Role::OPERADOR));
     }
 }
