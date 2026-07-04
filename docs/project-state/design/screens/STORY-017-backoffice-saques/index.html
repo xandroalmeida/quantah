@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protótipo — Backoffice de saques (STORY-017)</title>
+<!--
+  PROTÓTIPO DE VALIDAÇÃO — NÃO É CÓDIGO DE PRODUÇÃO.
+  Tokens reais do DS. Microcopy = screen-spec §5. Superfície interna (operador).
+  Estados via ?state=lista|detalhe|vazio ; viewport via ?vp=desktop|mobile.
+-->
+<style>
+  :root{
+    --primary:#9fe870;--on-primary:#0e0f0c;--primary-pale:#e2f6d5;--canvas:#fff;--canvas-soft:#e8ebe6;
+    --ink:#0e0f0c;--ink-deep:#163300;--body:#454745;--mute:#868685;--positive-deep:#054d28;
+    --warning:#ffd11a;--warning-content:#4a3b1c;--negative:#d03238;--negative-bg:#320707;
+    --r-xl:24px;--r-lg:16px;--r-pill:9999px;--f:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:var(--canvas-soft);color:var(--ink);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:16px 12px 0;gap:12px}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:720px}
+  .bar a{font-size:13px;text-decoration:none;color:var(--body);background:var(--canvas);
+    border:1px solid var(--mute);border-radius:var(--r-pill);padding:4px 12px}
+  .bar a.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .bar .lbl{font-size:11px;color:var(--mute);text-transform:uppercase}.bar .sep{width:1px;height:20px;background:var(--mute);opacity:.5}
+  .device{width:100%;background:var(--canvas-soft);border-radius:20px;border:1px solid #d5d9d2;overflow:hidden}
+  .device.desktop{max-width:940px}.device.mobile{max-width:412px}
+  .top{display:flex;align-items:center;gap:12px;background:var(--canvas);border-bottom:1px solid var(--ink);padding:14px 20px}
+  .top .brand{font-weight:900}.top .tag{font-size:13px;color:var(--mute)}
+  .scroll{padding:20px}
+  h1{font-size:28px;font-weight:900;margin-bottom:16px}
+  .filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .chip{font-size:13px;font-weight:600;border-radius:var(--r-pill);padding:6px 14px;border:1px solid var(--mute);
+    background:var(--canvas);color:var(--body);cursor:pointer}
+  .chip.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .card{background:var(--canvas);border-radius:var(--r-xl);padding:8px}
+  table{width:100%;border-collapse:collapse;text-align:left}
+  th,td{padding:12px 12px;font-size:14px;border-bottom:1px solid rgba(14,15,12,.08)}
+  th{color:var(--body);font-weight:600}tr:last-child td{border-bottom:none}
+  .badge{display:inline-flex;align-items:center;gap:4px;border-radius:var(--r-pill);padding:3px 10px;font-size:13px;font-weight:600}
+  .b-info{background:var(--canvas-soft);color:var(--ink)}.b-warn{background:var(--warning);color:var(--warning-content)}
+  .b-pos{background:var(--primary-pale);color:var(--positive-deep)}.b-pago{background:var(--ink);color:var(--primary)}
+  .b-neg{background:var(--negative-bg);color:var(--canvas)}
+  .btn{min-height:44px;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:600;cursor:pointer;padding:8px 16px}
+  .btn.primary{background:var(--primary);color:var(--on-primary)}.btn.secondary{background:var(--canvas-soft);color:var(--ink)}
+  .btn.danger{background:var(--negative-bg);color:var(--canvas)}
+  .empty{background:var(--canvas);border-radius:var(--r-xl);padding:48px 24px;text-align:center;color:var(--body);font-size:16px}
+  .detail{background:var(--canvas);border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:16px;max-width:520px}
+  .row{display:flex;justify-content:space-between;font-size:15px;border-bottom:1px solid rgba(14,15,12,.08);padding-bottom:10px}
+  .row .k{color:var(--body)}.row .v{font-weight:600}
+  .field{display:flex;flex-direction:column;gap:6px}.field label{font-size:14px;font-weight:600}
+  .field input{min-height:48px;border-radius:var(--r-lg);border:1px solid var(--mute);padding:10px 14px;font-size:15px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .cards{display:none}
+  .device.mobile table{display:none}.device.mobile .cards{display:flex;flex-direction:column;gap:12px}
+  .scard{background:var(--canvas);border-radius:var(--r-xl);padding:16px;display:flex;flex-direction:column;gap:8px}
+  .scard .h{display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+  <nav class="bar" id="bar"></nav>
+  <div id="app"></div>
+<script>
+  const SAQUES=[
+    {v:'8,00',cpf:'111.***.**-35',st:'solicitado',dt:'03/07 14:20',b:'b-info'},
+    {v:'5,00',cpf:'390.***.**-05',st:'em análise',dt:'03/07 13:10',b:'b-warn'},
+    {v:'12,30',cpf:'222.***.**-09',st:'aprovado',dt:'02/07 18:02',b:'b-pos'},
+    {v:'6,50',cpf:'333.***.**-77',st:'pago',dt:'01/07 09:40',b:'b-pago'},
+    {v:'9,00',cpf:'444.***.**-12',st:'rejeitado',dt:'30/06 16:15',b:'b-neg'},
+  ];
+  const acao=(st)=> st==='solicitado'?'<button class="btn secondary" data-testid="backoffice-acao-assumir" onclick="go(\'detalhe\')">Assumir</button>'
+    : st==='pago'||st==='rejeitado' ? '<span style="color:var(--mute);font-size:13px">—</span>'
+    : '<button class="btn secondary" onclick="go(\'detalhe\')">Abrir</button>';
+
+  const filtros=(cur)=>`<div class="filtros">${['Todos','Solicitados','Em análise','Aprovados','Pagos','Rejeitados']
+    .map(f=>`<button class="chip ${f===cur?'on':''}" data-testid="backoffice-filtro-${f.toLowerCase().replace(' ','-')}">${f}</button>`).join('')}</div>`;
+
+  const lista=()=>`
+    <h1>Saques</h1>${filtros('Todos')}
+    <div class="card"><table><caption class="sr-only">Saques por status</caption>
+      <thead><tr><th>Valor</th><th>CPF</th><th>Status</th><th>Solicitado</th><th>Ação</th></tr></thead>
+      <tbody>${SAQUES.map(s=>`<tr data-testid="backoffice-saque-row">
+        <td>R$ ${s.v}</td><td>${s.cpf}</td>
+        <td><span class="badge ${s.b}" data-testid="backoffice-saque-status">${s.st}</span></td>
+        <td>${s.dt}</td><td>${acao(s.st)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="cards">${SAQUES.map(s=>`<div class="scard" data-testid="backoffice-saque-row">
+      <div class="h"><strong>R$ ${s.v}</strong><span class="badge ${s.b}">${s.st}</span></div>
+      <div style="font-size:14px;color:var(--body)">${s.cpf} · ${s.dt}</div>
+      <div class="actions">${acao(s.st)}</div></div>`).join('')}</div>`;
+
+  const detalhe=()=>`
+    <h1>Saque · em análise</h1>
+    <div class="detail">
+      <div class="row"><span class="k">Valor</span><span class="v">R$ 8,00</span></div>
+      <div class="row"><span class="k">CPF (chave PIX)</span><span class="v">111.444.777-35</span></div>
+      <div class="row"><span class="k">Status</span><span class="v"><span class="badge b-warn">em análise</span></span></div>
+      <div class="row"><span class="k">Solicitado</span><span class="v">03/07 14:20</span></div>
+      <div class="actions">
+        <button class="btn primary" data-testid="backoffice-acao-aprovar">Aprovar</button>
+        <button class="btn danger" data-testid="backoffice-acao-rejeitar">Rejeitar</button>
+      </div>
+      <div class="field">
+        <label for="cp">Comprovante (e2e / id do PIX)</label>
+        <input id="cp" data-testid="backoffice-comprovante" placeholder="E2E1234..." disabled/>
+        <span style="font-size:13px;color:var(--mute)">Habilita ao aprovar; então "Marcar pago".</span>
+      </div>
+      <button class="btn primary" data-testid="backoffice-acao-pagar" style="opacity:.5" disabled>Marcar pago</button>
+    </div>`;
+
+  const vazio=()=>`<h1>Saques</h1>${filtros('Pagos')}<div class="empty" data-testid="backoffice-vazio">Nenhum saque neste filtro.</div>`;
+
+  const BODY={lista,detalhe,vazio};
+  function params(){return new URLSearchParams(location.search)}
+  function go(s){const p=params();p.set('state',s);location.search=p.toString()}
+  function render(){
+    const p=params();const st=p.get('state')||'lista';const vp=p.get('vp')||'desktop';
+    document.getElementById('app').innerHTML=`<div class="device ${vp}">
+      <div class="top"><span class="brand">Quantah</span><span class="tag">· Backoffice</span></div>
+      <div class="scroll">${(BODY[st]||BODY.lista)()}</div></div>`;
+    const states=Object.keys(BODY);
+    document.getElementById('bar').innerHTML=`<span class="lbl">estado</span>`+
+      states.map(k=>`<a href="?state=${k}&vp=${vp}" class="${k===st?'on':''}">${k}</a>`).join('')+
+      `<span class="sep"></span><span class="lbl">tela</span>`+
+      ['desktop','mobile'].map(v=>`<a href="?state=${st}&vp=${v}" class="${v===vp?'on':''}">${v}</a>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

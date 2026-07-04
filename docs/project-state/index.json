@@ -916,6 +916,55 @@
         ],
         "created_at": "2026-07-03",
         "updated_at": "2026-07-03"
+      },
+      {
+        "id": "SCREEN-STORY-017-solicitar-saque",
+        "story": "STORY-017",
+        "epic": "EPIC-003",
+        "status": "draft",
+        "path": "design/screens/STORY-017-solicitar-saque/screen-spec.md",
+        "prototype_path": "design/screens/STORY-017-solicitar-saque/index.html",
+        "prototype_last_validated_at": null,
+        "ds_components_used": [
+          "card.content",
+          "card.feature-dark",
+          "input.text",
+          "button.primary",
+          "button.tertiary",
+          "snackbar"
+        ],
+        "related_ddrs": [
+          "DDR-001",
+          "DDR-002"
+        ],
+        "created_at": "2026-07-03",
+        "updated_at": "2026-07-03"
+      },
+      {
+        "id": "SCREEN-STORY-017-backoffice-saques",
+        "story": "STORY-017",
+        "epic": "EPIC-003",
+        "status": "draft",
+        "path": "design/screens/STORY-017-backoffice-saques/screen-spec.md",
+        "prototype_path": "design/screens/STORY-017-backoffice-saques/index.html",
+        "prototype_last_validated_at": null,
+        "ds_components_used": [
+          "card.content",
+          "badge.info",
+          "badge.warning",
+          "badge.positive",
+          "badge.negative",
+          "button.primary",
+          "button.secondary",
+          "button.danger",
+          "empty-state"
+        ],
+        "related_ddrs": [
+          "DDR-001",
+          "DDR-002"
+        ],
+        "created_at": "2026-07-03",
+        "updated_at": "2026-07-03"
       }
     ],
     "system": {
