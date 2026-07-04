@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\ColetaController;
 use App\Http\Controllers\Interno\MetricasController;
 use App\Http\Controllers\ProfileController;
@@ -41,6 +42,12 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:30,1')
         ->name('coleta.store');
 });
+
+// Carteira do Colaborador (STORY-016): saldo em reais + histórico de créditos de cashback.
+// Atrás de `auth` — é a carteira do usuário logado (dono do cashback, STORY-015).
+Route::get('/carteira', [CarteiraController::class, 'index'])
+    ->middleware('auth')
+    ->name('carteira.index');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
