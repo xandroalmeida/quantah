@@ -83,7 +83,8 @@ correr em paralelo; a validação (STORY-024) é a última.
 
 - [x] **STORY-019** (spike) — arquitetura de acesso: OAuth Google + contas + segmentação de áreas + i18n
       → ADRs (`target_role: arquiteto`). **`done`** — ADR-010 (acesso) + ADR-011 (i18n) `accepted`. Destrava 020–023.
-- [ ] **STORY-020** (enablement) — fundação de i18n (pt-BR) + varredura pt-BR das superfícies existentes.
+- [x] **STORY-020** (enablement) — fundação de i18n (pt-BR) + varredura pt-BR das superfícies existentes.
+      **`done`** — mecanismo `lang/`+`t()` (IDR-010), `laravel-lang`, `App\Support\Formato`; Breeze varrido; homolog pt-BR.
 - [ ] **STORY-021** — login/cadastro do Coletador no padrão visual (substitui o logo do Laravel),
       e-mail/senha, em pt-BR (`requires_design`).
 - [ ] **STORY-022** — login com Google (fluxo OAuth + modelo de contas).
@@ -107,3 +108,7 @@ resíduo de inglês/Laravel.
 - 2026-07-04 — **STORY-019 `done`** (Arquiteto): ADR-010 (acesso: OAuth Google/Socialite + contas por colunas
   + segmentação das 3 áreas via RBAC do ADR-009) e ADR-011 (i18n pt-BR nativo do Laravel) **aceitas** por
   Alexandro. STORY-020..023 destravadas. Próximo: STORY-020 (fundação i18n + varredura pt-BR).
+- 2026-07-04 — **STORY-020 `done`** (Programador): fundação de i18n pt-BR (mecanismo nativo `lang/` + helper
+  `t()` via prop do Inertia, `laravel-lang`, `App\Support\Formato`; IDR-010) e varredura pt-BR do scaffold
+  Breeze. Suíte completa verde (251 unit+feature, 55 E2E); homolog em pt-BR. Próximo: STORY-021 (login de
+  marca, `requires_design` → passa pelo Designer).

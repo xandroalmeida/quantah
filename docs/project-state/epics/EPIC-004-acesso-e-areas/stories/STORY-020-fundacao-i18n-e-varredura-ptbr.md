@@ -8,7 +8,7 @@ type: enablement
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: in_review
+status: done
 owner_agent: programador
 created_at: 2026-07-04
 updated_at: 2026-07-04
@@ -49,18 +49,18 @@ scaffolding — e sustenta a métrica de qualidade da onda (100% pt-BR).
 
 ## Critérios de aceite
 
-- [ ] **CA-1:** Mecanismo de i18n do ADR configurado; existe um único lugar canônico para as strings de
-      interface (nada de texto de UI hardcoded fora dele nas telas tocadas).
-- [ ] **CA-2:** Superfícies existentes **varridas para pt-BR**, sem resíduo de inglês: telas de auth do
+- [x] **CA-1:** Mecanismo de i18n do ADR configurado; existe um único lugar canônico para as strings de
+      interface (nada de texto de UI hardcoded fora dele nas telas tocadas). → `lang/` fonte única + `t()`.
+- [x] **CA-2:** Superfícies existentes **varridas para pt-BR**, sem resíduo de inglês: telas de auth do
       Breeze (login, registro, recuperação/reset de senha, verificação de e-mail), a página `/dashboard`
-      atual, vitrine `/ds`, carteira, e o backoffice de saques.
-- [ ] **CA-3:** Mensagens de validação e erro exibidas ao usuário estão em pt-BR (incl. as do
-      back-end/validações do Breeze).
-- [ ] **CA-4:** Formatos brasileiros aplicados onde há moeda/data: `R$ 1.234,56`, `dd/mm/aaaa`, fuso
-      `America/Sao_Paulo`.
-- [ ] **CA-5:** E2E cobre ao menos uma asserção de texto em pt-BR numa superfície pública (ex.: `/login`
+      atual, vitrine `/ds`, carteira, e o backoffice de saques. → telas de feature já eram pt-BR; Breeze varrido.
+- [x] **CA-3:** Mensagens de validação e erro exibidas ao usuário estão em pt-BR (incl. as do
+      back-end/validações do Breeze). → `laravel-lang` (validation/auth); testado em `LocalizacaoTest`.
+- [x] **CA-4:** Formatos brasileiros aplicados onde há moeda/data: `R$ 1.234,56`, `dd/mm/aaaa`, fuso
+      `America/Sao_Paulo`. → `App\Support\Formato` (fuso de exibição SP; persistência UTC).
+- [x] **CA-5:** E2E cobre ao menos uma asserção de texto em pt-BR numa superfície pública (ex.: `/login`
       exibe rótulos em português) e a ausência de uma string de scaffolding conhecida (ex.: não há
-      "Log in"/"Remember me"/"Whoops!").
+      "Log in"/"Remember me"/"Whoops!"). → `I18nPtBrTest`.
 
 ## Fora de escopo
 
@@ -85,10 +85,10 @@ no código novo; E2E cobrindo a asserção de idioma (CA-5). Sem código não te
 
 ## Definição de Pronto (DoD)
 
-- [ ] Todos os CAs passam; unitários + E2E (CA-5) verdes; cobertura exigida atingida.
-- [ ] Pipeline verde; deploy de homologação verificado (telas atuais em pt-BR ao vivo).
-- [ ] IDR registrado se houve decisão técnica relevante (ex.: organização das chaves de tradução).
-- [ ] `index.json` = `done`; "Notas do agente" preenchidas.
+- [x] Todos os CAs passam; unitários + E2E (CA-5) verdes; cobertura exigida atingida (Formato 100%, mecanismo 95%).
+- [x] Pipeline verde; deploy de homologação verificado (`/login` em pt-BR ao vivo; smoke `/up`=200; run 28711655458).
+- [x] IDR registrado se houve decisão técnica relevante (ex.: organização das chaves de tradução). → IDR-010.
+- [x] `index.json` = `done`; "Notas do agente" preenchidas.
 
 ## Protocolo do agente (obrigatório)
 
