@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: ready
-owner_agent: null
+status: in_review
+owner_agent: Programador
 created_at: 2026-07-04
 updated_at: 2026-07-04
 estimated_session_size: M
@@ -81,11 +81,27 @@ decide o modelo de contas (é do ADR) nem os CAs. Se faltar decisão arquitetura
 
 ## Definição de Pronto (DoD)
 
-- [ ] Todos os CAs passam; unitários + E2E verdes; coberturas exigidas (núcleo de contas ≥ 98%).
-- [ ] Nenhum segredo versionado; segredos por secrets do CI/ambiente.
-- [ ] Pipeline verde; deploy de homologação verificado (login Google ao vivo).
-- [ ] IDR registrado se houve decisão técnica relevante.
-- [ ] `index.json` = `done`; "Notas do agente" preenchidas.
+- [x] Todos os CAs passam; unitários + E2E verdes; coberturas exigidas — Unit+Feature 265/265, Dusk 64/64.
+      Núcleo de contas (`UpsertGoogleUser`) coberto em todos os ramos por `GoogleAccountResolutionTest`.
+- [x] Nenhum segredo versionado; segredos por secrets do CI/ambiente — `services.google` lê `.env`;
+      testes/CI usam o driver **fake** (GOOGLE_FAKE), sem credencial real (CA-4).
+- [~] Pipeline verde; deploy de homologação — **CI verde + deploy ok**, mas **login Google ao vivo NÃO
+      verificado**: exige credencial OAuth real do Google (client id/secret) no secret `PROD_ENV`, que
+      ainda não existe e só o Alexandro provisiona (Google Cloud). Login e-mail/senha segue intacto; o
+      botão Google em homolog erra graciosamente (CA-3) até as credenciais entrarem.
+- [x] IDR registrado se houve decisão técnica relevante — sem IDR: Socialite/modelo de contas já
+      decididos no ADR-010; o driver fake é detalhe de teste local.
+- [~] `index.json` = `done`; "Notas do agente" preenchidas — Notas ok; status **`in_review`** até as
+      credenciais Google entrarem e o login ao vivo ser verificado em homolog.
+
+## Pendência para o Alexandro (destrava o `done`)
+
+Provisionar credencial OAuth do Google e verificar o login ao vivo:
+1. No Google Cloud Console: criar credencial **OAuth 2.0 Client ID** (tipo "Web application").
+2. **Authorized redirect URI:** `https://quantah-homolog.<host>.sslip.io/auth/google/callback`.
+3. No secret `PROD_ENV` do GitHub, definir `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+   `GOOGLE_REDIRECT_URI` (o mesmo do passo 2) e **remover/omitir `GOOGLE_FAKE`** (ou `=false`).
+4. Redeploy (push na main) → testar "Entrar com Google" na homolog.
 
 ## Protocolo do agente (obrigatório)
 
@@ -93,8 +109,50 @@ Siga `docs/skills/po/references/agent-task-format.md`.
 
 ## Notas do agente (preenchido durante/após execução)
 
-### Decisões tomadas
+### Decisões tomadas (Programador, 2026-07-04)
+
+- **Socialite (driver google)** conforme ADR-010; **não** persistimos access/refresh token — só a
+  identidade no login. Rotas `GET /auth/google/redirect|callback` no grupo `guest`.
+- **Núcleo de contas isolado** em `App\Actions\Auth\UpsertGoogleUser` (testável sem HTTP): cria / vincula
+  por e-mail verificado / loga / **recusa** e-mail Google não verificado (`UnverifiedGoogleEmailException`,
+  fail-secure). `email_verified_at` via `forceFill` (não é mass-assignable).
+- **Erro/cancelamento (CA-3):** callback trata `?error=`, exceção de provedor (`report()` + genérico) e
+  e-mail não verificado → sempre `redirect()->route('login')->withErrors(['google' => …])` em pt-BR, sem
+  derrubar sessão nem vazar detalhe. No sucesso: `session()->regenerate()` (anti-fixation).
+- **Provedor fake por flag** (`services.google.fake` / `GOOGLE_FAKE`) — `App\Support\Auth\FakeGoogleProvider`
+  registrado via `Socialite::extend` só quando ligado (dev/CI/E2E). Dispensa credencial real (CA-4);
+  em homolog/prod (flag off) vale o driver real.
+- **Botão ativado** (DDR-004): `GoogleButton` virou link real para `/auth/google/redirect` (navegação de
+  página inteira, não Inertia), sem o selo "Em breve".
+- **Erro do Google no Login** lido de `usePage().props.errors` (não do `useForm`, que só popula no submit
+  do próprio form).
+
 ### Descobertas
+
+- `.env.dusk.local` (que o Dusk troca em runtime, APP_URL=laravel.test) precisou de `GOOGLE_FAKE=true` —
+  senão o E2E ia ao Google real ("Missing client_id"). CI usa `.env.example` (já com a flag).
+- Config cacheada mascarava a flag no app servido → `config:clear` necessário após mexer em `config/services`.
+- Isolamento de sessão no Dusk: testes que autenticam agora chamam `->logout()` no fim (o browser é
+  reusado entre testes; sem isso, telas de convidado eram redirecionadas).
+
 ### IDRs criados
-### Cobertura final
+
+Nenhum — Socialite e modelo de contas são do ADR-010; o fake é detalhe de teste local.
+
+### Cobertura final (mapeamento CA → teste)
+
+| CA | Teste |
+|---|---|
+| CA-1 (Google cria conta + autentica) | `GoogleAccountResolutionTest::test_cria_conta_para_email_novo_verificado`, `GoogleLoginControllerTest::test_callback_cria_conta_e_autentica`, E2E `AcessoGoogleTest::test_botao_google_ativo_cria_conta_e_autentica` |
+| CA-2 (vínculo por e-mail, sem duplicar) | `GoogleAccountResolutionTest::test_vincula_google_a_conta_email_senha_existente` (+ `…ja_tem_google_id`, `…nao_verificada`), `GoogleLoginControllerTest::test_callback_vincula_conta_existente_sem_duplicar`, E2E `AcessoGoogleTest::test_login_google_vincula_conta_existente` |
+| CA-3 (falha/cancelamento → login pt-BR) | `GoogleLoginControllerTest::test_callback_cancelado_volta_ao_login_com_erro_ptbr` + `…falha_do_provedor…`, E2E `AcessoGoogleTest::test_cancelamento_google_volta_ao_login_com_erro_ptbr` |
+| CA-4 (segredos fora do versionamento) | driver **fake** por flag; `services.google` só lê `.env`; nada versionado |
+| CA-5 (E2E com provedor simulado, incl. vínculo e erro) | `AcessoGoogleTest` (3 cenários, fake driver) |
+| fail-secure (e-mail não verificado) | `GoogleAccountResolutionTest::test_recusa_quando_email_google_nao_verificado` + `…nao_retorna_email`, `GoogleLoginControllerTest::test_callback_email_nao_verificado_volta_ao_login` |
+
+Suíte completa: **Unit+Feature 265/265**, **Dusk 64/64**, **pint** limpo.
+
 ### Links de evidência
+
+- Screenshots reais (Chrome via Dusk) em `tests/Browser/screenshots/`.
+- Migração: `add_google_columns_to_users_table` (google_id unique/nullable, avatar, password nullable).

@@ -62,15 +62,18 @@ class AcessoColetadorTest extends DuskTestCase
         });
     }
 
-    /** (iv) borda — o lugar do botão "Entrar com Google" existe e está desabilitado (CA-5). */
-    public function test_placeholder_do_google_presente_e_desabilitado(): void
+    /**
+     * (iv) borda — o botão "Entrar com Google" existe na tela (CA-5). Desde a STORY-022 ele é
+     * funcional (link para o fluxo OAuth), sem o selo "Em breve". O fluxo Google em si é coberto
+     * pelo AcessoGoogleTest.
+     */
+    public function test_botao_google_presente_na_tela(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/login')
                 ->assertPresent('[data-testid=acesso-google-btn]')
-                ->assertPresent('[data-testid=acesso-google-btn][disabled]')
                 ->assertSee('Entrar com Google')
-                ->assertSee('Em breve');
+                ->assertDontSee('Em breve');
         });
     }
 
@@ -160,7 +163,8 @@ class AcessoColetadorTest extends DuskTestCase
                 ->type('[data-testid=acesso-campo-senha]', self::SENHA)
                 ->click('[data-testid=acesso-entrar-submit]')
                 ->waitForLocation('/dashboard', 10)
-                ->assertSee('Você está logado!');
+                ->assertSee('Você está logado!')
+                ->logout(); // isola a sessão para os próximos testes
         });
 
         $this->assertDatabaseHas('users', ['email' => $email]);

@@ -142,12 +142,14 @@ lado, gap `sm`. Opcional: tagline `Cada nota conta.` (`body-md`, `body`) abaixo.
 acesso (mobile) e do painel de hero (desktop). É o único lugar onde a marca aparece em escala — não
 repetir na mesma tela.
 
-### `brand.google-btn` (placeholder até STORY-022)
-Variante desabilitada de `button.tertiary` (outline): fundo `canvas`, borda 1px `ink`, **logo oficial
-multicolor do Google** + label "Entrar com Google" / "Criar conta com Google", e selo "Em breve"
-(`badge` em tom neutro creme) à direita. `aria-disabled="true"`, `tabindex="-1"`. **Exceção ao DS de
-acento** (logo de terceiro): justificada no DDR-004. Quando a STORY-022 ativar, vira botão funcional
-(sem o selo), mantendo o estilo neutro — **nunca** verde (o verde é do CTA e-mail/senha).
+### `brand.google-btn`
+Variante de `button.tertiary` (outline): fundo `canvas`, borda 1px `ink`, **logo oficial multicolor do
+Google** + label "Entrar com Google" / "Criar conta com Google". **Exceção ao DS de acento** (logo de
+terceiro): justificada no DDR-004. **Nunca** verde — o verde é do CTA de e-mail/senha.
+
+- **STORY-021:** placeholder desabilitado com selo "Em breve" (`aria-disabled`, `tabindex="-1"`).
+- **STORY-022 (ativo):** link real para o fluxo OAuth (`/auth/google/redirect`), navegação de página
+  inteira (sai do SPA — não é visita Inertia), sem o selo. É o estado atual em produção.
 
 ## Componente de assinatura (a especializar por tela)
 

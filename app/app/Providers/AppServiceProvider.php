@@ -10,12 +10,14 @@ use App\Domain\Coleta\Sefaz\SefazSpFetcher;
 use App\Domain\Coleta\Sefaz\SpSefazAdapter;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Auth\FakeGoogleProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Socialite\Facades\Socialite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -54,5 +56,11 @@ class AppServiceProvider extends ServiceProvider
         // Acesso ao backoffice de saque (ADR-009 · RBAC): concedido a quem tem o papel
         // `operador`. Rotas administrativas ficam atrás de `can:operar-saques`.
         Gate::define('operar-saques', fn (User $user) => $user->hasRole(Role::OPERADOR));
+
+        // Login Google simulado (STORY-022 · ADR-010) — só em dev/CI/E2E, via flag. Em
+        // homolog/prod (flag off) vale o driver real do Socialite, com credencial via secret.
+        if (config('services.google.fake')) {
+            Socialite::extend('google', fn () => new FakeGoogleProvider);
+        }
     }
 }

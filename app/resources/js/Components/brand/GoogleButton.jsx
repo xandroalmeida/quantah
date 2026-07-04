@@ -1,15 +1,10 @@
-import Badge from '@/Components/Badge';
-import { t } from '@/i18n';
-
 /**
- * GoogleButton — placeholder do "Entrar com Google" (`brand.google-btn` do DS, DDR-004).
+ * GoogleButton — entrar/criar conta com Google (`brand.google-btn` do DS, DDR-004).
  *
- * Reserva o lugar do login social (implementado na STORY-022). Fica **desabilitado** com o
- * selo "Em breve" e o logo oficial multicolor do Google (exceção ao DS de acento — marca de
- * terceiro, justificada no DDR-004). Estilo neutro (outline `button.tertiary`) — nunca verde:
- * o acento primário é do CTA de e-mail/senha.
- *
- * A11y: `disabled` real (fora da ordem de foco), `aria-label` com verbo + "(em breve)".
+ * A partir da STORY-022 é **funcional**: link real para o fluxo OAuth (`/auth/google/redirect`),
+ * navegação de página inteira (sai do SPA — não é visita Inertia). Estilo neutro (outline
+ * `button.tertiary`) com o logo oficial multicolor do Google (exceção ao DS de acento — marca de
+ * terceiro, justificada no DDR-004). Nunca verde: o acento primário é do CTA de e-mail/senha.
  */
 function GoogleG({ className = '' }) {
     return (
@@ -36,22 +31,19 @@ function GoogleG({ className = '' }) {
 
 export default function GoogleButton({ label, className = '' }) {
     return (
-        <button
-            type="button"
-            disabled
+        <a
+            href={route('google.redirect')}
             data-testid="acesso-google-btn"
-            aria-label={`${label} (${t('Coming soon')})`}
+            aria-label={label}
             className={
-                'inline-flex min-h-3xl w-full cursor-not-allowed items-center ' +
-                'gap-sm rounded-xl border border-ink bg-canvas px-lg py-md text-button-md font-semibold ' +
-                `text-ink opacity-70 ${className}`
+                'inline-flex min-h-3xl w-full items-center justify-center gap-sm rounded-xl ' +
+                'border border-ink bg-canvas px-lg py-md text-button-md font-semibold text-ink ' +
+                'transition-colors duration-fast hover:bg-canvas-soft ' +
+                `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${className}`
             }
         >
             <GoogleG className="h-lg w-lg shrink-0" />
-            <span className="truncate">{label}</span>
-            <Badge variant="info" className="ml-auto shrink-0">
-                {t('Coming soon')}
-            </Badge>
-        </button>
+            <span>{label}</span>
+        </a>
     );
 }

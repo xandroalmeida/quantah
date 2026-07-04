@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    // Login com Google (STORY-022 · ADR-010). Segredos SEMPRE via env/secrets — nunca versionados (CA-4).
+    // `fake` liga o provedor simulado (dev/CI/E2E), dispensando credencial real do Google.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+        'fake' => env('GOOGLE_FAKE', false),
+    ],
+
 ];

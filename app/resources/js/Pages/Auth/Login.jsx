@@ -6,7 +6,7 @@ import Checkbox from '@/Components/inputs/Checkbox';
 import TextField from '@/Components/inputs/TextField';
 import { t } from '@/i18n';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 const LINK =
     'font-semibold text-ink underline underline-offset-2 hover:text-ink-deep rounded ' +
@@ -19,8 +19,13 @@ export default function Login({ status, canResetPassword }) {
         remember: false,
     });
 
-    // CA-3: credencial inválida vira erro GLOBAL (sem vazar qual campo falhou).
-    const credentialError = errors.email || errors.password;
+    // Erro de login com Google (STORY-022) chega flashado nas props da página (não no useForm,
+    // que só popula no submit deste form).
+    const pageErrors = usePage().props.errors;
+
+    // CA-3: erro de autenticação vira callout GLOBAL — credencial inválida (sem vazar qual campo
+    // falhou) ou falha no login com Google.
+    const credentialError = errors.email || errors.password || pageErrors.google;
 
     const submit = (e) => {
         e.preventDefault();
