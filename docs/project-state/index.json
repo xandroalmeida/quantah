@@ -469,7 +469,7 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": null,
-      "status": "in_progress",
+      "status": "in_review",
       "owner_agent": "claude-story017",
       "sprint_id": null,
       "path": "epics/EPIC-003-carteira-e-cashback/stories/STORY-017-resgate-saque.md",
@@ -481,7 +481,7 @@
         "STORY-018"
       ],
       "created_at": "2026-07-03",
-      "updated_at": "2026-07-03"
+      "updated_at": "2026-07-04"
     },
     {
       "id": "STORY-018",
@@ -811,6 +811,19 @@
           "ADR-003",
           "ADR-002"
         ]
+      },
+      {
+        "id": "IDR-009",
+        "title": "Validação de CPF própria (value object) em vez de pacote dedicado",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-009-validacao-cpf-propria-sem-pacote.md",
+        "decided_at": "2026-07-04",
+        "decided_by": "programador",
+        "related_story": "STORY-017",
+        "related_adrs": [
+          "ADR-005",
+          "ADR-006"
+        ]
       }
     ],
     "ddr": [
@@ -921,7 +934,7 @@
         "id": "SCREEN-STORY-017-solicitar-saque",
         "story": "STORY-017",
         "epic": "EPIC-003",
-        "status": "ready",
+        "status": "in_implementation",
         "path": "design/screens/STORY-017-solicitar-saque/screen-spec.md",
         "prototype_path": "design/screens/STORY-017-solicitar-saque/index.html",
         "prototype_last_validated_at": "2026-07-04",
@@ -938,13 +951,13 @@
           "DDR-002"
         ],
         "created_at": "2026-07-03",
-        "updated_at": "2026-07-03"
+        "updated_at": "2026-07-04"
       },
       {
         "id": "SCREEN-STORY-017-backoffice-saques",
         "story": "STORY-017",
         "epic": "EPIC-003",
-        "status": "ready",
+        "status": "in_implementation",
         "path": "design/screens/STORY-017-backoffice-saques/screen-spec.md",
         "prototype_path": "design/screens/STORY-017-backoffice-saques/index.html",
         "prototype_last_validated_at": "2026-07-04",
@@ -964,7 +977,7 @@
           "DDR-002"
         ],
         "created_at": "2026-07-03",
-        "updated_at": "2026-07-03"
+        "updated_at": "2026-07-04"
       }
     ],
     "system": {

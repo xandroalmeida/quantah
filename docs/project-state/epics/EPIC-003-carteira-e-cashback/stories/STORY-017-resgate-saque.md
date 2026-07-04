@@ -8,8 +8,9 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: in_progress
+status: in_review
 owner_agent: claude-story017
+design_screen_id: SCREEN-STORY-017-solicitar-saque
 created_at: 2026-07-03
 updated_at: 2026-07-03
 estimated_session_size: M
@@ -80,3 +81,42 @@ ambas as telas com **design completo**.
 **Pausado antes da UI** de propósito: não implemento página React antes do sinal do Designer/dono
 (evita retrabalho — é o motivo do checkpoint). Faltam: fluxo do Colaborador (botão Sacar na /carteira +
 form), backoffice (rotas atrás de `can:operar-saques` + páginas), E2E, fechamento e deploy.
+
+### 2026-07-04 — UI implementada (Alexandro liberou com "continue") → in_review
+
+**Design validado** por Alexandro ("continue"); ambas as telas `ready` (`prototype_last_validated_at:
+2026-07-04`). **Decisão de UX** (fiel ao ADR-005): a chave PIX é do tipo CPF, então a tela do Colaborador
+usa **um único campo CPF** (=chave PIX) — o controller usa esse valor como CPF e como chave.
+
+**UI entregue (TDD + E2E):**
+- **Colaborador:** botão "Sacar" na /carteira → `/carteira/saque` (form: valor + CPF), `SolicitarSaqueRequest`
+  (normaliza valor/cpf), `SaqueController`, página `Saque/Solicitar`. Sucesso → volta à carteira com snackbar
+  (flash) e saldo reservado.
+- **Backoffice:** `/backoffice/saques` atrás de `auth` + `can:operar-saques` (ADR-009). `Backoffice\SaquesController`
+  (lista com filtro + detalhe + ações), páginas `Backoffice/Saques/{Index,Detalhe}`. CPF **mascarado** na lista
+  (`Cpf::mascarar`), completo no detalhe (KYC). Rejeitar estorna.
+- **IDR-009:** validação de CPF própria (VO `Cpf`), sem pacote — divergência do default da stack registrada.
+
+**Cobertura:** núcleo do dinheiro/estados **100%** (`SolicitarSaqueService`, `SaqueService`, `Cpf`);
+camada HTTP (`SaqueController`, `SaquesController`, `SolicitarSaqueRequest`) **100%**. Suíte completa:
+**237 PHPUnit + 52 Dusk** verdes.
+
+**Mapa CA → teste:**
+- **CA — caminho de resgate no escopo do ADR-005 (PIX assistido):** `SolicitarSaqueServiceTest` (reserva),
+  `OperarSaqueServiceTest` (máquina de estados), `SolicitarSaqueHttpTest` (Colaborador), `BackofficeSaquesHttpTest`
+  (operador). **E2E:** `SolicitarSaqueTest` (solicitar) + `BackofficeSaquesTest` (conduzir até pago).
+- **CA — débito idempotente e reconciliável (sem duplo saque):** `SolicitarSaqueServiceTest::test_reconciliacao_*`,
+  `test_rejeita_saldo_insuficiente`, `test_aceita_o_valor_minimo_exato`; `OperarSaqueServiceTest::test_rejeitar_duas_vezes_nao_estorna_de_novo`,
+  `test_reconciliacao_apos_estorno`, `test_nao_paga_pulando_a_analise` (transições guardadas). Saldo≥0 = CHECK no banco.
+- **CA — estados de erro/pendência:** `SolicitarSaqueHttpTest` (abaixo do mínimo, acima do saldo, CPF inválido);
+  `BackofficeSaquesHttpTest::test_transicao_invalida_volta_com_erro`, `test_pagar_exige_comprovante`. **E2E:**
+  `SolicitarSaqueTest` (erro por campo), `BackofficeSaquesTest::test_nao_operador_e_barrado` (403).
+- **CA — KYC mínimo (assistido):** `CpfTest` (DV), `SolicitarSaqueServiceTest::test_rejeita_chave_pix_que_nao_confere_com_o_cpf`
+  (titularidade = chave PIX tipo CPF); operação manual documentada no ADR-005 (backoffice).
+- **Autorização (ADR-009):** `GateOperadorTest`, `BackofficeSaquesHttpTest::test_nao_operador_recebe_403`/`test_nao_operador_nao_executa_acao`.
+
+**TDD evidenciado:** commits `test(STORY-017): … (vermelho)` precedem `feat(STORY-017): … (verde)`.
+
+**Como testar (dev):** `make fresh` (semeia `test@example.com` **como operador**). Faça login →
+credite saldo (ver STORY-016) → `/carteira` → **Sacar** → solicite. Depois `/backoffice/saques` → assuma →
+aprove → informe comprovante → **Marcar pago**. Rejeitar estorna o saldo.
