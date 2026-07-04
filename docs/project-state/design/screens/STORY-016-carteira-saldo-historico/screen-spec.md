@@ -2,7 +2,7 @@
 id: SCREEN-STORY-016-carteira-saldo-historico
 story: STORY-016-tela-carteira-saldo-historico
 epic: EPIC-003-carteira-e-cashback
-status: ready
+status: in_implementation
 created_at: 2026-07-03
 updated_at: 2026-07-03
 owner_designer: claude-story016
@@ -131,6 +131,14 @@ data e o crédito `+R$ Y,YY` em `badge.positive`. Microcopy na §5.
 ### 4.2. Loading (primeiro fetch / refresh)
 **Skeleton**, nunca spinner em tela vazia: um bloco `skeleton` no lugar do saldo + 3 linhas `skeleton`
 no lugar dos itens. Estrutura da tela já visível (título "Carteira").
+
+> **Nota de implementação (Programador, 2026-07-03):** a página é **server-rendered** (Inertia entrega
+> `saldo`/`extrato` junto com o HTML), então não há um estado de carregamento *client-side* a materializar
+> — o "loading" real é a **barra de progresso de navegação do Inertia** e o "erro" é a **página de erro do
+> framework**. O skeleton/snackbar deste protótipo ficam como referência de design; a página de produção
+> não os cabla (seria teatro para dado que sempre chega com a página). Desvio consciente registrado nas
+> Notas do agente da estória. Se no futuro o extrato virar dado pesado (deferred prop), o skeleton aqui
+> especificado é o fallback a usar.
 
 ```
 | Carteira                                 |
