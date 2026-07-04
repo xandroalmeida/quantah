@@ -3,7 +3,7 @@ epic_id: EPIC-003
 slug: carteira-e-cashback
 title: Carteira e cashback — a recompensa que fecha o loop
 wave: WAVE-2026-01
-status: in_review
+status: done
 owner_role: po
 created_at: 2026-07-02
 updated_at: 2026-07-04
@@ -34,9 +34,9 @@ saldo — tudo em homologação.
 
 ## Entregável visível no fim do épico
 
-- [ ] Carteira com saldo em reais e histórico de cupons/créditos, em homologação, mobile.
-- [ ] Crédito automático de 0,1% sobre o valor dos cupons válidos enviados (EPIC-002).
-- [ ] Caminho de resgate/saque (pode ser simplificado no MVP — ver Fora de escopo e ADR-005).
+- [x] Carteira com saldo em reais e histórico de cupons/créditos, em homologação, mobile.
+- [x] Crédito automático de 0,1% sobre o valor dos cupons válidos enviados (EPIC-002).
+- [x] Caminho de resgate/saque (PIX assistido no MVP — ver Fora de escopo e ADR-005).
 
 ## Fora de escopo (explicitamente)
 
@@ -77,7 +77,9 @@ define o escopo do saque — só então a estória de resgate ganha contorno. O 
 - [x] **STORY-017** — resgate/saque do saldo (PIX assistido, ADR-005) · `done` · reserva sob lock +
       máquina de estados (assumir→aprovar→pagar; rejeitar→estorno) + backoffice atrás do papel `operador`
       (ADR-009/IDR-009). Núcleo 100%; deploy homolog verde (run 28704231515).
-- [ ] **STORY-018** (validação) — validação final do épico · `draft` · bloqueada por STORY-014..017.
+- [x] **STORY-018** (validação) — validação final do épico · `done` · veredito **APPROVED**
+      (validador, sha `9c77cbc`): 26 passes (4 com ressalva), 0 bloqueantes, 1 n/a. Relatório em
+      `validation/report.md`.
 
 ## Validação final
 
@@ -92,3 +94,9 @@ homologação; regra de cashback com 98% de cobertura; caminho de resgate existe
 - 2026-07-02 — criado por PO (Fluxo A, WAVE-2026-01).
 - 2026-07-03 — EPIC-002 concluído; épico iniciado e **decomposto em estórias** (STORY-014..018,
   Fluxo B). Status `draft → ready`. Próximo: executar STORY-014 (spike de pagamento/PIX).
+- 2026-07-04 — STORY-014..017 entregues; STORY-015 aprovada pelo PO (`in_review→done`) e épico movido
+  `ready → in_review` (commit `91291c8`). Validação final (STORY-018) executada com veredito
+  **APPROVED** sobre o sha deployado `9c77cbc` (commit `7a35d91`).
+- 2026-07-04 — **Épico concluído** pelo PO (`in_review → done`, Fluxo D) com base no veredito
+  `approved`: todas as estórias `done`, entregável vivo em homologação, gate de cobertura do núcleo
+  (98%) atingido (100%). Fecha o loop de recompensa e **completa a WAVE-2026-01** (4/4 épicos `done`).

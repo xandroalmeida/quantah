@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-07-04T11:45:00Z",
+  "generated_at": "2026-07-04T13:10:00Z",
   "project": {
     "name": "Quantah",
     "current_wave": "WAVE-2026-01",
@@ -116,7 +116,7 @@
       "slug": "carteira-e-cashback",
       "title": "Carteira e cashback — a recompensa que fecha o loop",
       "wave": "WAVE-2026-01",
-      "status": "in_review",
+      "status": "done",
       "path": "epics/EPIC-003-carteira-e-cashback/epic.md",
       "story_ids": [
         "STORY-014",
@@ -135,7 +135,9 @@
         "non_blocking_findings": []
       },
       "created_at": "2026-07-02",
-      "updated_at": "2026-07-04"
+      "updated_at": "2026-07-04",
+      "closed_by": "po (Alexandro / Claude)",
+      "closed_at": "2026-07-04"
     }
   ],
   "stories": [
@@ -1021,6 +1023,13 @@
       "title": "Fechamento do EPIC-001 (Design System em código)",
       "path": "reports/status-2026-07-02-epic-001-done.md",
       "date": "2026-07-02",
+      "type": "epic-close"
+    },
+    {
+      "id": "status-2026-07-04-epic-003-done",
+      "title": "Fechamento do EPIC-003 (Carteira e cashback) — Onda 1 completa",
+      "path": "reports/status-2026-07-04-epic-003-done.md",
+      "date": "2026-07-04",
       "type": "epic-close"
     }
   ]
