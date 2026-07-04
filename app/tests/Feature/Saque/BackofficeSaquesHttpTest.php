@@ -71,6 +71,26 @@ class BackofficeSaquesHttpTest extends TestCase
                 ->where('saques.0.cpf_mascarado', '111.***.***-35'));
     }
 
+    public function test_operador_ve_o_detalhe_com_cpf_completo(): void
+    {
+        $saque = $this->saqueSolicitado();
+
+        $this->actingAs($this->operador())->get("/backoffice/saques/{$saque->id}")
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Backoffice/Saques/Detalhe')
+                ->where('saque.cpf', '11144477735')
+                ->where('saque.valor_reais', '20,00'));
+    }
+
+    public function test_filtra_por_status(): void
+    {
+        $this->saqueSolicitado(); // solicitado
+
+        $this->actingAs($this->operador())->get('/backoffice/saques?status=pago')
+            ->assertInertia(fn (Assert $page) => $page->has('saques', 0));
+    }
+
     public function test_operador_assume_o_saque(): void
     {
         $saque = $this->saqueSolicitado();

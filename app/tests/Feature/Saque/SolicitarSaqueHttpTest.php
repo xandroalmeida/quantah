@@ -88,6 +88,17 @@ class SolicitarSaqueHttpTest extends TestCase
         $this->assertSame(3000, Carteira::where('user_id', $user->id)->first()->saldo_centavos);
     }
 
+    public function test_aceita_valor_com_mascara_e_virgula(): void
+    {
+        $user = $this->userComSaldo(3000);
+
+        $this->actingAs($user)->from('/carteira/saque')
+            ->post('/carteira/saque', ['valor' => 'R$ 20,00', 'cpf' => self::CPF])
+            ->assertRedirect('/carteira');
+
+        $this->assertDatabaseHas('saques', ['valor_centavos' => 2000]);
+    }
+
     public function test_bloqueia_cpf_invalido(): void
     {
         $user = $this->userComSaldo(3000);

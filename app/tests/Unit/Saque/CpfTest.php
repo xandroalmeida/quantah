@@ -51,4 +51,15 @@ class CpfTest extends TestCase
         $this->assertSame('11144477735', Cpf::apenasDigitos('111.444.777-35'));
         $this->assertSame('11144477735', Cpf::apenasDigitos('111 444 777 35'));
     }
+
+    public function test_mascara_esconde_o_miolo(): void
+    {
+        $this->assertSame('111.***.***-35', Cpf::mascarar('11144477735'));
+        $this->assertSame('111.***.***-35', Cpf::mascarar('111.444.777-35'));
+    }
+
+    public function test_mascarar_devolve_original_se_nao_for_cpf(): void
+    {
+        $this->assertSame('123', Cpf::mascarar('123'));
+    }
 }
