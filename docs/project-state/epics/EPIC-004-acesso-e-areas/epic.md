@@ -76,16 +76,19 @@ tudo em **pt-BR**.
 
 ## Estórias
 
-(Preenchido no Fluxo B. Começa por um **spike** de arquitetura; primeira estória de implementação é a
-tela de login de marca; a última é a validação.)
+Decomposto em 2026-07-04 (PO, Fluxo B). Começa pelo **spike** (STORY-019) que produz os ADRs de acesso e
+i18n; a fundação de i18n (STORY-020) vem cedo para as telas novas já nascerem em pt-BR; o login de marca
+(STORY-021) hospeda o botão do Google implementado na STORY-022; a segmentação de áreas (STORY-023) pode
+correr em paralelo; a validação (STORY-024) é a última.
 
-- [ ] STORY-XXX (spike) — arquitetura de acesso: OAuth Google + contas + segmentação de áreas + i18n
-- [ ] STORY-XXX — login/cadastro do Coletador no padrão visual (substitui o logo do Laravel), em pt-BR
-- [ ] STORY-XXX — login com e-mail/senha (cadastro, entrada, recuperação) em pt-BR
-- [ ] STORY-XXX — login com Google
-- [ ] STORY-XXX — segmentação das 3 áreas + guardas + entrada do Backoffice
-- [ ] STORY-XXX — fundação de i18n + varredura pt-BR das superfícies existentes
-- [ ] STORY-XXX (validação) — Validação final do épico
+- [ ] **STORY-019** (spike) — arquitetura de acesso: OAuth Google + contas + segmentação de áreas + i18n
+      → ADRs (`target_role: arquiteto`). Bloqueia 020–023.
+- [ ] **STORY-020** (enablement) — fundação de i18n (pt-BR) + varredura pt-BR das superfícies existentes.
+- [ ] **STORY-021** — login/cadastro do Coletador no padrão visual (substitui o logo do Laravel),
+      e-mail/senha, em pt-BR (`requires_design`).
+- [ ] **STORY-022** — login com Google (fluxo OAuth + modelo de contas).
+- [ ] **STORY-023** — segmentação das 3 áreas (B2C/B2B/Backoffice) + guardas de acesso.
+- [ ] **STORY-024** (validação) — Validação final do épico (`target_role: validador`).
 
 ## Validação final
 
@@ -98,3 +101,6 @@ resíduo de inglês/Laravel.
 ## Histórico
 
 - 2026-07-04 — criado por PO (Fluxo A, WAVE-2026-02). Status `ready` — próximo a decompor (Fluxo B).
+- 2026-07-04 — **decomposto em estórias** (PO, Fluxo B): STORY-019 (spike) → 020 (i18n) → 021 (login de
+  marca, `requires_design`) → 022 (Google) → 023 (áreas) → 024 (validação). Próximo: executar STORY-019
+  (spike de arquitetura de acesso, `target_role: arquiteto`).

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-07-04T14:15:00Z",
+  "generated_at": "2026-07-04T14:45:00Z",
   "project": {
     "name": "Quantah",
     "current_wave": "WAVE-2026-02",
@@ -160,9 +160,16 @@
       "slug": "acesso-e-areas",
       "title": "Acesso e áreas — identidade do Coletador e segmentação de públicos",
       "wave": "WAVE-2026-02",
-      "status": "ready",
+      "status": "in_progress",
       "path": "epics/EPIC-004-acesso-e-areas/epic.md",
-      "story_ids": [],
+      "story_ids": [
+        "STORY-019",
+        "STORY-020",
+        "STORY-021",
+        "STORY-022",
+        "STORY-023",
+        "STORY-024"
+      ],
       "validation_report": null,
       "created_at": "2026-07-04",
       "updated_at": "2026-07-04"
@@ -565,6 +572,133 @@
       ],
       "blocks": [],
       "created_at": "2026-07-03",
+      "updated_at": "2026-07-04"
+    },
+    {
+      "id": "STORY-019",
+      "epic_id": "EPIC-004",
+      "title": "Spike de arquitetura — acesso (OAuth Google + contas), segmentação de áreas e i18n",
+      "type": "spike",
+      "target_role": "arquiteto",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-019-spike-arquitetura-de-acesso.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-020",
+        "STORY-021",
+        "STORY-022",
+        "STORY-023"
+      ],
+      "created_at": "2026-07-04",
+      "updated_at": "2026-07-04"
+    },
+    {
+      "id": "STORY-020",
+      "epic_id": "EPIC-004",
+      "title": "Fundação de i18n (pt-BR) e varredura das superfícies existentes",
+      "type": "enablement",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-020-fundacao-i18n-e-varredura-ptbr.md",
+      "blocked_by": [
+        "STORY-019"
+      ],
+      "blocks": [
+        "STORY-021"
+      ],
+      "created_at": "2026-07-04",
+      "updated_at": "2026-07-04"
+    },
+    {
+      "id": "STORY-021",
+      "epic_id": "EPIC-004",
+      "title": "Login/cadastro do Coletador no padrão visual (e-mail/senha), em pt-BR",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": "SCREEN-STORY-021-login-cadastro-coletador",
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-021-login-cadastro-coletador-padrao-visual.md",
+      "blocked_by": [
+        "STORY-019",
+        "STORY-020"
+      ],
+      "blocks": [
+        "STORY-022"
+      ],
+      "created_at": "2026-07-04",
+      "updated_at": "2026-07-04"
+    },
+    {
+      "id": "STORY-022",
+      "epic_id": "EPIC-004",
+      "title": "Login com Google para o Coletador",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-022-login-com-google.md",
+      "blocked_by": [
+        "STORY-019",
+        "STORY-021"
+      ],
+      "blocks": [],
+      "created_at": "2026-07-04",
+      "updated_at": "2026-07-04"
+    },
+    {
+      "id": "STORY-023",
+      "epic_id": "EPIC-004",
+      "title": "Segmentação das 3 áreas (B2C/B2B/Backoffice) e guardas de acesso",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-023-segmentacao-de-areas-e-guardas.md",
+      "blocked_by": [
+        "STORY-019"
+      ],
+      "blocks": [],
+      "created_at": "2026-07-04",
+      "updated_at": "2026-07-04"
+    },
+    {
+      "id": "STORY-024",
+      "epic_id": "EPIC-004",
+      "title": "Validação final do EPIC-004 (Acesso e áreas)",
+      "type": "validation",
+      "target_role": "validador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-024-validacao-epic-004.md",
+      "blocked_by": [
+        "STORY-019",
+        "STORY-020",
+        "STORY-021",
+        "STORY-022",
+        "STORY-023"
+      ],
+      "blocks": [],
+      "created_at": "2026-07-04",
       "updated_at": "2026-07-04"
     }
   ],
