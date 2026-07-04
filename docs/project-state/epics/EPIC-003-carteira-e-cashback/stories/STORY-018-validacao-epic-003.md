@@ -8,10 +8,10 @@ type: validation
 target_role: validador
 requires_design: false
 design_screen_id: null
-status: draft
-owner_agent: null
+status: in_progress
+owner_agent: claude-validador-story018
 created_at: 2026-07-03
-updated_at: 2026-07-03
+updated_at: 2026-07-04
 estimated_session_size: M
 ---
 

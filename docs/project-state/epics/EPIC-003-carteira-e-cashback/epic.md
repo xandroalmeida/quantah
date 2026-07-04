@@ -3,10 +3,10 @@ epic_id: EPIC-003
 slug: carteira-e-cashback
 title: Carteira e cashback — a recompensa que fecha o loop
 wave: WAVE-2026-01
-status: ready
+status: in_review
 owner_role: po
 created_at: 2026-07-02
-updated_at: 2026-07-03
+updated_at: 2026-07-04
 target_completion: 2026-10-15
 ---
 
@@ -67,10 +67,10 @@ define o escopo do saque — só então a estória de resgate ganha contorno. O 
 
 - [x] **STORY-014** (spike) — pagamento/PIX + escopo de saque → **ADR-005** (`accepted`) ·
       `done` · destravou STORY-017 (saque = PIX assistido no MVP; automação via PSP na Onda 2).
-- [ ] **STORY-015** — cálculo e crédito automático de cashback (0,1% sobre cupom válido) ·
-      `in_review` · fundação do saldo entregue: carteira + ledger append-only + crédito
+- [x] **STORY-015** — cálculo e crédito automático de cashback (0,1% sobre cupom válido) ·
+      `done` · fundação do saldo entregue: carteira + ledger append-only + crédito
       idempotente (evento `CupomValidado`→listener), coleta autenticada com atribuição ao
-      Colaborador (IDR-008). Núcleo 100% coberto.
+      Colaborador (IDR-008). Núcleo 100% coberto. Aprovada pelo PO em 2026-07-04.
 - [x] **STORY-016** — tela de carteira: saldo em reais + histórico de cupons/créditos, mobile
       (`requires_design`) · `done` · spec+protótipo validados por Alexandro; saldo (card de marca) +
       histórico + estados, nav bottom/top; read-model 100% coberto; deploy homolog verde (run 28690992037).
