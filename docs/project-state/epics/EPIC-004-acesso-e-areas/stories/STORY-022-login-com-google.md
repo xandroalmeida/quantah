@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: in_review
+status: done
 owner_agent: Programador
 created_at: 2026-07-04
 updated_at: 2026-07-04
@@ -85,23 +85,20 @@ decide o modelo de contas (é do ADR) nem os CAs. Se faltar decisão arquitetura
       Núcleo de contas (`UpsertGoogleUser`) coberto em todos os ramos por `GoogleAccountResolutionTest`.
 - [x] Nenhum segredo versionado; segredos por secrets do CI/ambiente — `services.google` lê `.env`;
       testes/CI usam o driver **fake** (GOOGLE_FAKE), sem credencial real (CA-4).
-- [~] Pipeline verde; deploy de homologação — **CI verde + deploy ok**, mas **login Google ao vivo NÃO
-      verificado**: exige credencial OAuth real do Google (client id/secret) no secret `PROD_ENV`, que
-      ainda não existe e só o Alexandro provisiona (Google Cloud). Login e-mail/senha segue intacto; o
-      botão Google em homolog erra graciosamente (CA-3) até as credenciais entrarem.
+- [x] Pipeline verde; deploy de homologação **verificado ao vivo por Alexandro** (2026-07-04): "Entrar
+      com Google" autentica na homolog. Credenciais reais provisionadas via **secrets individuais**
+      (`GOOGLE_CLIENT_ID/SECRET`), injetadas no `.env` de homolog pelo passo do CI "Injetar Google + Mail".
 - [x] IDR registrado se houve decisão técnica relevante — sem IDR: Socialite/modelo de contas já
       decididos no ADR-010; o driver fake é detalhe de teste local.
-- [~] `index.json` = `done`; "Notas do agente" preenchidas — Notas ok; status **`in_review`** até as
-      credenciais Google entrarem e o login ao vivo ser verificado em homolog.
+- [x] `index.json` = `done`; "Notas do agente" preenchidas.
 
-## Pendência para o Alexandro (destrava o `done`)
+## Provisionamento de homologação (feito)
 
-Provisionar credencial OAuth do Google e verificar o login ao vivo:
-1. No Google Cloud Console: criar credencial **OAuth 2.0 Client ID** (tipo "Web application").
-2. **Authorized redirect URI:** `https://quantah-homolog.<host>.sslip.io/auth/google/callback`.
-3. No secret `PROD_ENV` do GitHub, definir `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
-   `GOOGLE_REDIRECT_URI` (o mesmo do passo 2) e **remover/omitir `GOOGLE_FAKE`** (ou `=false`).
-4. Redeploy (push na main) → testar "Entrar com Google" na homolog.
+- Secrets do GitHub: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (+ `MAIL_USERNAME`, `MAIL_PASSWORD` para o
+  e-mail). O deploy (`ci-cd.yml` › "Injetar Google + Mail no .env de homolog") anexa `GOOGLE_*`
+  (`GOOGLE_FAKE=false`) e `MAIL_*` ao `.env`, com dedup por prefixo, sobre o `PROD_ENV` base.
+- Redirect URI de homolog cadastrado no cliente OAuth do Google Console (Alexandro).
+- Verificado ao vivo: Google login OK; reset de senha e verificação de e-mail chegam via Gmail SMTP.
 
 ## Protocolo do agente (obrigatório)
 

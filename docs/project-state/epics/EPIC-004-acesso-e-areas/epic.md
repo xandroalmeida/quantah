@@ -88,7 +88,8 @@ correr em paralelo; a validação (STORY-024) é a última.
 - [x] **STORY-021** — login/cadastro do Coletador no padrão visual (substitui o logo do Laravel),
       e-mail/senha, em pt-BR (`requires_design`). **`done`** — DDR-004 (marca+split-hero+hierarquia Google);
       Breeze reescrito no DS, pt-BR via i18n, placeholder do Google; Unit+Feature 251/251, Dusk 61/61; homolog verde.
-- [ ] **STORY-022** — login com Google (fluxo OAuth + modelo de contas).
+- [x] **STORY-022** — login com Google (fluxo OAuth + modelo de contas). **`done`** — Socialite + contas
+      por colunas (ADR-010); verificado ao vivo em homolog (Google login OK; e-mail via Gmail SMTP).
 - [ ] **STORY-023** — segmentação das 3 áreas (B2C/B2B/Backoffice) + guardas de acesso.
 - [ ] **STORY-024** (validação) — Validação final do épico (`target_role: validador`).
 
@@ -123,3 +124,7 @@ resíduo de inglês/Laravel.
   (spec+protótipo) validado. Breeze reescrito no DS, pt-BR via i18n, placeholder do Google (CA-5).
   Unit+Feature 251/251, Dusk 61/61; deploy homolog verde. Próximo: STORY-022 (login com Google) — o
   botão já tem lugar reservado.
+- 2026-07-04 — **STORY-022 `done`** (Programador): login com Google (Socialite + contas por colunas,
+  ADR-010); driver fake nos testes/CI, real em homolog via secrets individuais injetados no deploy.
+  Confirmação de e-mail ligada; e-mail (reset + verificação) enviando via Gmail SMTP em homolog.
+  Verificado ao vivo por Alexandro. Próximo: STORY-023 (segmentação das 3 áreas) → STORY-024 (validação).
