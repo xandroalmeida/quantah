@@ -4,6 +4,7 @@ use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\ColetaController;
 use App\Http\Controllers\Interno\MetricasController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SaqueController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -48,6 +49,12 @@ Route::middleware('auth')->group(function () {
 Route::get('/carteira', [CarteiraController::class, 'index'])
     ->middleware('auth')
     ->name('carteira.index');
+
+// Solicitação de saque do Colaborador (STORY-017, ADR-005) — PIX assistido.
+Route::middleware('auth')->group(function () {
+    Route::get('/carteira/saque', [SaqueController::class, 'create'])->name('saque.create');
+    Route::post('/carteira/saque', [SaqueController::class, 'store'])->name('saque.store');
+});
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

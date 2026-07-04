@@ -1,11 +1,13 @@
 import Badge from '@/Components/Badge';
+import Button from '@/Components/Button';
 import Card from '@/Components/Card';
 import EmptyState from '@/Components/EmptyState';
 import { HomeIcon, ReceiptIcon, UserIcon, WalletIcon } from '@/Components/icons';
 import NavBar from '@/Components/nav/NavBar';
 import NavBottom from '@/Components/nav/NavBottom';
 import NavLink from '@/Components/nav/NavLink';
-import { Head, router } from '@inertiajs/react';
+import Snackbar from '@/Components/Snackbar';
+import { Head, router, usePage } from '@inertiajs/react';
 
 // Microcopy = screen-spec §5 (design/screens/STORY-016-carteira-saldo-historico/screen-spec.md).
 const COPY = {
@@ -61,6 +63,8 @@ function ItemExtrato({ item }) {
  */
 export default function Index({ saldo, extrato }) {
     const temExtrato = extrato.length > 0;
+    const podeSacar = saldo.centavos > 0;
+    const saqueFlash = usePage().props.flash?.saque ?? null;
 
     return (
         <div className="flex h-screen flex-col bg-canvas-soft">
@@ -106,6 +110,22 @@ export default function Index({ saldo, extrato }) {
                         </span>
                         <span className="text-body-sm text-canvas-soft">{COPY.saldoHint}</span>
                     </Card>
+
+                    {saqueFlash && (
+                        <Snackbar variant="success" data-testid="screen-carteira-saque-ok">
+                            Saque solicitado. Você recebe no PIX em até 3 dias úteis.
+                        </Snackbar>
+                    )}
+
+                    {podeSacar && (
+                        <Button
+                            variant="primary"
+                            onClick={() => router.visit('/carteira/saque')}
+                            data-testid="screen-carteira-sacar"
+                        >
+                            Sacar
+                        </Button>
+                    )}
 
                     {temExtrato ? (
                         <section data-testid="screen-carteira-historico">

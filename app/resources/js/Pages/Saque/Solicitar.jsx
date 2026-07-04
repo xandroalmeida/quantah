@@ -1,0 +1,98 @@
+import Button from '@/Components/Button';
+import Card from '@/Components/Card';
+import { WalletIcon } from '@/Components/icons';
+import TextField from '@/Components/inputs/TextField';
+import { Head, router, useForm } from '@inertiajs/react';
+
+// Microcopy = screen-spec §5 (STORY-017-solicitar-saque).
+const COPY = {
+    titulo: 'Sacar',
+    saldoLabel: 'Saldo disponível',
+    valorLabel: 'Quanto você quer sacar? (R$)',
+    valorPlaceholder: '0,00',
+    cpfLabel: 'CPF (sua chave PIX)',
+    cpfPlaceholder: '000.000.000-00',
+    nota: 'Você recebe via PIX na chave do tipo CPF.',
+    submit: 'Solicitar saque',
+    cancelar: 'Cancelar',
+};
+
+/**
+ * Solicitar saque (STORY-017, ADR-005) — PIX assistido. Um campo de valor + um campo CPF
+ * (que é também a chave PIX, tipo CPF). Validação canônica no servidor (mínimo R$ 5,00,
+ * saldo sob lock, CPF válido). Sucesso redireciona à carteira (saldo já reservado).
+ */
+export default function Solicitar({ saldo }) {
+    const { data, setData, post, processing, errors } = useForm({ valor: '', cpf: '' });
+
+    function submit(e) {
+        e.preventDefault();
+        post('/carteira/saque');
+    }
+
+    return (
+        <main
+            data-testid="screen-saque"
+            className="flex min-h-screen flex-col items-center bg-canvas-soft px-lg py-2xl"
+        >
+            <Head title="Sacar" />
+
+            <form onSubmit={submit} className="flex w-full max-w-md flex-col gap-lg">
+                <h1 className="flex items-center gap-sm text-display-sm text-ink">
+                    {COPY.titulo}
+                    <WalletIcon className="h-xl w-xl text-mute" />
+                </h1>
+
+                <Card variant="feature-dark" className="flex flex-col gap-xxs">
+                    <span className="text-body-sm text-primary-neutral">{COPY.saldoLabel}</span>
+                    <span
+                        className="font-display text-display-sm font-black text-primary"
+                        data-testid="screen-saque-saldo"
+                    >
+                        R$ {saldo.reais}
+                    </span>
+                </Card>
+
+                <TextField
+                    label={COPY.valorLabel}
+                    placeholder={COPY.valorPlaceholder}
+                    inputMode="numeric"
+                    value={data.valor}
+                    onChange={(e) => setData('valor', e.target.value)}
+                    error={errors.valor}
+                    errorTestId="screen-saque-erro-valor"
+                    data-testid="screen-saque-valor"
+                    autoFocus
+                />
+
+                <TextField
+                    label={COPY.cpfLabel}
+                    placeholder={COPY.cpfPlaceholder}
+                    inputMode="numeric"
+                    value={data.cpf}
+                    onChange={(e) => setData('cpf', e.target.value)}
+                    error={errors.cpf}
+                    errorTestId="screen-saque-erro-cpf"
+                    data-testid="screen-saque-cpf"
+                    hint={COPY.nota}
+                />
+
+                <Button
+                    type="submit"
+                    variant="primary"
+                    loading={processing}
+                    data-testid="screen-saque-submit"
+                >
+                    {COPY.submit}
+                </Button>
+                <Button
+                    type="button"
+                    variant="tertiary"
+                    onClick={() => router.visit('/carteira')}
+                >
+                    {COPY.cancelar}
+                </Button>
+            </form>
+        </main>
+    );
+}
