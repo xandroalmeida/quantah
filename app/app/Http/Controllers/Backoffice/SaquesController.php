@@ -8,6 +8,7 @@ use App\Domain\Saque\SaqueService;
 use App\Domain\Saque\TransicaoInvalidaException;
 use App\Http\Controllers\Controller;
 use App\Models\Saque;
+use App\Support\Formato;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -35,7 +36,7 @@ class SaquesController extends Controller
             'valor_reais' => self::reais($s->valor_centavos),
             'cpf_mascarado' => Cpf::mascarar($s->cpf),
             'status' => $s->status,
-            'solicitado_em' => $s->created_at->format('d/m H:i'),
+            'solicitado_em' => Formato::dataHora($s->created_at),
         ]);
 
         return Inertia::render('Backoffice/Saques/Index', [
@@ -54,7 +55,7 @@ class SaquesController extends Controller
                 'chave_pix' => $saque->chave_pix,
                 'status' => $saque->status,
                 'comprovante' => $saque->comprovante,
-                'solicitado_em' => $saque->created_at->format('d/m/Y H:i'),
+                'solicitado_em' => Formato::dataHora($saque->created_at),
             ],
         ]);
     }
@@ -98,6 +99,6 @@ class SaquesController extends Controller
 
     private static function reais(int $centavos): string
     {
-        return number_format($centavos / 100, 2, ',', '.');
+        return Formato::moeda($centavos);
     }
 }

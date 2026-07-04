@@ -2,6 +2,7 @@
 
 namespace App\Domain\Saque;
 
+use App\Support\Formato;
 use RuntimeException;
 
 /**
@@ -13,7 +14,7 @@ class SaqueInvalidoException extends RuntimeException
 {
     public static function valorAbaixoDoMinimo(int $minimoCentavos): self
     {
-        return new self('O valor mínimo de saque é de R$ '.number_format($minimoCentavos / 100, 2, ',', '.').'.');
+        return new self('O valor mínimo de saque é de '.Formato::moedaComSimbolo($minimoCentavos).'.');
     }
 
     public static function cpfInvalido(): self

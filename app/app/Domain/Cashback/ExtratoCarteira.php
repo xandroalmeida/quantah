@@ -6,6 +6,7 @@ use App\Models\Carteira;
 use App\Models\CarteiraTransacao;
 use App\Models\Cupom;
 use App\Models\User;
+use App\Support\Formato;
 use Illuminate\Support\Carbon;
 
 /**
@@ -70,7 +71,7 @@ final class ExtratoCarteira
     /** Centavos inteiros → "1.234,56" (pt-BR), sem passar valor cru para a tela. */
     private static function reais(int $centavos): string
     {
-        return number_format($centavos / 100, 2, ',', '.');
+        return Formato::moeda($centavos);
     }
 
     /** Valor decimal do cupom ("87.90") → "87,90" (pt-BR). */
