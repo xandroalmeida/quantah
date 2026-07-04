@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backoffice\SaquesController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\ColetaController;
 use App\Http\Controllers\Interno\MetricasController;
@@ -70,6 +71,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Backoffice de saques (STORY-017) — atrás do papel `operador` (ADR-009 · Gate operar-saques).
+Route::middleware(['auth', 'can:operar-saques'])->prefix('backoffice')->name('backoffice.')->group(function () {
+    Route::get('/saques', [SaquesController::class, 'index'])->name('saques.index');
+    Route::get('/saques/{saque}', [SaquesController::class, 'show'])->name('saques.show');
+    Route::post('/saques/{saque}/assumir', [SaquesController::class, 'assumir'])->name('saques.assumir');
+    Route::post('/saques/{saque}/aprovar', [SaquesController::class, 'aprovar'])->name('saques.aprovar');
+    Route::post('/saques/{saque}/pagar', [SaquesController::class, 'pagar'])->name('saques.pagar');
+    Route::post('/saques/{saque}/rejeitar', [SaquesController::class, 'rejeitar'])->name('saques.rejeitar');
 });
 
 require __DIR__.'/auth.php';

@@ -19,6 +19,17 @@ final class Cpf
         return preg_replace('/\D/', '', $valor) ?? '';
     }
 
+    /** Máscara de exibição com o miolo oculto — minimização de PII na tela (ADR-006). */
+    public static function mascarar(string $valor): string
+    {
+        $cpf = self::apenasDigitos($valor);
+        if (strlen($cpf) !== 11) {
+            return $valor;
+        }
+
+        return substr($cpf, 0, 3).'.***.***-'.substr($cpf, 9, 2);
+    }
+
     /** Valida um CPF (aceita com ou sem máscara): 11 dígitos, não-repetidos, DV correto. */
     public static function ehValido(string $valor): bool
     {
