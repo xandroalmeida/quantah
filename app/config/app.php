@@ -78,11 +78,14 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    // Localização pt-BR é requisito transversal do produto (ADR-011, quality-standards §5.1).
+    // O default já é pt_BR para que o app nasça localizado mesmo sem env; fallback en cobre
+    // chaves ainda não traduzidas (retornando a própria string-fonte em inglês).
+    'locale' => env('APP_LOCALE', 'pt_BR'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+    'faker_locale' => env('APP_FAKER_LOCALE', 'pt_BR'),
 
     /*
     |--------------------------------------------------------------------------

@@ -10,6 +10,8 @@ use App\Domain\Coleta\Sefaz\SefazSpFetcher;
 use App\Domain\Coleta\Sefaz\SpSefazAdapter;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
@@ -37,6 +39,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Localização pt-BR (ADR-011): nomes de mês/dia e `translatedFormat` do Carbon saem em
+        // português. A persistência segue em UTC; o fuso America/Sao_Paulo é só de exibição
+        // (App\Support\Formato). Data canônica continua ISO 8601.
+        Carbon::setLocale('pt_BR');
+        CarbonImmutable::setLocale('pt_BR');
 
         // Cupom válido-único-novo → crédito de cashback ao coletor (STORY-015). Registrado
         // explicitamente porque o listener vive fora de `app/Listeners` (auto-discovery não
