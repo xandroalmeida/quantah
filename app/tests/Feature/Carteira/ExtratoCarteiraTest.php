@@ -108,6 +108,25 @@ class ExtratoCarteiraTest extends TestCase
         $this->assertSame('0,10', $extrato[1]['credito']);
     }
 
+    public function test_credito_sem_cupom_correspondente_usa_fallback(): void
+    {
+        // Borda: crédito aponta para um cupom ausente (referência lógica, sem FK dura —
+        // ADR-006). A tela não quebra: valor "0,00" e data vazia, mas o crédito aparece.
+        $user = User::factory()->create();
+        $carteira = Carteira::create(['user_id' => $user->id, 'saldo_centavos' => 5]);
+        CarteiraTransacao::create([
+            'carteira_id' => $carteira->id, 'tipo' => CarteiraTransacao::TIPO_CREDITO_CASHBACK,
+            'valor_centavos' => 5, 'cupom_id' => '019f0000-0000-7000-8000-000000000000',
+        ]);
+
+        $extrato = $this->extrato->para($user)['extrato'];
+
+        $this->assertCount(1, $extrato);
+        $this->assertSame('0,00', $extrato[0]['cupom_valor']);
+        $this->assertSame('', $extrato[0]['data']);
+        $this->assertSame('0,05', $extrato[0]['credito']);
+    }
+
     public function test_extrato_nao_inclui_transacoes_de_outra_carteira(): void
     {
         $user = User::factory()->create();
