@@ -84,6 +84,22 @@ Isso é exigência por estória que entrega serviço novo, não opcional.
 - Contraste mínimo WCAG AA respeitado conforme tokens do Design System em `docs/project-state/design/system/`.
 - O Designer detalha o piso e o método de verificação na sua skill — o PO exige aqui apenas o resultado.
 
+## 5.1 Localização e idioma — pt-BR (transversal)
+
+Requisito transversal do produto (registrado a partir da WAVE-2026-02):
+
+- **Todo texto visível ao usuário final está em português do Brasil (pt-BR)** — telas, botões, rótulos,
+  mensagens de erro/validação, e-mails transacionais, estados vazios, tooltips e microcópia. Nada de
+  strings em inglês herdadas de scaffolding (ex.: "Log in", "Remember me", "Whoops!", "This password
+  does not match our records").
+- **Sem texto de interface hardcoded fora do mecanismo de localização.** As mensagens vivem em um
+  mecanismo de i18n (a ferramenta é decisão técnica do time — ver §6), não espalhadas em literais.
+- **Formatos brasileiros:** moeda `R$ 1.234,56`, datas `dd/mm/aaaa`, fuso `America/Sao_Paulo`.
+- **Verificação:** cada estória com UI cobre, em E2E, ao menos uma asserção de texto em pt-BR na
+  superfície que entrega; a estória declara que varreu strings de scaffolding remanescentes.
+- O tom/voz do texto segue `docs/project-state/design/system/voice-and-tone.md` (Designer). O PO exige
+  aqui apenas o **resultado**: produto 100% em pt-BR, sem resíduos de idioma.
+
 ## 6. O que NÃO é exigência transversal (e portanto é decisão técnica do time)
 
 Para deixar claro o que NÃO entra aqui:

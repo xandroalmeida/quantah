@@ -1,9 +1,9 @@
 {
   "version": 2,
-  "generated_at": "2026-07-04T13:40:00Z",
+  "generated_at": "2026-07-04T14:15:00Z",
   "project": {
     "name": "Quantah",
-    "current_wave": "WAVE-2026-01",
+    "current_wave": "WAVE-2026-02",
     "current_sprint": null
   },
   "product": {
@@ -26,6 +26,19 @@
         "EPIC-001",
         "EPIC-002",
         "EPIC-003"
+      ]
+    },
+    {
+      "id": "WAVE-2026-02",
+      "title": "De POC a produto — porta de entrada, identidade e jornada B2C",
+      "status": "active",
+      "goal": "Transformar o mecanismo provado (loop cupom → saldo) em produto apresentável: landing pages B2C e B2B, identidade/acesso do Coletador (login Google + e-mail/senha) no padrão visual, segmentação das 3 áreas (B2C/B2B/Backoffice) e jornada B2C completa pós-login (home-hub, mobile), tudo em pt-BR — habilitando o piloto",
+      "start_date": "2026-07-04",
+      "scope_pdr": "PDR-003",
+      "epic_ids": [
+        "EPIC-004",
+        "EPIC-005",
+        "EPIC-006"
       ]
     }
   ],
@@ -141,6 +154,42 @@
       "updated_at": "2026-07-04",
       "closed_by": "po (Alexandro / Claude)",
       "closed_at": "2026-07-04"
+    },
+    {
+      "id": "EPIC-004",
+      "slug": "acesso-e-areas",
+      "title": "Acesso e áreas — identidade do Coletador e segmentação de públicos",
+      "wave": "WAVE-2026-02",
+      "status": "ready",
+      "path": "epics/EPIC-004-acesso-e-areas/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-04",
+      "updated_at": "2026-07-04"
+    },
+    {
+      "id": "EPIC-005",
+      "slug": "portas-de-entrada",
+      "title": "Portas de entrada — landing B2C e landing B2B",
+      "wave": "WAVE-2026-02",
+      "status": "draft",
+      "path": "epics/EPIC-005-portas-de-entrada/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-04",
+      "updated_at": "2026-07-04"
+    },
+    {
+      "id": "EPIC-006",
+      "slug": "jornada-b2c",
+      "title": "Jornada do Coletador — home-hub e fluxo completo pós-login",
+      "wave": "WAVE-2026-02",
+      "status": "draft",
+      "path": "epics/EPIC-006-jornada-b2c/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-04",
+      "updated_at": "2026-07-04"
     }
   ],
   "stories": [
@@ -564,6 +613,20 @@
           "EPIC-002",
           "EPIC-003"
         ]
+      },
+      {
+        "id": "PDR-003",
+        "title": "Escopo da Onda 2 — de POC a produto (porta de entrada, identidade e jornada B2C)",
+        "status": "accepted",
+        "path": "decisions/pdr/PDR-003-escopo-onda-2-de-poc-a-produto.md",
+        "decided_at": "2026-07-04",
+        "decided_by": "PO (Alexandro / Claude)",
+        "related_epics": [
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006"
+        ],
+        "related_adrs": []
       }
     ],
     "adr": [
@@ -1041,6 +1104,13 @@
       "path": "reports/status-2026-07-04-wave-2026-01-close.md",
       "date": "2026-07-04",
       "type": "wave-close"
+    },
+    {
+      "id": "status-2026-07-04-wave-2026-02-open",
+      "title": "Abertura da WAVE-2026-02 (De POC a produto)",
+      "path": "reports/status-2026-07-04-wave-2026-02-open.md",
+      "date": "2026-07-04",
+      "type": "wave-open"
     }
   ]
 }

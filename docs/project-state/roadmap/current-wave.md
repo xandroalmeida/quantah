@@ -1,71 +1,79 @@
-# Onda em execução — WAVE-2026-01: Provar a coleta em SP (com incentivo)
+# Onda em execução — WAVE-2026-02: De POC a produto (porta de entrada, identidade e jornada B2C)
 
-> **Encerrada em 2026-07-04** — objetivo atingido (loop cupom → saldo vivo em homologação, 4/4 épicos
-> `done`). Retrospectiva em `../reports/status-2026-07-04-wave-2026-01-close.md`. Este arquivo será
-> substituído pelo plano da próxima onda ao abri-la (Fluxo A).
-
-- **Status:** closed
-- **Início:** 2026-07-02
-- **Fim:** 2026-07-04
-- **Escopo decidido em:** PDR-002
+- **Status:** active
+- **Início:** 2026-07-04
+- **Escopo decidido em:** PDR-003
 - **North-star:** cupons NFC-e válidos, únicos e novos por semana (`../product/north-star.md`)
+- **Onda anterior:** WAVE-2026-01 (closed) — retrospectiva em
+  `../reports/status-2026-07-04-wave-2026-01-close.md`
 
 ## Objetivo de negócio
 
-Entregar, em homologação, o loop completo **Colaborador escaneia/compartilha o QR da NFC-e →
-cupom validado, deduplicado e persistido → saldo em cashback creditado** — sobre a stack
-ratificada (ADR-000) e o design system adotado (PDR-001).
+Transformar o **mecanismo provado na Onda 1** (loop cupom → saldo) em um **produto apresentável**: uma
+porta de entrada pública (landing pages), identidade e acesso próprios do Coletador, segmentação dos três
+públicos e uma **jornada B2C completa pós-login** — tudo em pt-BR. É a camada que viabiliza um **piloto
+real** com usuários e, com ele, o **primeiro baseline** da north-star.
 
 ## Hipótese que estamos validando
 
-> Com fricção mínima na coleta **e** recompensa (cashback), consumidores em SP enviam cupons em
-> volume suficiente para formar uma base de preços densa. A Onda 1 monta o loop e o **instrumento
-> de medição**, e fecha um piloto para gerar o **primeiro baseline** da north-star.
+> Com uma porta de entrada clara (landing), cadastro/login de baixa fricção (Google **e** e-mail/senha) e
+> uma jornada mobile coesa pós-login, convertemos visitantes em **Coletadores ativos** e sustentamos a
+> coleta — condição para a north-star sair de zero. O lado B2B, nesta fase, só precisa de vitrine e
+> **lista de interessados**.
 
 ## Épicos da onda (em ordem)
 
 | # | Épico | Status | Outcome | Critério de pronto (observável) |
 |---|---|---|---|---|
-| 1 | **EPIC-000 Foundation** | ✅ done | Ambiente + pipeline + tokens do DS vivos | Hello world em homologação com paleta/tipografia do DS; CI/CD verde; ambiente 1-comando. |
-| 2 | **EPIC-001 Design System em código** | ✅ done | Biblioteca de componentes React do DS | Vitrine em homologação com os componentes mínimos e seus estados. |
-| 3 | **EPIC-002 Coleta de cupom** | ✅ done (approved c/ pendências) | Cupom vira dado válido, único e novo | Fluxo de coleta em homologação; cupom SP validado+deduplicado+persistido; north-star instrumentada. |
-| 4 | **EPIC-003 Carteira e cashback** | 🔜 ready (em decomposição) | Enviar cupom vira saldo | Saldo credita 0,1% sobre cupons válidos, visível em homologação; caminho de resgate existe. |
+| 1 | **EPIC-004 Acesso e áreas** | 🔜 ready | Identidade de acesso do Coletador + 3 áreas segmentadas | Coletador entra por login de marca (Google ou e-mail/senha), em pt-BR, sem logo do Laravel; áreas B2C/B2B/Backoffice separadas por guardas — em homologação. |
+| 2 | **EPIC-005 Portas de entrada** | 📝 draft | Landing B2C e landing B2B (Quantah Intelligence) | Visitante entende a proposta; CTA B2C leva ao login; lead B2B capturado e visível no backoffice — em homologação. |
+| 3 | **EPIC-006 Jornada do Coletador** | 📝 draft | Home-hub e fluxo completo pós-login (mobile) | Coletador logado chega à home-hub e percorre coletar → saldo → extrato → saque, sem página genérica — em homologação. |
 
 ## Justificativa da sequência
 
-EPIC-000 destrava tudo (nada sobe sem ambiente). EPIC-001 destrava as telas (Coleta e Carteira
-compõem componentes prontos, sem reinventar). EPIC-002 é o **núcleo de valor** — sem coleta não
-há base nem north-star. EPIC-003 adiciona o **incentivo** que a hipótese exige para o volume ser
-real. Coleta antes de cashback porque o crédito incide sobre o cupom já validado.
+**EPIC-004 primeiro** porque tudo se liga a ele: as landings (EPIC-005) precisam de um login real para o
+CTA, e a jornada (EPIC-006) exige o Coletador autenticado e as áreas segmentadas. Estabelecer aqui também
+o **mecanismo de i18n** e varrer as superfícies existentes para pt-BR paga a dívida de idioma cedo. Depois
+que o EPIC-004 fecha, **EPIC-005 e EPIC-006 podem correr em paralelo** (uma é a face pública, a outra a
+experiência logada), reusando coleta/carteira/saque da Onda 1.
 
-## Metas da north-star (Onda 1 — provisórias, para virar baseline)
+## Requisito transversal desta onda
 
-Não há usuários reais ainda; a Onda 1 é sobre **existir e medir**. Metas como marcos, não
-compromissos rígidos:
+- **Localização pt-BR** — todo texto visível em português do Brasil, sem resíduo de scaffolding em inglês
+  nem logo do Laravel; formatos brasileiros (R$, dd/mm/aaaa, America/Sao_Paulo). Registrado em
+  `../../skills/po/references/quality-standards.md` §5.1 e cobrado no DoD de cada épico.
+- Padrões de PDR-001 seguem valendo: telas sobre o DS (só tokens do sistema), verde como único accent de
+  CTA, mobile-first, a11y AA.
 
-- **Instrumento de medição** da north-star existindo e visível ao fim do EPIC-002.
-- **Piloto fechado** (equipe + pequeno grupo convidado) gerando um **baseline** de cupons
-  válidos-únicos-novos/semana ao fim da onda — o número absoluto vira a linha de base para as
-  metas da Onda 2.
-- **Guarda-corpos** monitorados desde já: frescor (dias emissão→coleta), cobertura (nº de
-  estabelecimentos distintos), custo por cupom.
+## Decisões de produto que acompanham o escopo (PDR-003)
 
-> As metas numéricas de crescimento serão fixadas na abertura da Onda 2, com o baseline real.
+- **Login B2C:** Google **e** e-mail/senha.
+- **B2B nesta onda:** captação de lead/waitlist (sem login/conta B2B).
+- **Jornada B2C:** home-hub pós-login (mobile-first).
+- **Marca:** Quantah (app B2C) + Quantah Intelligence (B2B), conforme visão §11.3.
 
 ## Decisões arquiteturais que a onda vai demandar (via spike)
 
-ADR-001 (ingestão/modelo canônico), ADR-002 (extração SEFAZ-SP), ADR-003 (deduplicação),
-ADR-005 (pagamento/PIX), ADR-006 (LGPD/CPF). Cada um abre como estória de spike
-(`target_role: arquiteto`) no início do épico correspondente.
+Um **spike no início do EPIC-004** (`target_role: arquiteto`) produz o(s) ADR(s) para: **login social
+Google (OAuth)** + modelo de contas/verificação, **segmentação de áreas e guardas** das 3 faces, e
+**mecanismo de i18n (pt-BR)**. EPIC-005 e EPIC-006 não preveem novos ADRs (reusam o que existe).
+
+## Metas / medição
+
+Esta onda é sobre **habilitar o piloto**, não sobre bater número de north-star ainda. Marcos:
+
+- Funil B2C ponta a ponta vivo em homologação (visitante → cadastro → home-hub → coleta → saldo → saque).
+- Lista de leads B2B começando a existir.
+- Ao fim da onda, condições dadas para rodar o **piloto** e coletar o **primeiro baseline** da north-star.
 
 ## Riscos da onda (ver status report de abertura)
 
-Fragilidade do scraping SEFAZ-SP (ADR-002); custo da camada de pagamento (mitigação: resgate
-simplificado); baixa recorrência no piloto sem gamificação (aceito para a Onda 1).
+Escopo largo (auth + marca + várias telas); dependência externa do OAuth Google (mitigação: spike cedo,
+e-mail/senha como caminho paralelo); dívida transversal carregada da Onda 1 (scanner de segredos/deps no
+CI, observabilidade RED) que pode ou não entrar nesta onda.
 
 ## Próximo passo
 
-EPIC-000, EPIC-001 e EPIC-002 **concluídos**. Fluxo B: **EPIC-003 (Carteira e cashback)** decomposto
-em estórias (STORY-014..018), começando pelo **STORY-014** — spike de pagamento/PIX + escopo de
-saque (`target_role: arquiteto`, produz ADR-005), que destrava a estória de resgate. Detalhar as
-demais estórias conforme forem entrando em execução.
+**Fluxo B:** decompor o **EPIC-004** em estórias, começando pelo **spike de arquitetura** (OAuth Google +
+contas + áreas + i18n), depois a tela de login de marca. EPIC-005 e EPIC-006 permanecem `draft` até o
+EPIC-004 avançar.
