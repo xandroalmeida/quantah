@@ -37,6 +37,24 @@ Erro recuperável → `snackbar` com ação "Tentar de novo". Erro de tela → p
 instrução clara e caminho de saída. Em SPA (Inertia), gerenciar foco explicitamente ao trocar
 conteúdo.
 
+## `pattern.auth` (telas de acesso)
+
+> Introduzido pelo **DDR-004** (accepted 2026-07-04). Vale para todas as telas de autenticação do
+> Coletador (entrar, criar conta, redefinir/nova senha, confirmar e-mail) — EPIC-004.
+
+- **Mobile (≥360px):** `brand.lockup` + tagline sobre o sage (`canvas-soft`) → um `card.content` branco
+  com o formulário. CTA primário verde full-width, ≥52px.
+- **Desktop (≥1024px):** split 50/50 — painel de marca escuro à esquerda (`card.feature-dark` mood: `ink`
+  + headline `primary`) e o **mesmo** card do mobile à direita (largura máx ~380px, sem esticar). O card
+  vem **antes** do painel na ordem de leitura assistiva.
+- **Ordem do card (quando há login social):** `brand.google-btn` (neutro) → divisor "ou" → campos
+  e-mail/senha (`pattern.form`) → **um** `button.primary` verde. Regra de ouro do DS preservada: o social
+  nunca é verde; o verde é o CTA de e-mail/senha. Sem social ativo, o botão e o divisor colapsam.
+- **Erro de credencial:** callout global acima do form (`role="alert"`), genérico, **sem vazar o campo**.
+  Erros de campo (e-mail em uso, senhas diferentes) ficam associados ao campo (`pattern.form`).
+- **Loading:** no submit (spinner inline no `button.primary` + `aria-busy`), não skeleton — telas de
+  acesso não têm fetch inicial.
+
 ## `pattern.surface-rhythm` (assinatura visual)
 
 O ritmo de superfície da marca: **página sage (`canvas-soft`) → cards brancos (`canvas`)**. O

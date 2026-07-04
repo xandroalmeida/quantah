@@ -1128,6 +1128,26 @@
         "related_pdrs": [
           "PDR-001"
         ]
+      },
+      {
+        "id": "DDR-004",
+        "title": "Padrão de acesso — marca Quantah, split-hero desktop, hierarquia Google vs. e-mail/senha",
+        "status": "accepted",
+        "path": "decisions/ddr/DDR-004-padrao-de-acesso-marca-e-hierarquia-login.md",
+        "decided_at": "2026-07-04",
+        "decided_by": "Designer",
+        "approved_by": "Alexandro",
+        "scope": "acesso",
+        "affects_screens": [
+          "SCREEN-STORY-021-login-cadastro-coletador"
+        ],
+        "related_stories": [
+          "STORY-021"
+        ],
+        "related_pdrs": [
+          "PDR-001",
+          "PDR-003"
+        ]
       }
     ]
   },
@@ -1229,6 +1249,31 @@
           "DDR-002"
         ],
         "created_at": "2026-07-03",
+        "updated_at": "2026-07-04"
+      },
+      {
+        "id": "SCREEN-STORY-021-login-cadastro-coletador",
+        "story": "STORY-021",
+        "epic": "EPIC-004",
+        "status": "ready",
+        "path": "design/screens/STORY-021-login-cadastro-coletador/screen-spec.md",
+        "prototype_path": "design/screens/STORY-021-login-cadastro-coletador/index.html",
+        "prototype_last_validated_at": "2026-07-04",
+        "ds_components_used": [
+          "card.feature-dark",
+          "card.content",
+          "input.text",
+          "button.primary",
+          "button.tertiary",
+          "snackbar",
+          "badge.positive"
+        ],
+        "related_ddrs": [
+          "DDR-004",
+          "DDR-001",
+          "DDR-002"
+        ],
+        "created_at": "2026-07-04",
         "updated_at": "2026-07-04"
       }
     ],

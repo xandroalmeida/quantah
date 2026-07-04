@@ -125,6 +125,30 @@ Placeholder de carregamento (nunca spinner em tela vazia) para o primeiro fetch 
 
 ---
 
+## Marca (identidade)
+
+> Introduzidos pelo **DDR-004** (accepted 2026-07-04). Substituem o `ApplicationLogo` do Laravel
+> (scaffolding). Wordmark em Inter 900 (DDR-001); acento verde parcimonioso (DDR-002).
+
+### `brand.mark`
+Tile quadrado raio `xl` (24px) em `primary` (verde), com glifo de **nota fiscal** (recibo + duas
+linhas) traçado em `on-primary` (ink). Comunica o domínio (cupom/nota), não decora. Uso: favicon,
+avatar, canto de header, e dentro do `brand.lockup`. Tamanho base 44×44px; escala mantendo o raio
+proporcional. **Nunca** verde sobre verde — o glifo é sempre ink.
+
+### `brand.lockup`
+`brand.mark` + wordmark "Quantah" (Inter 900, `ink`; vira `canvas` sobre superfície escura), lado a
+lado, gap `sm`. Opcional: tagline `Cada nota conta.` (`body-md`, `body`) abaixo. Uso: topo das telas de
+acesso (mobile) e do painel de hero (desktop). É o único lugar onde a marca aparece em escala — não
+repetir na mesma tela.
+
+### `brand.google-btn` (placeholder até STORY-022)
+Variante desabilitada de `button.tertiary` (outline): fundo `canvas`, borda 1px `ink`, **logo oficial
+multicolor do Google** + label "Entrar com Google" / "Criar conta com Google", e selo "Em breve"
+(`badge` em tom neutro creme) à direita. `aria-disabled="true"`, `tabindex="-1"`. **Exceção ao DS de
+acento** (logo de terceiro): justificada no DDR-004. Quando a STORY-022 ativar, vira botão funcional
+(sem o selo), mantendo o estilo neutro — **nunca** verde (o verde é do CTA e-mail/senha).
+
 ## Componente de assinatura (a especializar por tela)
 
 O DESIGN-wise.md traz o `currency-converter-card` como widget interativo de assinatura. No

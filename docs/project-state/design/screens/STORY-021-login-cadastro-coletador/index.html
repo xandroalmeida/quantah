@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protótipo — Acesso do Coletador (STORY-021)</title>
+<!--
+  PROTÓTIPO DE VALIDAÇÃO — NÃO É CÓDIGO DE PRODUÇÃO.
+  Tokens reais do DS (design/system/tokens.md). Microcopy = screen-spec §5, em pt-BR.
+  Telas: entrar | criar-conta | esqueci-senha | nova-senha | confirmar-email
+  Estados por tela via ?state=... ; viewport via ?vp=mobile|desktop ; tela via ?screen=...
+  Sem rede em runtime; sem backend. Placeholder do Google é desabilitado (STORY-022).
+-->
+<style>
+  :root{
+    --primary:#9fe870;--on-primary:#0e0f0c;--primary-active:#cdffad;--primary-pale:#e2f6d5;--primary-neutral:#c5edab;
+    --canvas:#fff;--canvas-soft:#e8ebe6;--ink:#0e0f0c;--ink-deep:#163300;--body:#454745;--mute:#868685;
+    --positive:#2ead4b;--positive-deep:#054d28;--warning-content:#4a3b1c;--negative:#d03238;--negative-darkest:#a7000d;--negative-bg:#320707;
+    --r-md:12px;--r-lg:16px;--r-xl:24px;--r-pill:9999px;
+    --f:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:#d5d9d2;color:var(--ink);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:14px 12px 40px;gap:12px}
+
+  /* ---- barra de controle do protótipo ---- */
+  .bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;max-width:920px}
+  .bar a{font-size:12.5px;text-decoration:none;color:var(--body);background:var(--canvas);
+    border:1px solid var(--mute);border-radius:var(--r-pill);padding:4px 11px;white-space:nowrap}
+  .bar a.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .bar .lbl{font-size:10.5px;color:#4b4d4b;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .bar .sep{width:1px;height:18px;background:var(--mute);opacity:.55;margin:0 2px}
+  .bar-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
+
+  /* ---- moldura de dispositivo ---- */
+  .stage{width:100%;display:flex;justify-content:center}
+  .device{width:100%;max-width:412px;min-height:760px;background:var(--canvas-soft);border-radius:30px;
+    border:1px solid #cfd3cc;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(14,15,12,.14)}
+  .device.desktop{max-width:960px;min-height:600px}
+  .scroll{flex:1;overflow-y:auto}
+
+  /* ---- MOBILE: wordmark sage + card branco ---- */
+  .m-shell{min-height:100%;display:flex;flex-direction:column;padding:32px 20px 28px;gap:22px}
+  .brand{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+  .lockup{display:flex;align-items:center;gap:11px}
+  .mark{width:44px;height:44px;flex:none}
+  .wordmark{font-weight:900;font-size:30px;letter-spacing:-.02em;color:var(--ink);line-height:1}
+  .tagline{font-size:14px;color:var(--body)}
+  .card{background:var(--canvas);border-radius:var(--r-xl);padding:24px 22px;display:flex;flex-direction:column;gap:18px}
+
+  /* ---- DESKTOP: split hero escuro + card ---- */
+  .d-shell{min-height:600px;display:grid;grid-template-columns:1fr 1fr}
+  .d-hero{background:var(--ink);color:var(--canvas-soft);padding:40px 40px 36px;display:flex;flex-direction:column;gap:24px}
+  .d-hero .lockup .wordmark{color:var(--canvas)}
+  .d-hero .hero-headline{font-weight:900;font-size:44px;line-height:.98;letter-spacing:-.02em;color:var(--primary);margin-top:auto}
+  .d-hero .hero-sub{font-size:16px;line-height:1.5;color:#c7cbc4;max-width:34ch}
+  .d-hero .hero-foot{font-size:13px;color:#8f948c;margin-top:8px}
+  .d-form{background:var(--canvas);padding:44px 44px;display:flex;flex-direction:column;justify-content:center}
+  .d-form .card{padding:0;max-width:380px;width:100%;margin:0 auto}
+
+  /* ---- conteúdo do formulário ---- */
+  .head{display:flex;flex-direction:column;gap:5px}
+  .head h1{font-size:26px;font-weight:900;letter-spacing:-.01em}
+  .head p{font-size:14.5px;color:var(--body);line-height:1.45}
+
+  .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;position:relative;
+    min-height:52px;border-radius:var(--r-xl);border:1px solid var(--ink);background:var(--canvas);
+    color:var(--ink);font-size:16px;font-weight:600;cursor:not-allowed;opacity:.72;padding:12px 18px}
+  .gbtn svg{width:20px;height:20px}
+  .gbtn .soon{position:absolute;right:12px;font-size:11px;font-weight:700;color:var(--warning-content);
+    background:#fff2c4;border-radius:var(--r-pill);padding:2px 9px;letter-spacing:.02em}
+
+  .divider{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:13px}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:#dcdfd8}
+
+  form{display:flex;flex-direction:column;gap:16px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .field input{min-height:52px;border-radius:var(--r-md);border:1px solid var(--ink);padding:12px 14px;
+    font-size:16px;background:var(--canvas);color:var(--ink);width:100%;font-family:inherit}
+  .field input::placeholder{color:var(--mute)}
+  .field input:focus{outline:3px solid var(--primary);outline-offset:1px;border-color:var(--ink)}
+  .field input[readonly]{background:var(--canvas-soft);color:var(--body);border-color:#d2d6cf}
+  .field .helper{font-size:12.5px;color:var(--mute)}
+  .field.err input{border-color:var(--negative);outline-color:#f4b9bb}
+  .field .msg{font-size:13px;color:var(--negative-darkest);display:flex;align-items:center;gap:5px}
+  .field .msg svg{width:15px;height:15px;flex:none}
+
+  .row-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .remember{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--body);cursor:pointer;user-select:none}
+  .remember input{width:20px;height:20px;accent-color:var(--primary)}
+  .link{font-size:14px;color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:2px;
+    background:none;border:none;cursor:pointer;padding:2px;font-family:inherit}
+  .link:focus{outline:3px solid var(--primary);outline-offset:2px;border-radius:6px}
+
+  .btn{min-height:52px;border:none;border-radius:var(--r-xl);font-size:16px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;width:100%;font-family:inherit}
+  .btn.primary{background:var(--primary);color:var(--on-primary)}
+  .btn.primary:hover{background:var(--primary-active)}
+  .btn.primary:focus{outline:3px solid var(--ink);outline-offset:2px}
+  .btn.primary[disabled]{cursor:progress}
+  .btn.tertiary{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .btn.tertiary:hover{background:var(--canvas-soft)}
+  .spinner{width:20px;height:20px;border:2.5px solid rgba(14,15,12,.25);border-top-color:var(--on-primary);
+    border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .foot{font-size:14px;color:var(--body);text-align:center}
+  .foot .link{font-size:14px}
+
+  /* callout de status / sucesso */
+  .callout{border-radius:var(--r-lg);padding:14px 16px;display:flex;gap:10px;font-size:14px;line-height:1.45}
+  .callout svg{width:20px;height:20px;flex:none;margin-top:1px}
+  .callout.ok{background:var(--primary-pale);color:var(--positive-deep)}
+  .callout.info{background:var(--canvas-soft);color:var(--body)}
+  .callout.err{background:#fdecec;color:var(--negative-darkest)}
+
+  .center-block{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+  .center-block .ic-badge{width:60px;height:60px;border-radius:var(--r-pill);background:var(--primary-pale);
+    display:flex;align-items:center;justify-content:center}
+  .center-block .ic-badge svg{width:30px;height:30px;color:var(--positive-deep)}
+  .mailto{font-weight:600;color:var(--ink)}
+
+  svg.line{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+  <div class="bar" id="bar"></div>
+  <div class="stage" id="stage"></div>
+
+<script>
+/* ============================ ASSETS ============================ */
+// Marca Quantah: tile verde (raio xl) com glifo de "nota fiscal" (recibo + traço de tendência).
+const MARK = `
+<svg class="mark" viewBox="0 0 44 44" role="img" aria-label="Quantah">
+  <rect x="1" y="1" width="42" height="42" rx="13" fill="#9fe870"/>
+  <path d="M15 12h14a1 1 0 0 1 1 1v18l-2.4-1.6L25 31l-2.6-1.6L20 31l-2.6-1.6L15 31V13a1 1 0 0 1 1-1z"
+        fill="none" stroke="#0e0f0c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M19 17h9M19 21h9" stroke="#0e0f0c" stroke-width="2" stroke-linecap="round"/>
+</svg>`;
+
+const G_LOGO = `
+<svg viewBox="0 0 48 48" aria-hidden="true">
+  <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/>
+  <path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.1 5.4-4.6 7l7.2 5.6c4.2-3.9 6.6-9.6 6.6-16.4z"/>
+  <path fill="#FBBC05" d="M10.5 28.4c-.5-1.5-.8-3.1-.8-4.7s.3-3.2.8-4.7l-7.9-6.2C.9 16.2 0 20 0 23.7s.9 7.5 2.6 10.9l7.9-6.2z"/>
+  <path fill="#34A853" d="M24 48c6.4 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.3-4.6 2.1-8.7 2.1-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/>
+</svg>`;
+
+const IC = {
+  alert: `<svg class="line" viewBox="0 0 24 24"><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="9"/></svg>`,
+  check: `<svg class="line" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>`,
+  mail:  `<svg class="line" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>`,
+  info:  `<svg class="line" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.8" r=".6" fill="currentColor" stroke="none"/></svg>`,
+};
+
+/* ============================ PARTIALS ============================ */
+const lockup = () => `<div class="lockup">${MARK}<span class="wordmark">Quantah</span></div>`;
+
+const googleBtn = (verbo) => `
+  <button type="button" class="gbtn" aria-disabled="true" tabindex="-1" data-testid="acesso-google-btn">
+    ${G_LOGO}<span>${verbo} com Google</span><span class="soon">Em breve</span>
+  </button>`;
+
+const divider = () => `<div class="divider">ou</div>`;
+
+const field = ({id,label,type='text',ph='',val='',helper='',err='',ac='',ro=false,focus=false}) => `
+  <div class="field ${err?'err':''}">
+    <label for="${id}">${label}</label>
+    <input id="${id}" data-testid="acesso-campo-${id}" type="${type}" ${ac?`autocomplete="${ac}"`:''}
+           placeholder="${ph}" value="${val}" ${ro?'readonly':''} ${focus?'autofocus':''}
+           ${err?`aria-invalid="true" aria-describedby="err-${id}"`:''}/>
+    ${helper && !err ? `<span class="helper">${helper}</span>`:''}
+    ${err?`<span class="msg" id="err-${id}" data-testid="acesso-erro-${id}">${IC.alert}${err}</span>`:''}
+  </div>`;
+
+const primaryBtn = (label, {loading=false,testid}={}) => `
+  <button type="submit" class="btn primary" data-testid="${testid}" ${loading?'disabled aria-busy="true"':''}>
+    ${loading?`<span class="spinner"></span>${label}…`:label}
+  </button>`;
+
+/* ============================ TELAS ============================ */
+// cada tela: {label, states:{...}, build(state)-> {head, google?, body}}
+const SCREENS = {
+
+  'entrar': {
+    label:'Entrar',
+    states:['padrão','erro','carregando','sem-google'],
+    build(st){
+      const showG = st!=='sem-google';
+      const err = st==='erro';
+      const loading = st==='carregando';
+      return {
+        head:{h1:'Entrar', p:'Que bom te ver de novo.'},
+        google: showG ? googleBtn('Entrar') : '',
+        divider: showG,
+        body:`
+          ${err?`<div class="callout err" role="alert" data-testid="acesso-erro-credencial">${IC.alert}<span>E-mail ou senha incorretos.</span></div>`:''}
+          <form onsubmit="go('entrar','carregando');return false">
+            ${field({id:'email',label:'E-mail',type:'email',ph:'voce@exemplo.com',ac:'username',focus:true,val:err?'maria@exemplo.com':''})}
+            ${field({id:'senha',label:'Senha',type:'password',ph:'••••••••',ac:'current-password',val:err?'••••••':''})}
+            <div class="row-between">
+              <label class="remember"><input type="checkbox"/> Manter conectado</label>
+              <button type="button" class="link" onclick="go('esqueci-senha','padrão')" data-testid="acesso-esqueci-link">Esqueci minha senha</button>
+            </div>
+            ${primaryBtn('Entrar',{loading,testid:'acesso-entrar-submit'})}
+          </form>
+          <p class="foot">Ainda não tem conta?
+            <button class="link" onclick="go('criar-conta','padrão')" data-testid="acesso-ir-criar-conta">Criar conta</button>
+          </p>`
+      };
+    }
+  },
+
+  'criar-conta': {
+    label:'Criar conta',
+    states:['padrão','erro'],
+    build(st){
+      const err = st==='erro';
+      return {
+        head:{h1:'Criar conta', p:'Leva menos de um minuto. Cada nota vira dinheiro na sua carteira.'},
+        google: googleBtn('Criar conta'),
+        divider:true,
+        body:`
+          <form onsubmit="go('confirmar-email','padrão');return false">
+            ${field({id:'nome',label:'Nome',ph:'Como quer ser chamado',ac:'name',focus:true})}
+            ${field({id:'email',label:'E-mail',type:'email',ph:'voce@exemplo.com',ac:'username',
+                     val:err?'maria@exemplo.com':'',err:err?'Este e-mail já tem conta. Tente entrar.':''})}
+            ${field({id:'senha',label:'Senha',type:'password',ph:'Crie uma senha',ac:'new-password',
+                     helper:'Use pelo menos 8 caracteres.'})}
+            ${field({id:'senha_conf',label:'Confirmar senha',type:'password',ph:'Repita a senha',ac:'new-password'})}
+            ${primaryBtn('Criar conta',{testid:'acesso-criar-submit'})}
+          </form>
+          <p class="foot">Já tem conta?
+            <button class="link" onclick="go('entrar','padrão')" data-testid="acesso-ir-entrar">Entrar</button>
+          </p>`
+      };
+    }
+  },
+
+  'esqueci-senha': {
+    label:'Esqueci a senha',
+    states:['padrão','enviado'],
+    build(st){
+      const sent = st==='enviado';
+      return {
+        head:{h1:'Redefinir senha', p:'Informe seu e-mail. Enviamos um link para você criar uma nova senha.'},
+        body:`
+          ${sent?`<div class="callout ok" role="status" data-testid="acesso-reset-enviado">${IC.check}
+            <span>Se houver uma conta com esse e-mail, enviamos um link para redefinir a senha.</span></div>`:''}
+          <form onsubmit="go('esqueci-senha','enviado');return false">
+            ${field({id:'email',label:'E-mail',type:'email',ph:'voce@exemplo.com',ac:'username',focus:true})}
+            ${primaryBtn('Enviar link',{testid:'acesso-reset-submit'})}
+          </form>
+          <p class="foot">
+            <button class="link" onclick="go('entrar','padrão')" data-testid="acesso-voltar-entrar">Voltar para entrar</button>
+          </p>`
+      };
+    }
+  },
+
+  'nova-senha': {
+    label:'Nova senha',
+    states:['padrão','erro'],
+    build(st){
+      const err = st==='erro';
+      return {
+        head:{h1:'Criar nova senha', p:'Escolha uma nova senha para a sua conta.'},
+        body:`
+          <form onsubmit="go('entrar','padrão');return false">
+            ${field({id:'email',label:'E-mail',type:'email',val:'maria@exemplo.com',ro:true,ac:'username'})}
+            ${field({id:'senha',label:'Nova senha',type:'password',ph:'Crie uma senha',ac:'new-password',focus:true,
+                     helper:'Use pelo menos 8 caracteres.'})}
+            ${field({id:'senha_conf',label:'Confirmar nova senha',type:'password',ph:'Repita a senha',ac:'new-password',
+                     err:err?'As senhas não são iguais.':''})}
+            ${primaryBtn('Redefinir senha',{testid:'acesso-nova-senha-submit'})}
+          </form>`
+      };
+    }
+  },
+
+  'confirmar-email': {
+    label:'Confirmar e-mail',
+    states:['padrão','reenviado'],
+    build(st){
+      const resent = st==='reenviado';
+      return {
+        head:null,
+        body:`
+          <div class="center-block">
+            <div class="ic-badge">${IC.mail}</div>
+            <div class="head" style="align-items:center;text-align:center">
+              <h1>Confirme seu e-mail</h1>
+              <p>Enviamos um link de confirmação para <span class="mailto">maria@exemplo.com</span>.
+                 Abra-o para ativar sua conta e começar a enviar notas.</p>
+            </div>
+          </div>
+          ${resent?`<div class="callout ok" role="status" data-testid="acesso-verif-reenviado">${IC.check}
+            <span>Enviamos um novo link de confirmação para o seu e-mail.</span></div>`:''}
+          <form onsubmit="go('confirmar-email','reenviado');return false">
+            ${primaryBtn('Reenviar e-mail',{testid:'acesso-verif-reenviar'})}
+          </form>
+          <p class="foot">
+            <button class="link" onclick="alert('(protótipo) sair')" data-testid="acesso-sair">Sair</button>
+          </p>`
+      };
+    }
+  },
+};
+
+/* ============================ RENDER ============================ */
+function params(){return new URLSearchParams(location.search)}
+function go(screen,state){
+  const p=params(); p.set('screen',screen); if(state)p.set('state',state);
+  location.search=p.toString();
+}
+
+function formInner(view){
+  // bloco reutilizável de conteúdo (head + google + divider + body)
+  const headHtml = view.head ? `<div class="head"><h1>${view.head.h1}</h1>${view.head.p?`<p>${view.head.p}</p>`:''}</div>` : '';
+  const g = view.google ? view.google : '';
+  const div = view.divider ? divider() : '';
+  return `${headHtml}${g}${div}${view.body}`;
+}
+
+function renderMobile(view){
+  return `
+    <div class="m-shell">
+      <div class="brand">${lockup()}<span class="tagline">Cada nota conta.</span></div>
+      <div class="card">${formInner(view)}</div>
+    </div>`;
+}
+
+function renderDesktop(view){
+  return `
+    <div class="d-shell">
+      <aside class="d-hero">
+        ${lockup()}
+        <div style="margin-top:auto"></div>
+        <div class="hero-headline">Cada nota<br>conta.</div>
+        <p class="hero-sub">Transforme os cupons das suas compras em dinheiro na carteira — e ajude a construir a maior base de preços do varejo brasileiro.</p>
+        <p class="hero-foot">Do cupom ao insight.</p>
+      </aside>
+      <main class="d-form"><div class="card">${formInner(view)}</div></main>
+    </div>`;
+}
+
+function render(){
+  const p=params();
+  const screen = SCREENS[p.get('screen')] ? p.get('screen') : 'entrar';
+  const S = SCREENS[screen];
+  const state = S.states.includes(p.get('state')) ? p.get('state') : S.states[0];
+  const vp = p.get('vp')==='desktop' ? 'desktop' : 'mobile';
+  const view = S.build(state);
+
+  document.getElementById('stage').innerHTML =
+    `<div class="device ${vp}"><div class="scroll">${vp==='desktop'?renderDesktop(view):renderMobile(view)}</div></div>`;
+
+  // barra de controle
+  const screenChips = Object.entries(SCREENS).map(([k,v])=>
+    `<a href="?screen=${k}&vp=${vp}" class="${k===screen?'on':''}">${v.label}</a>`).join('');
+  const stateChips = S.states.map(s=>
+    `<a href="?screen=${screen}&state=${encodeURIComponent(s)}&vp=${vp}" class="${s===state?'on':''}">${s}</a>`).join('');
+  const vpChips = ['mobile','desktop'].map(v=>
+    `<a href="?screen=${screen}&state=${encodeURIComponent(state)}&vp=${v}" class="${v===vp?'on':''}">${v}</a>`).join('');
+
+  document.getElementById('bar').innerHTML = `
+    <div class="bar-row"><span class="lbl">tela</span>${screenChips}</div>
+    <div class="bar-row"><span class="lbl">estado</span>${stateChips}<span class="sep"></span><span class="lbl">viewport</span>${vpChips}</div>`;
+}
+render();
+window.addEventListener('popstate',render);
+</script>
+</body>
+</html>

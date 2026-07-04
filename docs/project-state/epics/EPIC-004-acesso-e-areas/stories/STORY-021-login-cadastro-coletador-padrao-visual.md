@@ -101,6 +101,21 @@ Siga `docs/skills/po/references/agent-task-format.md`. Coordene com o Designer (
 
 ## Notas do agente (preenchido durante/após execução)
 
+### Handoff de Design (2026-07-04)
+
+Design entregue e **validado por Alexandro** ("aprovado") — o Programador pode implementar contra o spec.
+
+- **Spec:** `design/screens/STORY-021-login-cadastro-coletador/screen-spec.md` (`ready`).
+- **Protótipo fiel:** `design/screens/STORY-021-login-cadastro-coletador/index.html` (5 telas, estados
+  `padrão/erro/carregando/sem-google/enviado/reenviado`, mobile+desktop).
+- **DDR-004** (`accepted`): marca Quantah no lugar do `ApplicationLogo`; split-hero escuro no desktop;
+  Google acima (neutro) → "ou" → e-mail/senha → CTA verde único.
+- **DS atualizado:** `brand.mark`, `brand.lockup`, `brand.google-btn` (components.md) e `pattern.auth`
+  (patterns.md).
+- **Para o Programador:** trocar `ApplicationLogo`/`GuestLayout` do Breeze pelo `pattern.auth`; microcopy
+  pt-BR via i18n (chaves em `lang/pt_BR`, §5 do spec); `data-testid` = identificadores lógicos (§7) para
+  ancorar o E2E do CA-6; placeholder do Google desabilitado/oculto por flag (CA-5).
+
 ### Decisões tomadas
 ### Descobertas
 ### IDRs criados
