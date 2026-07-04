@@ -1,7 +1,12 @@
 # Onda em execução — WAVE-2026-01: Provar a coleta em SP (com incentivo)
 
-- **Status:** active
+> **Encerrada em 2026-07-04** — objetivo atingido (loop cupom → saldo vivo em homologação, 4/4 épicos
+> `done`). Retrospectiva em `../reports/status-2026-07-04-wave-2026-01-close.md`. Este arquivo será
+> substituído pelo plano da próxima onda ao abri-la (Fluxo A).
+
+- **Status:** closed
 - **Início:** 2026-07-02
+- **Fim:** 2026-07-04
 - **Escopo decidido em:** PDR-002
 - **North-star:** cupons NFC-e válidos, únicos e novos por semana (`../product/north-star.md`)
 

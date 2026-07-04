@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-07-04T13:10:00Z",
+  "generated_at": "2026-07-04T13:40:00Z",
   "project": {
     "name": "Quantah",
     "current_wave": "WAVE-2026-01",
@@ -15,9 +15,12 @@
     {
       "id": "WAVE-2026-01",
       "title": "Provar a coleta em SP (com incentivo)",
-      "status": "active",
+      "status": "closed",
       "goal": "Colaborador escaneia/compartilha o QR da NFC-e, o cupom é validado, deduplicado e persistido, e o saldo em cashback é creditado — em homologação",
       "start_date": "2026-07-02",
+      "end_date": "2026-07-04",
+      "closed_by": "po (Alexandro / Claude)",
+      "outcome": "Objetivo atingido: loop cupom → saldo vivo em homologação. 4/4 épicos done, todos validados (EPIC-002 approved_with_findings, demais approved).",
       "epic_ids": [
         "EPIC-000",
         "EPIC-001",
@@ -1031,6 +1034,13 @@
       "path": "reports/status-2026-07-04-epic-003-done.md",
       "date": "2026-07-04",
       "type": "epic-close"
+    },
+    {
+      "id": "status-2026-07-04-wave-2026-01-close",
+      "title": "Fechamento da WAVE-2026-01 (Provar a coleta em SP) — retrospectiva e aprendizado",
+      "path": "reports/status-2026-07-04-wave-2026-01-close.md",
+      "date": "2026-07-04",
+      "type": "wave-close"
     }
   ]
 }
