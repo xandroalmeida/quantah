@@ -8,8 +8,8 @@ type: spike
 target_role: arquiteto
 requires_design: false
 design_screen_id: null
-status: ready
-owner_agent: null
+status: in_progress
+owner_agent: arquiteto
 created_at: 2026-07-04
 updated_at: 2026-07-04
 estimated_session_size: L
@@ -92,10 +92,62 @@ uma decisão de produto (não arquitetural) faltar, **pare e registre** — não
 ## Notas do agente (preenchido durante/após execução)
 
 ### Decisões tomadas
-- <data> — <ADR-XXX: decisão>
+- 2026-07-04 — **ADR-010** (proposed): OAuth Google via **Laravel Socialite** (fluxo Authorization Code por
+  redirect, **sem** guardar tokens); **modelo de contas por colunas** no `users` (`google_id` unique nullable,
+  `avatar` nullable, `password` nullable), com **vínculo por e-mail verificado** e regra fail-secure; **3 áreas**
+  com **host único + RBAC do ADR-009** — B2C=`auth`, Backoffice=`can:operar-saques` sob `/backoffice` sem CTA,
+  B2B=namespace `/intelligence` **reservado** sem login. Segregação por subdomínio do Backoffice fica **`deferred`**
+  com gatilho (go-live / Backoffice ≥2 domínios / B2B autenticado / incidente).
+- 2026-07-04 — **ADR-011** (proposed): i18n via **localização nativa do Laravel** (`lang/`) como **fonte única**,
+  exposta ao React por **prop compartilhada do Inertia + helper `t()` fino**; `app.locale=pt_BR`,
+  **`laravel-lang/lang`** para matar o inglês do Breeze; formatos BR (moeda `R$`, data `dd/mm/aaaa`), fuso de
+  **exibição** `America/Sao_Paulo` mantendo persistência **UTC/ISO 8601** (`app.timezone` continua `UTC`).
+  Monolíngue (sem seletor); 2º locale seria ADR aditiva.
+
+> **Status:** ambos os ADRs em `proposed`, **aguardando aprovação de Alexandro**. A estória só vai a `done`
+> quando os ADRs forem `accepted` (DoD). Enquanto isso, permanece `in_progress`.
+
+### Contorno para as estórias de implementação (CA-4)
+
+O que cada estória pode assumir como **decidido** e o modelo mínimo esboçado:
+
+- **STORY-020 (fundação i18n + varredura pt-BR)** — materializa **ADR-011**: configura `app.locale=pt_BR`/
+  `faker_locale`; instala `laravel-lang/lang`; cria `HandleInertiaRequests::share(['translations' => ...])` +
+  helper `t()` no React; define helpers de moeda/data (BRL, `America/Sao_Paulo`, mantendo UTC/ISO na
+  persistência). **Varre para pt-BR** as superfícies existentes: login/Breeze, vitrine `/ds`, carteira,
+  backoffice de saques. É a base das telas novas (nasce cedo, como o épico pede). **Não** mexe em auth/áreas.
+
+- **STORY-021 (login/cadastro de marca — e-mail/senha, `requires_design`)** — assume **ADR-010** (sessão `web`
+  Breeze mantida; `users` com `password` nullable) e **ADR-011** (strings em `lang/`). Substitui o logo do
+  Laravel pelo padrão visual do DS, em pt-BR. **Hospeda o botão "Entrar com Google"** (a implementação do fluxo
+  é a 022). Modelo mínimo: rotas `guest` de login/register/forgot-password já existem (Breeze) — reskin + i18n.
+
+- **STORY-022 (login com Google)** — implementa o **eixo OAuth do ADR-010**: config `services.google`
+  (`.env`: `GOOGLE_CLIENT_ID/SECRET/REDIRECT`); rotas `GET /auth/google/redirect` e `GET /auth/google/callback`
+  (grupo `guest`); Socialite driver `google`; **migração**: `users.google_id` (unique, nullable),
+  `users.avatar` (nullable), `users.password` → nullable. Regra de contas do ADR-010 (criar / login / vincular /
+  recusar sem `verified_email`). **Sem** persistir tokens. Audit log de login/vínculo. E2E com Google **simulado**.
+
+- **STORY-023 (segmentação das 3 áreas + guardas)** — implementa o **eixo áreas do ADR-010**: organiza rotas em
+  **grupos por área** (B2C `auth`; Backoffice `auth`+`can:operar-saques` sob `/backoffice`, já vigente, sem CTA
+  público; B2B namespace `/intelligence` **reservado** → resolve para landing pública, sem rota autenticada);
+  redirect pós-login por papel; **fail-secure** (rota nova nasce dentro de um grupo). E2E de **barreira de área**
+  (Coletador → 403 no `/backoffice`). Papel `analista_b2b` **não** é criado agora (só quando a área B2B ativar).
+
+**Modelo de dados mínimo (ADR-010):** `users` += `google_id` (unique, nullable), `avatar` (nullable),
+`password` (nullable). Reusa `roles`/`role_user`/Gate `operar-saques` do ADR-009 — **nada de tabela nova**.
 
 ### Descobertas
-- <data> — <gotcha / item para o PO saber>
+- 2026-07-04 — O app já roda **Laravel Breeze** (sessão server-side, e-mail/senha) e o Backoffice já vive atrás
+  do Gate `operar-saques` sob `/backoffice` (ADR-009) — a segmentação **estende** o que existe, não recria.
+- 2026-07-04 — `security-architecture.md` recomenda segregar a superfície admin por **subdomínio**; optamos por
+  path-based agora e registramos o subdomínio como `deferred` (não ignorar a recomendação nem pagar por ela
+  cedo demais). **Item para o PO/Alexandro:** ciente do trade-off aceito no ADR-010.
+- 2026-07-04 — Persistência de data/hora **permanece UTC/ISO 8601**; a localização pt-BR é de **exibição**.
+  Cuidado a passar ao Programador na STORY-020: **não** trocar `app.timezone` para `America/Sao_Paulo`.
 
 ### ADRs criados
-- ADR-XXX — <título> — `decisions/adr/ADR-XXX-<slug>.md`
+- **ADR-010** — Acesso: login Google (OAuth) + modelo de contas e segmentação das 3 áreas —
+  `decisions/adr/ADR-010-acesso-oauth-google-contas-e-areas.md` (`proposed`).
+- **ADR-011** — i18n: mecanismo de localização pt-BR (strings e formatos brasileiros) —
+  `decisions/adr/ADR-011-i18n-mecanismo-localizacao-ptbr.md` (`proposed`).
