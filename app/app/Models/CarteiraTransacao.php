@@ -34,6 +34,7 @@ class CarteiraTransacao extends Model
         'tipo',
         'valor_centavos',
         'cupom_id',
+        'saque_id',
     ];
 
     protected function casts(): array
