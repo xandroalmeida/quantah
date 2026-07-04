@@ -8,7 +8,7 @@ type: spike
 target_role: arquiteto
 requires_design: false
 design_screen_id: null
-status: in_progress
+status: done
 owner_agent: arquiteto
 created_at: 2026-07-04
 updated_at: 2026-07-04
@@ -47,15 +47,16 @@ Produzir os ADRs que destravam a implementação:
 
 ## Critérios de aceite (alto nível — refinar na execução)
 
-- [ ] **CA-1:** ADR de acesso `accepted` cobrindo OAuth Google (fluxo + biblioteca), modelo de contas
+- [x] **CA-1:** ADR de acesso `accepted` cobrindo OAuth Google (fluxo + biblioteca), modelo de contas
       (Google ↔ e-mail/senha, vínculo por e-mail, verificação) e riscos (conflito de conta, e-mail não
-      verificado, revogação).
-- [ ] **CA-2:** O mesmo ADR decide a **segmentação das 3 áreas** e as guardas: como um usuário de uma
+      verificado, revogação). → **ADR-010** (§threat model cobre conflito/e-mail não verificado/revogação).
+- [x] **CA-2:** O mesmo ADR decide a **segmentação das 3 áreas** e as guardas: como um usuário de uma
       área é barrado de outra, como o Backoffice tem entrada própria sem CTA público, e como a área B2B
-      fica reservada sem login. Reusa/estende ADR-009 (RBAC).
-- [ ] **CA-3:** ADR de i18n `accepted` decidindo o mecanismo de localização pt-BR e formatos brasileiros.
-- [ ] **CA-4:** Contorno explícito para as estórias de implementação (020–023): o que cada uma assume
-      como decidido; modelo de dados/rotas mínimo esboçado o suficiente para destravá-las.
+      fica reservada sem login. Reusa/estende ADR-009 (RBAC). → **ADR-010** (eixo 3).
+- [x] **CA-3:** ADR de i18n `accepted` decidindo o mecanismo de localização pt-BR e formatos brasileiros.
+      → **ADR-011**.
+- [x] **CA-4:** Contorno explícito para as estórias de implementação (020–023): o que cada uma assume
+      como decidido; modelo de dados/rotas mínimo esboçado o suficiente para destravá-las. → Notas do agente.
 
 ## Fora de escopo
 
@@ -80,9 +81,9 @@ Spike de decisão: **sem exigência de E2E/cobertura**. O produto são ADRs inde
 
 ## Definição de Pronto (DoD)
 
-- [ ] ADRs (`accepted` após aprovação do Alexandro) criados e **indexados no `index.json`**.
-- [ ] Contorno das estórias de implementação registrado (nas Notas do agente ou no ADR).
-- [ ] `index.json` = `done`; frontmatter e "Notas do agente" preenchidos.
+- [x] ADRs (`accepted` após aprovação do Alexandro) criados e **indexados no `index.json`**.
+- [x] Contorno das estórias de implementação registrado (nas Notas do agente ou no ADR).
+- [x] `index.json` = `done`; frontmatter e "Notas do agente" preenchidos.
 
 ## Protocolo do agente (obrigatório)
 
@@ -104,8 +105,8 @@ uma decisão de produto (não arquitetural) faltar, **pare e registre** — não
   **exibição** `America/Sao_Paulo` mantendo persistência **UTC/ISO 8601** (`app.timezone` continua `UTC`).
   Monolíngue (sem seletor); 2º locale seria ADR aditiva.
 
-> **Status:** ambos os ADRs em `proposed`, **aguardando aprovação de Alexandro**. A estória só vai a `done`
-> quando os ADRs forem `accepted` (DoD). Enquanto isso, permanece `in_progress`.
+> **Status:** ambos os ADRs **`accepted`** por Alexandro em 2026-07-04 (chat). DoD cumprido → estória `done`.
+> Destrava STORY-020..023.
 
 ### Contorno para as estórias de implementação (CA-4)
 

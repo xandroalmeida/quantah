@@ -2,10 +2,10 @@
 adr_id: ADR-011
 slug: i18n-mecanismo-localizacao-ptbr
 title: i18n — mecanismo de localização pt-BR (strings e formatos brasileiros)
-status: proposed  # proposed | accepted | superseded | rejected | deferred
-decided_at: null  # YYYY-MM-DD quando virar accepted
+status: accepted  # proposed | accepted | superseded | rejected | deferred
+decided_at: 2026-07-04  # YYYY-MM-DD quando virar accepted
 decided_by: arquiteto
-approved_by: null  # ex: "Alexandro" — preenchido na aprovação humana
+approved_by: Alexandro  # ex: "Alexandro" — preenchido na aprovação humana
 supersedes: null
 superseded_by: null
 related_adrs: [ADR-000, ADR-010]
@@ -180,14 +180,15 @@ das strings segue `voice-and-tone.md`.
 
 ## Aprovação humana
 
-- **Status final:** ⬜ pendente | ✅ aceita | ❌ rejeitada | 🔄 superseded
-- **Aprovado por:** <Alexandro>
-- **Data:** YYYY-MM-DD
-- **Forma do aceite:** <chat / PR>
-- **Condicionantes do aceite:** <se houver>
+- **Status final:** ✅ aceita
+- **Aprovado por:** Alexandro
+- **Data:** 2026-07-04
+- **Forma do aceite:** aprovação explícita em chat (sessão do papel Arquiteto, STORY-019)
+- **Condicionantes do aceite:** nenhuma
 
 ---
 
 ## Histórico
 
 - 2026-07-04 — criada como `proposed` por Arquiteto (STORY-019, spike de arquitetura de acesso do EPIC-004).
+- 2026-07-04 — **aceita** por Alexandro (chat) → `accepted`.

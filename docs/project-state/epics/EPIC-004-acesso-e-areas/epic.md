@@ -81,8 +81,8 @@ i18n; a fundação de i18n (STORY-020) vem cedo para as telas novas já nascerem
 (STORY-021) hospeda o botão do Google implementado na STORY-022; a segmentação de áreas (STORY-023) pode
 correr em paralelo; a validação (STORY-024) é a última.
 
-- [ ] **STORY-019** (spike) — arquitetura de acesso: OAuth Google + contas + segmentação de áreas + i18n
-      → ADRs (`target_role: arquiteto`). Bloqueia 020–023.
+- [x] **STORY-019** (spike) — arquitetura de acesso: OAuth Google + contas + segmentação de áreas + i18n
+      → ADRs (`target_role: arquiteto`). **`done`** — ADR-010 (acesso) + ADR-011 (i18n) `accepted`. Destrava 020–023.
 - [ ] **STORY-020** (enablement) — fundação de i18n (pt-BR) + varredura pt-BR das superfícies existentes.
 - [ ] **STORY-021** — login/cadastro do Coletador no padrão visual (substitui o logo do Laravel),
       e-mail/senha, em pt-BR (`requires_design`).
@@ -104,3 +104,6 @@ resíduo de inglês/Laravel.
 - 2026-07-04 — **decomposto em estórias** (PO, Fluxo B): STORY-019 (spike) → 020 (i18n) → 021 (login de
   marca, `requires_design`) → 022 (Google) → 023 (áreas) → 024 (validação). Próximo: executar STORY-019
   (spike de arquitetura de acesso, `target_role: arquiteto`).
+- 2026-07-04 — **STORY-019 `done`** (Arquiteto): ADR-010 (acesso: OAuth Google/Socialite + contas por colunas
+  + segmentação das 3 áreas via RBAC do ADR-009) e ADR-011 (i18n pt-BR nativo do Laravel) **aceitas** por
+  Alexandro. STORY-020..023 destravadas. Próximo: STORY-020 (fundação i18n + varredura pt-BR).

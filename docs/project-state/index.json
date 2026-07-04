@@ -582,7 +582,7 @@
       "target_role": "arquiteto",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "in_progress",
+      "status": "done",
       "owner_agent": "arquiteto",
       "sprint_id": null,
       "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-019-spike-arquitetura-de-acesso.md",
@@ -915,11 +915,11 @@
       {
         "id": "ADR-010",
         "title": "Acesso — login Google (OAuth) + modelo de contas e segmentação das 3 áreas",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-010-acesso-oauth-google-contas-e-areas.md",
-        "decided_at": null,
+        "decided_at": "2026-07-04",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-003"
         ],
@@ -930,11 +930,11 @@
       {
         "id": "ADR-011",
         "title": "i18n — mecanismo de localização pt-BR (strings e formatos brasileiros)",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-011-i18n-mecanismo-localizacao-ptbr.md",
-        "decided_at": null,
+        "decided_at": "2026-07-04",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-003"
         ],
