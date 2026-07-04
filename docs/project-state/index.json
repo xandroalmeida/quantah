@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-07-03T13:45:00Z",
+  "generated_at": "2026-07-04T11:45:00Z",
   "project": {
     "name": "Quantah",
     "current_wave": "WAVE-2026-01",
@@ -125,7 +125,15 @@
         "STORY-017",
         "STORY-018"
       ],
-      "validation_report": null,
+      "validation_report": {
+        "path": "epics/EPIC-003-carteira-e-cashback/validation/report.md",
+        "verdict": "approved",
+        "validated_at": "2026-07-04",
+        "validated_by": "validador (claude-validador-story018)",
+        "deployed_sha": "9c77cbc",
+        "blockers": 0,
+        "non_blocking_findings": []
+      },
       "created_at": "2026-07-02",
       "updated_at": "2026-07-04"
     }
@@ -491,7 +499,7 @@
       "target_role": "validador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "in_progress",
+      "status": "done",
       "owner_agent": "claude-validador-story018",
       "sprint_id": null,
       "path": "epics/EPIC-003-carteira-e-cashback/stories/STORY-018-validacao-epic-003.md",

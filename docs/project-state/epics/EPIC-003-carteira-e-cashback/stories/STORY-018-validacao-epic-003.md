@@ -8,7 +8,7 @@ type: validation
 target_role: validador
 requires_design: false
 design_screen_id: null
-status: in_progress
+status: done
 owner_agent: claude-validador-story018
 created_at: 2026-07-03
 updated_at: 2026-07-04
@@ -48,3 +48,24 @@ saldo visível, resgate existente — tudo em homologação, sem confiar apenas 
 
 Relatório publicado com veredito; estado atualizado; `index.json` = `done`; Notas do agente
 preenchidas.
+
+## Notas do agente
+
+### 2026-07-04 — Validação final concluída (claude-validador-story018)
+
+- **Pré-condição resolvida pelo PO:** STORY-015 estava `in_review`; o PO aprovou (`in_review→done`) e
+  moveu EPIC-003 `ready→in_review` antes da validação (commit `91291c8`).
+- **Checklist autorado** em `validation/checklist.md` (7 blocos, derivado dos CAs STORY-014..017,
+  `epic.md`, `quality-standards.md`) e executado item a item.
+- **Veredito: APPROVED.** 26 passes (4 com ressalva), 0 fails, 1 n/a. Relatório em
+  `validation/report.md`.
+- **Verificado de 1ª mão sobre o sha deployado `9c77cbc`:** suíte **237 PHPUnit / 955 asserções**
+  verdes; núcleo de cashback e do saque **100%** (gate 98%), cobertura geral **94,3%**; **9 Dusk**
+  (carteira/saque/backoffice) verdes em browser real; homologação viva (`/up` 200, `/carteira`
+  302→login); reconciliação saldo × ledger garantida por construção e coberta por teste; CPF do KYC
+  mascarado e não logado; CI run 28704414576 verde (build + E2E + deploy homolog).
+- **Ressalvas (não-bloqueantes):** cobertura de *glue* de models < 80% (fora do núcleo); CI sem
+  scanner dedicado de segredos/deps (verificado por inspeção); dashboard RED não verificado de 1ª mão;
+  walkthrough autenticado do crédito na UI de homologação não executado (coberto por E2E/feature).
+- **Fronteira de papel:** atualizei apenas `EPIC-003.validation_report` (não o `status` do épico —
+  decisão do PO). A transição de EPIC-003 para `done` cabe ao PO com base neste veredito.
