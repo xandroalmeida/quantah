@@ -604,8 +604,8 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "ready",
-      "owner_agent": null,
+      "status": "in_review",
+      "owner_agent": "programador",
       "sprint_id": null,
       "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-020-fundacao-i18n-e-varredura-ptbr.md",
       "blocked_by": [
@@ -1063,6 +1063,18 @@
         "related_adrs": [
           "ADR-005",
           "ADR-006"
+        ]
+      },
+      {
+        "id": "IDR-010",
+        "title": "i18n — chaves por string-fonte (JSON translations), helper t() via prop do Inertia e Formato",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-010-i18n-chaves-por-string-fonte-e-t-no-inertia.md",
+        "decided_at": "2026-07-04",
+        "decided_by": "programador",
+        "related_story": "STORY-020",
+        "related_adrs": [
+          "ADR-011"
         ]
       }
     ],
