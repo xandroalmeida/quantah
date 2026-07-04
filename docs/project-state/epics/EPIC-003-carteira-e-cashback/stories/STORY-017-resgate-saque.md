@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: null
-status: draft
-owner_agent: null
+status: in_progress
+owner_agent: claude-story017
 created_at: 2026-07-03
 updated_at: 2026-07-03
 estimated_session_size: M

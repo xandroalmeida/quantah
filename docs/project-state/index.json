@@ -469,8 +469,8 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "in_progress",
+      "owner_agent": "claude-story017",
       "sprint_id": null,
       "path": "epics/EPIC-003-carteira-e-cashback/stories/STORY-017-resgate-saque.md",
       "blocked_by": [
@@ -687,6 +687,19 @@
         "related_epics": [
           "EPIC-000",
           "EPIC-002"
+        ]
+      },
+      {
+        "id": "ADR-009",
+        "title": "Autorização por papéis (RBAC) — controle de acesso ao backoffice",
+        "status": "accepted",
+        "path": "decisions/adr/ADR-009-autorizacao-por-papeis-rbac.md",
+        "decided_at": "2026-07-03",
+        "decided_by": "arquiteto",
+        "approved_by": "Alexandro",
+        "related_pdrs": [],
+        "related_epics": [
+          "EPIC-003"
         ]
       }
     ],
