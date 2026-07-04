@@ -51,3 +51,32 @@ depende do escopo do ADR-005 (assistido pode ser fluxo enxuto).
 
 Resgate no escopo do ADR-005 demonstrável em homologação; débito reconciliável; artefato de
 Designer presente; testes verdes; `index.json` = `done`; Notas do agente preenchidas.
+
+## Notas do agente
+
+### 2026-07-03 — Backend pronto; design aguardando validação (claude-story017)
+
+**Decisões do dono (Alexandro):** RBAC completo (papéis) → **ADR-009**; **mínimo de saque R$ 5,00**;
+ambas as telas com **design completo**.
+
+**Backend entregue e coberto (núcleo 100%), em TDD:**
+- **ADR-009** (RBAC): `roles` + `role_user` + `User::hasRole` + Gate `operar-saques` + seed do papel
+  `operador` (atribuído ao usuário de dev). `GateOperadorTest` verde.
+- **Cpf** (VO): validação de DV mod 11 + normalização, sem dependência externa. `CpfTest` verde (100%).
+- **Migrations:** `saques` (status CHECK, valor>0, cpf/chave_pix, comprovante, processado_por) + `saque_id`
+  no ledger. Reversíveis.
+- **`SolicitarSaqueService`** (reserva): mínimo R$5, KYC (CPF válido = chave PIX), **saldo sob lock**,
+  débito atômico (`debito_saque`), reconciliável. 100% coberto.
+- **`SaqueService`** (máquina de estados): assumir→em_analise, aprovar, pagar (comprovante), rejeitar→
+  **estorno**; transições guardadas (idempotência: não estorna duas vezes). 100% coberto.
+- Suíte do domínio: 27 testes verdes (Cpf 7 + Gate 3 + solicitar 9 + operar 8).
+
+**Design produzido (aguardando validação humana — checkpoint obrigatório):**
+- `design/screens/STORY-017-solicitar-saque/` (Colaborador): valor + **campo único CPF** (=chave PIX);
+  estados form/erro/sucesso/sem-saldo.
+- `design/screens/STORY-017-backoffice-saques/` (operador, atrás do Gate): lista/detalhe + ações da
+  máquina de estados + comprovante; CPF mascarado.
+
+**Pausado antes da UI** de propósito: não implemento página React antes do sinal do Designer/dono
+(evita retrabalho — é o motivo do checkpoint). Faltam: fluxo do Colaborador (botão Sacar na /carteira +
+form), backoffice (rotas atrás de `can:operar-saques` + páginas), E2E, fechamento e deploy.
