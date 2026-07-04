@@ -85,8 +85,9 @@ correr em paralelo; a validação (STORY-024) é a última.
       → ADRs (`target_role: arquiteto`). **`done`** — ADR-010 (acesso) + ADR-011 (i18n) `accepted`. Destrava 020–023.
 - [x] **STORY-020** (enablement) — fundação de i18n (pt-BR) + varredura pt-BR das superfícies existentes.
       **`done`** — mecanismo `lang/`+`t()` (IDR-010), `laravel-lang`, `App\Support\Formato`; Breeze varrido; homolog pt-BR.
-- [ ] **STORY-021** — login/cadastro do Coletador no padrão visual (substitui o logo do Laravel),
-      e-mail/senha, em pt-BR (`requires_design`).
+- [x] **STORY-021** — login/cadastro do Coletador no padrão visual (substitui o logo do Laravel),
+      e-mail/senha, em pt-BR (`requires_design`). **`done`** — DDR-004 (marca+split-hero+hierarquia Google);
+      Breeze reescrito no DS, pt-BR via i18n, placeholder do Google; Unit+Feature 251/251, Dusk 61/61; homolog verde.
 - [ ] **STORY-022** — login com Google (fluxo OAuth + modelo de contas).
 - [ ] **STORY-023** — segmentação das 3 áreas (B2C/B2B/Backoffice) + guardas de acesso.
 - [ ] **STORY-024** (validação) — Validação final do épico (`target_role: validador`).
@@ -112,3 +113,8 @@ resíduo de inglês/Laravel.
   `t()` via prop do Inertia, `laravel-lang`, `App\Support\Formato`; IDR-010) e varredura pt-BR do scaffold
   Breeze. Suíte completa verde (251 unit+feature, 55 E2E); homolog em pt-BR. Próximo: STORY-021 (login de
   marca, `requires_design` → passa pelo Designer).
+- 2026-07-04 — **STORY-021 `done`** (Designer + Programador): DDR-004 (marca Quantah no lugar do logo
+  Laravel, split-hero no desktop, hierarquia Google/e-mail) aprovado por Alexandro; `SCREEN-STORY-021`
+  (spec+protótipo) validado. Breeze reescrito no DS, pt-BR via i18n, placeholder do Google (CA-5).
+  Unit+Feature 251/251, Dusk 61/61; deploy homolog verde. Próximo: STORY-022 (login com Google) — o
+  botão já tem lugar reservado.

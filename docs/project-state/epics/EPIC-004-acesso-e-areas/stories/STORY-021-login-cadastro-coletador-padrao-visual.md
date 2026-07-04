@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-021-login-cadastro-coletador
-status: in_review
+status: done
 owner_agent: Programador
 created_at: 2026-07-04
 updated_at: 2026-07-04
@@ -91,9 +91,11 @@ arquitetural, **pare e registre**.
 
 - [x] Todos os CAs passam; unitários + E2E verdes; cobertura exigida (Unit+Feature 251/251, Dusk 61/61).
 - [x] Entrada em `design.screens[]` (`SCREEN-STORY-021-...`) existe antes de `in_review` (invariante v2).
-- [ ] Pipeline verde; deploy de homologação verificado (tela de marca viva). ← após push na `main`.
+- [x] Pipeline verde; deploy de homologação verificado — run CI `28719204085` success (testes+build+Dusk),
+      job "Deploy homologação" + "Smoke test da homologação" (`/up` 200) verdes. Eyeball da página ao vivo:
+      `https://quantah-homolog.<DEPLOY_HOST>.sslip.io/login` (host é secret — 1 clique do Alexandro).
 - [x] IDR registrado se houve decisão técnica relevante — sem IDR (só reuso do DS; decisões duráveis já no DDR-004).
-- [ ] `index.json` = `done`; "Notas do agente" preenchidas. ← `done` após homolog verificado.
+- [x] `index.json` = `done`; "Notas do agente" preenchidas.
 
 ## Protocolo do agente (obrigatório)
 
