@@ -74,7 +74,10 @@ class BackofficeSaquesTest extends DuskTestCase
                 ->waitFor('[data-testid=backoffice-comprovante]', 10)
                 ->type('[data-testid=backoffice-comprovante]', 'E2E-PIX-777')
                 ->click('[data-testid=backoffice-acao-pagar]')
-                ->waitFor('[data-testid=backoffice-saque-status]', 10)
+                // O elemento de status já existe (mostrando o estado anterior); esperar por ele
+                // não garante o reload. Esperamos o **texto** novo aparecer para evitar corrida
+                // (a mesma robustez do fluxo de rejeição abaixo).
+                ->waitForTextIn('[data-testid=backoffice-saque-status]', 'pago', 10)
                 ->assertSeeIn('[data-testid=backoffice-saque-status]', 'pago');
         });
 
