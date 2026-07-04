@@ -2,7 +2,7 @@
 id: SCREEN-STORY-021-login-cadastro-coletador
 story: STORY-021-login-cadastro-coletador-padrao-visual
 epic: EPIC-004-acesso-e-areas
-status: ready
+status: in_implementation
 created_at: 2026-07-04
 updated_at: 2026-07-04
 owner_designer: Designer (agente)
