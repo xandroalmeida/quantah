@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
 use Mockery;
 use Tests\TestCase;
@@ -78,7 +79,7 @@ class GoogleLoginControllerTest extends TestCase
     /** (exceção do provedor) falha inesperada do Socialite volta ao login, sem vazar detalhe. */
     public function test_callback_falha_do_provedor_volta_ao_login(): void
     {
-        $provider = Mockery::mock(\Laravel\Socialite\Contracts\Provider::class);
+        $provider = Mockery::mock(Provider::class);
         $provider->shouldReceive('user')->andThrow(new \RuntimeException('boom'));
         Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
 
