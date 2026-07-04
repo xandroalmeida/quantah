@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protótipo — Carteira (STORY-016)</title>
+<!--
+  PROTÓTIPO DE VALIDAÇÃO — NÃO É CÓDIGO DE PRODUÇÃO.
+  Tokens reais do DS Quantah (design/system/tokens.md). Microcopy = screen-spec §5.
+  Estados via ?state=preenchido|vazio|loading|erro (ou chips no topo).
+  Viewport via ?vp=mobile|desktop (toggle no topo) — a navegação muda entre os dois.
+  Sem rede: dados mockados inline; saldo = soma dos créditos exibidos.
+-->
+<style>
+  :root{
+    --primary:#9fe870; --on-primary:#0e0f0c; --primary-pale:#e2f6d5; --primary-neutral:#c5edab;
+    --canvas:#ffffff; --canvas-soft:#e8ebe6;
+    --ink:#0e0f0c; --ink-deep:#163300; --body:#454745; --mute:#868685;
+    --positive:#2ead4b; --positive-deep:#054d28;
+    --negative:#d03238; --negative-bg:#320707;
+    --r-xl:24px; --r-lg:16px; --r-sm:8px; --r-pill:9999px;
+    --f:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:var(--canvas-soft);color:var(--ink);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:16px 12px 0;gap:12px}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:640px}
+  .bar a{font-size:13px;text-decoration:none;color:var(--body);background:var(--canvas);
+    border:1px solid var(--mute);border-radius:var(--r-pill);padding:4px 12px}
+  .bar a.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .bar .sep{width:1px;height:20px;background:var(--mute);opacity:.5}
+  .bar .lbl{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+
+  /* device frame */
+  .device{width:100%;background:var(--canvas-soft);border-radius:28px;border:1px solid #d5d9d2;
+    overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .device.mobile{max-width:412px;min-height:760px}
+  .device.desktop{max-width:900px;min-height:600px}
+
+  /* top nav (desktop) */
+  .navbar{display:flex;align-items:center;gap:24px;background:var(--canvas);border-bottom:1px solid var(--ink);
+    padding:14px 24px}
+  .navbar .brand{font-weight:900;font-size:18px;margin-right:auto}
+  .navbar a{font-size:15px;font-weight:600;color:var(--body);text-decoration:none;padding:6px 2px;
+    border-bottom:2px solid transparent}
+  .navbar a.cur{color:var(--ink);border-color:var(--primary)}
+
+  /* scroll area */
+  .scroll{flex:1;overflow-y:auto;padding:20px 16px 24px}
+  .desktop .scroll{padding:32px 24px}
+  .wrap{display:flex;flex-direction:column;gap:24px;width:100%;margin:0 auto}
+  .desktop .wrap{max-width:640px}
+
+  h1.screen{font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:space-between}
+  h1.screen .ic{width:28px;height:28px;color:var(--mute)}
+  h2.sec{font-size:16px;font-weight:600;color:var(--ink)}
+
+  /* saldo card (feature-dark) */
+  .saldo{background:var(--ink);color:var(--primary-neutral);border-radius:var(--r-xl);padding:24px;
+    display:flex;flex-direction:column;gap:8px}
+  .saldo .lbl{font-size:14px;color:var(--primary-neutral)}
+  .saldo .val{font-size:56px;line-height:1;font-weight:900;color:var(--primary)}
+  .saldo .hint{font-size:14px;color:var(--canvas-soft);opacity:.85}
+
+  /* history list */
+  ul.hist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  li.item{background:var(--canvas);border-radius:var(--r-xl);padding:16px 20px;
+    display:flex;align-items:center;gap:16px}
+  li.item .ic{width:24px;height:24px;color:var(--ink-deep);flex:none}
+  li.item .txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+  li.item .ti{font-size:16px;font-weight:600}
+  li.item .dt{font-size:14px;color:var(--mute)}
+  .credito{display:inline-flex;align-items:center;gap:4px;background:var(--primary-pale);
+    color:var(--positive-deep);border-radius:var(--r-pill);padding:4px 12px;font-size:14px;font-weight:600;flex:none}
+  .credito .ic{width:16px;height:16px;color:var(--positive-deep)}
+
+  /* empty state */
+  .empty{background:var(--canvas);border-radius:var(--r-xl);padding:32px 24px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:16px}
+  .empty .ic{width:40px;height:40px;color:var(--mute)}
+  .empty h3{font-size:24px;font-weight:900}
+  .empty p{font-size:16px;color:var(--body);max-width:34ch}
+  .btn{min-height:48px;border:none;border-radius:var(--r-xl);font-size:16px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;text-decoration:none}
+  .btn.primary{background:var(--primary);color:var(--on-primary)}
+
+  /* skeleton */
+  .sk{background:var(--canvas-soft);border-radius:var(--r-sm);animation:pulse 1.2s ease-in-out infinite}
+  .sk.block{height:120px;border-radius:var(--r-xl)}
+  .sk.line{height:56px;border-radius:var(--r-xl)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+  /* error snackbar */
+  .snack{display:flex;align-items:center;gap:12px;background:var(--negative-bg);color:var(--canvas);
+    border-radius:var(--r-xl);padding:14px 18px;font-size:14px}
+  .snack .ic{width:20px;height:20px;color:var(--canvas);flex:none}
+  .snack .retry{margin-left:auto;background:none;border:1px solid var(--canvas);color:var(--canvas);
+    border-radius:var(--r-pill);padding:6px 14px;font-size:14px;font-weight:600;cursor:pointer;min-height:auto}
+
+  /* bottom nav (mobile) */
+  .bottomnav{display:flex;background:var(--canvas);border-top:1px solid var(--ink)}
+  .bottomnav a{flex:1;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2px;text-decoration:none;color:var(--mute);font-size:11px;font-weight:600}
+  .bottomnav a.cur{color:var(--ink)}
+  .bottomnav a.cur .ic{color:var(--ink)}
+  .bottomnav a .ic{width:24px;height:24px;color:var(--mute)}
+
+  svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+  <nav class="bar" id="bar"></nav>
+  <div id="app"></div>
+<script>
+  const WALLET = `<svg class="ic" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 12h.01"/><path d="M3 9h13a2 2 0 0 1 0 4H3"/></svg>`;
+  const RECEIPT = `<svg class="ic" viewBox="0 0 24 24"><path d="M5 2v20l2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>`;
+  const HOME = `<svg class="ic" viewBox="0 0 24 24"><path d="M3 10 12 3l9 7"/><path d="M5 9v11h14V9"/></svg>`;
+  const USER = `<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>`;
+  const PLUS = `<svg class="ic" viewBox="0 0 24 24" style="stroke-width:3"><path d="M12 5v14M5 12h14"/></svg>`;
+  const ALERT = `<svg class="ic" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>`;
+
+  // dados mockados — saldo = soma exata dos créditos exibidos (fidelidade)
+  const EXTRATO = [
+    { cupom:'4.890,00', data:'15 jan 2026', credito:'4,89' },
+    { cupom:'3.200,00', data:'14 jan 2026', credito:'3,20' },
+    { cupom:'2.350,00', data:'12 jan 2026', credito:'2,35' },
+    { cupom:'1.000,00', data:'10 jan 2026', credito:'1,00' },
+    { cupom:'870,00',   data:'08 jan 2026', credito:'0,87' },
+    { cupom:'160,00',   data:'05 jan 2026', credito:'0,16' },
+  ]; // soma dos créditos = 12,47
+  const SALDO = '12,47';
+
+  const bottomNav = () => `
+    <nav class="bottomnav" data-testid="screen-carteira-nav" aria-label="Seções">
+      <a href="#">${HOME}Início</a>
+      <a href="#">${RECEIPT}Cupons</a>
+      <a href="#" class="cur" aria-current="page">${WALLET}Carteira</a>
+      <a href="#">${USER}Perfil</a>
+    </nav>`;
+
+  const topNav = () => `
+    <nav class="navbar" aria-label="Seções">
+      <span class="brand">Quantah</span>
+      <a href="#">Início</a><a href="#">Cupons</a>
+      <a href="#" class="cur" aria-current="page">Carteira</a><a href="#">Perfil</a>
+    </nav>`;
+
+  const saldoCard = (valor) => `
+    <section class="saldo" data-testid="screen-carteira-saldo-card">
+      <span class="lbl">Seu saldo</span>
+      <span class="val" data-testid="screen-carteira-saldo">R$ ${valor}</span>
+      <span class="hint">Cada nota conta.</span>
+    </section>`;
+
+  const historico = () => `
+    <section data-testid="screen-carteira-historico">
+      <h2 class="sec" style="margin-bottom:12px">Histórico</h2>
+      <ul class="hist">
+        ${EXTRATO.map(e=>`
+          <li class="item" data-testid="screen-carteira-item">
+            ${RECEIPT}
+            <span class="txt">
+              <span class="ti">Cupom de R$ ${e.cupom}</span>
+              <span class="dt">${e.data}</span>
+            </span>
+            <span class="credito" data-testid="screen-carteira-item-credito"><span class="ic">${PLUS}</span>R$ ${e.credito}</span>
+          </li>`).join('')}
+      </ul>
+    </section>`;
+
+  const emptyState = () => `
+    <section class="empty" data-testid="screen-carteira-vazio">
+      ${RECEIPT}
+      <h3>Seu saldo vai aparecer aqui</h3>
+      <p>Envie cupons válidos e ganhe 0,1% de cada um em cashback.</p>
+      <a class="btn primary" href="#" data-testid="screen-carteira-vazio-cta">Capturar cupom</a>
+    </section>`;
+
+  const skeleton = () => `
+    <div data-testid="screen-carteira-skeleton" style="display:flex;flex-direction:column;gap:24px">
+      <div class="sk block"></div>
+      <div><div class="sk line" style="width:40%;height:20px;margin-bottom:12px"></div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="sk line"></div><div class="sk line"></div><div class="sk line"></div>
+        </div>
+      </div>
+    </div>`;
+
+  const errorSnack = () => `
+    <div class="snack" data-testid="screen-carteira-erro" role="status" aria-live="polite">
+      ${ALERT}<span>Não foi possível carregar sua carteira.</span>
+      <button class="retry" data-testid="screen-carteira-erro-retry" onclick="go('preenchido')">Tentar de novo</button>
+    </div>`;
+
+  const BODY = {
+    preenchido: () => saldoCard(SALDO) + historico(),
+    vazio:      () => saldoCard('0,00') + emptyState(),
+    loading:    () => skeleton(),
+    erro:       () => saldoCard(SALDO) + errorSnack(),
+  };
+
+  function params(){ return new URLSearchParams(location.search); }
+  function go(s){ const p=params(); p.set('state',s); location.search=p.toString(); }
+  function setVp(v){ const p=params(); p.set('vp',v); location.search=p.toString(); }
+
+  function render(){
+    const p = params();
+    const state = p.get('state') || 'preenchido';
+    const vp = p.get('vp') || 'mobile';
+    const nav = vp==='desktop' ? topNav() : '';
+    const foot = vp==='desktop' ? '' : bottomNav();
+    document.getElementById('app').innerHTML = `
+      <div class="device ${vp}">
+        ${nav}
+        <div class="scroll">
+          <div class="wrap">
+            <h1 class="screen" data-testid="screen-carteira-title">Carteira ${WALLET}</h1>
+            ${(BODY[state]||BODY.preenchido)()}
+          </div>
+        </div>
+        ${foot}
+      </div>`;
+    const states = Object.keys(BODY);
+    document.getElementById('bar').innerHTML =
+      `<span class="lbl">estado</span>` +
+      states.map(k=>`<a href="?state=${k}&vp=${vp}" class="${k===state?'on':''}">${k}</a>`).join('') +
+      `<span class="sep"></span><span class="lbl">tela</span>` +
+      ['mobile','desktop'].map(v=>`<a href="?state=${state}&vp=${v}" class="${v===vp?'on':''}">${v}</a>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

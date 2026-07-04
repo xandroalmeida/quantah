@@ -448,8 +448,8 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "in_progress",
+      "owner_agent": "claude-story016",
       "sprint_id": null,
       "path": "epics/EPIC-003-carteira-e-cashback/stories/STORY-016-tela-carteira-saldo-historico.md",
       "blocked_by": [
@@ -877,6 +877,32 @@
         ],
         "created_at": "2026-07-02",
         "updated_at": "2026-07-02"
+      },
+      {
+        "id": "SCREEN-STORY-016-carteira-saldo-historico",
+        "story": "STORY-016",
+        "epic": "EPIC-003",
+        "status": "draft",
+        "path": "design/screens/STORY-016-carteira-saldo-historico/screen-spec.md",
+        "prototype_path": "design/screens/STORY-016-carteira-saldo-historico/index.html",
+        "prototype_last_validated_at": null,
+        "ds_components_used": [
+          "card.feature-dark",
+          "card.content",
+          "badge.positive",
+          "empty-state",
+          "skeleton",
+          "snackbar",
+          "button.primary",
+          "nav.bottom",
+          "nav.bar"
+        ],
+        "related_ddrs": [
+          "DDR-001",
+          "DDR-002"
+        ],
+        "created_at": "2026-07-03",
+        "updated_at": "2026-07-03"
       }
     ],
     "system": {
