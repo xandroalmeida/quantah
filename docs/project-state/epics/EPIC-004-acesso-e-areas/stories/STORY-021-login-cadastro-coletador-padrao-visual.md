@@ -127,8 +127,10 @@ Design entregue e **validado por Alexandro** ("aprovado") — o Programador pode
 - **Erro de credencial global (CA-3).** O Breeze anexa o erro ao campo `email`; renderizo como callout
   global (`role="alert"`, `acesso-erro-credencial`) e troquei `auth.failed` para a mensagem genérica
   "E-mail ou senha incorretos." — não vaza qual campo falhou.
-- **Privacidade no reset (CA-4).** `passwords.sent` passou a "Se houver uma conta com esse e-mail…" —
-  não confirma existência de conta.
+- **Privacidade no reset (CA-4) — anti-enumeração.** Além de `passwords.sent` neutro, o
+  `PasswordResetLinkController::store` deixou de lançar erro de campo para e-mail inexistente
+  (o Breeze vazava "Não existe nenhum usuário…"). Agora conta existente, inexistente e *throttled*
+  recebem **a mesma** resposta neutra; o envio real só ocorre quando o usuário existe. (LGPD/segurança.)
 - **i18n nativo (ADR-011/IDR-010).** 29 chaves EN→pt-BR em `lang/pt_BR.json` via `t()`; sem lib de i18n.
 - **MustVerifyEmail permanece desligado** (comportamento é do produto, fora do escopo). A tela
   `VerifyEmail` foi restilizada para consistência caso venha a ser ativada.
@@ -150,7 +152,7 @@ Nenhum — sem lib nova nem decisão transversal (as decisões duráveis estão 
 | CA-1 (DS, sem logo Laravel, pt-BR) | `AcessoColetadorTest::test_login_no_padrao_visual_em_ptbr_sem_logo_laravel`, `::test_registro_no_padrao_visual_em_ptbr`, `I18nPtBrTest` (3) |
 | CA-2 (cadastro cria conta autenticado) | `AcessoColetadorTest::test_jornada_cadastro_logout_login` + Feature `RegistrationTest` (backend) |
 | CA-3 (erro credencial global pt-BR, sem vazar campo) | `AcessoColetadorTest::test_erro_de_credencial_e_global_e_em_ptbr`, `I18n\LocalizacaoTest::test_credenciais_invalidas_em_ptbr` |
-| CA-4 (recuperação/reset pt-BR) | `AcessoColetadorTest::test_recuperacao_de_senha_em_ptbr` + Feature `PasswordResetTest`/`PasswordUpdateTest` |
+| CA-4 (recuperação/reset pt-BR, sem vazar existência) | `AcessoColetadorTest::test_recuperacao_de_senha_nao_vaza_existencia_em_ptbr`, `PasswordResetTest::test_forgot_password_nao_revela_email_inexistente` + `::test_forgot_password_usa_mensagem_neutra_para_conta_existente` + `PasswordUpdateTest` |
 | CA-5 (placeholder do Google desabilitado) | `AcessoColetadorTest::test_placeholder_do_google_presente_e_desabilitado` |
 | CA-6 (cadastro → logout → login, pt-BR) | `AcessoColetadorTest::test_jornada_cadastro_logout_login` |
 

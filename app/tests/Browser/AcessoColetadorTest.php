@@ -109,17 +109,23 @@ class AcessoColetadorTest extends DuskTestCase
         });
     }
 
-    /** (ii) alternativo — recuperação de senha em pt-BR, com confirmação de envio (CA-4). */
-    public function test_recuperacao_de_senha_em_ptbr(): void
+    /**
+     * (ii) alternativo — recuperação de senha em pt-BR (CA-4). Usa um e-mail NÃO cadastrado
+     * e mesmo assim vê o callout neutro de confirmação, sem vazar que a conta não existe
+     * (anti-enumeração). Ancora no testid do callout, não no subtítulo da tela.
+     */
+    public function test_recuperacao_de_senha_nao_vaza_existencia_em_ptbr(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/forgot-password')
                 ->assertSee('Redefinir senha')
                 ->assertSourceMissing(self::LOGO_LARAVEL)
-                ->type('[data-testid=acesso-campo-email]', self::EMAIL)
+                ->type('[data-testid=acesso-campo-email]', 'nao-cadastrado@quantah.test')
                 ->click('[data-testid=acesso-reset-submit]')
-                ->waitForText('link', 10)
-                ->assertSee('link'); // "Se houver uma conta... enviamos um link..."
+                ->waitFor('[data-testid=acesso-reset-enviado]', 10)
+                ->assertSeeIn('[data-testid=acesso-reset-enviado]', 'Se houver uma conta')
+                ->assertDontSee('Não existe nenhum usuário')
+                ->assertDontSee('não encontramos');
         });
     }
 
