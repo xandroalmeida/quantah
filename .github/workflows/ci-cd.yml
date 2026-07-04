@@ -219,6 +219,34 @@ jobs:
           scp -i ~/.ssh/id_ed25519 infra/Caddyfile "$DEPLOY_USER@$DEPLOY_HOST:/opt/quantah/Caddyfile"
           printf '%s' "${{ secrets.PROD_ENV }}" | ssh -i ~/.ssh/id_ed25519 "$DEPLOY_USER@$DEPLOY_HOST" 'cat > /opt/quantah/.env'
 
+      # Injeta login Google (STORY-022) + SMTP (reset/verificação de e-mail) por cima do
+      # PROD_ENV base, a partir de secrets individuais. Dedup por prefixo evita duplicar chaves.
+      - name: Injetar Google + Mail no .env de homolog
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: |
+          {
+            echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}"
+            echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}"
+            echo "GOOGLE_REDIRECT_URI=https://quantah-homolog.${DEPLOY_HOST}.sslip.io/auth/google/callback"
+            echo "GOOGLE_FAKE=false"
+            echo "MAIL_MAILER=smtp"
+            echo "MAIL_SCHEME=smtp"
+            echo "MAIL_HOST=smtp.gmail.com"
+            echo "MAIL_PORT=587"
+            echo "MAIL_USERNAME=${MAIL_USERNAME}"
+            echo "MAIL_PASSWORD=${MAIL_PASSWORD}"
+            echo "MAIL_FROM_ADDRESS=${MAIL_USERNAME}"
+            echo "MAIL_FROM_NAME=Quantah"
+          } > extra.env
+          scp -i ~/.ssh/id_ed25519 extra.env "$DEPLOY_USER@$DEPLOY_HOST:/opt/quantah/extra.env"
+          ssh -i ~/.ssh/id_ed25519 "$DEPLOY_USER@$DEPLOY_HOST" "cd /opt/quantah && sed -i '/^GOOGLE_/d;/^MAIL_/d' .env && cat extra.env >> .env && rm -f extra.env"
+
       - name: Deploy (pull da imagem, subir, migrar)
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
