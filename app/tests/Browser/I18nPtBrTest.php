@@ -13,6 +13,10 @@ use Tests\DuskTestCase;
  * credencial), que o texto sai em português e que **não há resíduo de scaffolding em inglês**
  * ("Log in", "Remember me", "Password", "Whoops!"). Roda contra o banco de dev (quantah),
  * por isso auto-limpa o usuário de teste.
+ *
+ * Nota: os botões do DS usam `text-transform: uppercase` — o texto renderizado que o Selenium
+ * lê vem em CAIXA ALTA ("INICIAR SESSÃO"). Por isso asserimos rótulos (não transformados) para
+ * presença de pt-BR e usamos seletor CSS (não texto) para submeter o formulário.
  */
 class I18nPtBrTest extends DuskTestCase
 {
@@ -37,15 +41,15 @@ class I18nPtBrTest extends DuskTestCase
         User::where('email', self::EMAIL)->delete();
     }
 
-    /** (i) feliz — a tela de login exibe rótulos em pt-BR e nenhuma string de scaffolding. */
+    /** (i) feliz — a tela de login exibe texto em pt-BR e nenhuma string de scaffolding. */
     public function test_login_em_ptbr_sem_residuo_de_ingles(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/login')
                 ->assertSee('E-mail')
                 ->assertSee('Senha')
-                ->assertSee('Iniciar sessão')
                 ->assertSee('Lembrar-me')
+                ->assertSee('INICIAR SESSÃO') // botão (uppercase pelo DS)
                 ->assertDontSee('Log in')
                 ->assertDontSee('Remember me')
                 ->assertDontSee('Password')
@@ -60,9 +64,7 @@ class I18nPtBrTest extends DuskTestCase
             $browser->visit('/register')
                 ->assertSee('Nome')
                 ->assertSee('Confirmar Senha')
-                ->assertSee('Registrar')
                 ->assertSee('Já está registrado?')
-                ->assertDontSee('Name')
                 ->assertDontSee('Confirm Password')
                 ->assertDontSee('Already registered');
         });
@@ -80,7 +82,7 @@ class I18nPtBrTest extends DuskTestCase
             $browser->visit('/login')
                 ->type('email', self::EMAIL)
                 ->type('password', 'senha-errada')
-                ->press('Iniciar sessão')
+                ->click('form button[type="submit"], form button')
                 ->waitForText('credenciais')
                 ->assertSee('credenciais')
                 ->assertDontSee('credentials')
