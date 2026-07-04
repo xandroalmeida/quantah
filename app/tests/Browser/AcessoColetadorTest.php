@@ -139,7 +139,7 @@ class AcessoColetadorTest extends DuskTestCase
         $email = 'dusk-acesso+'.Str::lower(Str::random(8)).'@quantah.test';
 
         $this->browse(function (Browser $browser) use ($email) {
-            // Cadastro
+            // Cadastro → cai na confirmação de e-mail (conta ainda não verificada).
             $browser->visit('/register')
                 ->assertSee('Criar conta')
                 ->type('[data-testid=acesso-campo-nome]', 'Maria Coletadora')
@@ -147,23 +147,21 @@ class AcessoColetadorTest extends DuskTestCase
                 ->type('[data-testid=acesso-campo-senha]', self::SENHA)
                 ->type('[data-testid=acesso-campo-senha_conf]', self::SENHA)
                 ->click('[data-testid=acesso-criar-submit]')
-                ->waitForLocation('/dashboard', 10)
-                ->assertSee('Você está logado!'); // autenticado
+                ->waitForLocation('/verify-email', 10)
+                ->assertSee('Confirme seu e-mail');
 
-            // Logout (menu do usuário → encerrar sessão)
-            $browser->click('[data-testid=user-menu-trigger]')
-                ->waitFor('[data-testid=logout-link]', 10)
-                ->click('[data-testid=logout-link]')
+            // Logout pela própria tela de confirmação.
+            $browser->click('[data-testid=acesso-sair]')
                 ->waitForLocation('/', 10);
 
-            // Login com as mesmas credenciais
+            // Login com as mesmas credenciais → não verificado, volta à confirmação.
             $browser->visit('/login')
                 ->assertSee('Que bom te ver de novo.')
                 ->type('[data-testid=acesso-campo-email]', $email)
                 ->type('[data-testid=acesso-campo-senha]', self::SENHA)
                 ->click('[data-testid=acesso-entrar-submit]')
-                ->waitForLocation('/dashboard', 10)
-                ->assertSee('Você está logado!')
+                ->waitForLocation('/verify-email', 10)
+                ->assertSee('Confirme seu e-mail')
                 ->logout(); // isola a sessão para os próximos testes
         });
 

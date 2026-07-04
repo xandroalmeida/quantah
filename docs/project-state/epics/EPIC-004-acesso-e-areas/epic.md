@@ -113,6 +113,11 @@ resíduo de inglês/Laravel.
   `t()` via prop do Inertia, `laravel-lang`, `App\Support\Formato`; IDR-010) e varredura pt-BR do scaffold
   Breeze. Suíte completa verde (251 unit+feature, 55 E2E); homolog em pt-BR. Próximo: STORY-021 (login de
   marca, `requires_design` → passa pelo Designer).
+- 2026-07-04 — **Confirmação de e-mail ligada** (Programador, aprovado por Alexandro, fora de estória):
+  `User implements MustVerifyEmail` — cadastro por e-mail/senha passa a exigir verificação (o não-verificado
+  é barrado nas áreas autenticadas); quem entra por Google já vem verificado (ADR-010) e não é afetado.
+  TDD: `EmailVerificationEnforcementTest` + E2E `ConfirmacaoEmailTest`; jornada da STORY-021 ajustada.
+  **Envio real** depende do mailer configurado (SMTP no `.env`/`PROD_ENV`).
 - 2026-07-04 — **STORY-021 `done`** (Designer + Programador): DDR-004 (marca Quantah no lugar do logo
   Laravel, split-hero no desktop, hierarquia Google/e-mail) aprovado por Alexandro; `SCREEN-STORY-021`
   (spec+protótipo) validado. Breeze reescrito no DS, pt-BR via i18n, placeholder do Google (CA-5).
