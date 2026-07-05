@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: in_review
+status: done
 owner_agent: claude-code/programador
 created_at: 2026-07-04
 updated_at: 2026-07-04
@@ -85,9 +85,11 @@ ADR) nem os CAs. Se faltar decisão arquitetural, **pare e registre**.
 
 - [x] Todos os CAs passam; unitários + E2E verdes; coberturas exigidas (277/277 feature+unit, 95% global;
       69/69 Dusk; núcleo de autz 100%).
-- [ ] Pipeline verde; deploy de homologação verificado (barreiras de área ativas). ← **pendente push/deploy**
+- [x] Pipeline verde; deploy de homologação verificado (barreiras de área ativas). Run CI/CD `28727509788`
+      success (testes + Dusk + smoke). Smoke ao vivo: `/intelligence`→200 "Em breve" (B2B);
+      `/backoffice/saques` sem login→302 `/login` (barreira ativa).
 - [x] IDR registrado se houve decisão técnica relevante (não houve — decisões locais, ver Notas).
-- [ ] `index.json` = `done`; "Notas do agente" preenchidas. ← Notas ok; `done` após homolog verificado.
+- [x] `index.json` = `done`; "Notas do agente" preenchidas.
 
 ## Protocolo do agente (obrigatório)
 
@@ -188,4 +190,6 @@ do EPIC-005; (3) fazer a barreira 403 do Backoffice renderizar em **pt-BR** (hoj
 - Arquivos: `app/routes/web.php`, `app/resources/js/Pages/Intelligence/Reservado.jsx`,
   `app/resources/views/errors/403.blade.php`, `app/tests/Feature/Acesso/SegmentacaoAreasTest.php`,
   `app/tests/Browser/SegmentacaoAreasTest.php`.
-- **Pendente:** push → deploy de homologação + smoke ao vivo da barreira (DoD).
+- **Deploy homolog:** run CI/CD `28727509788` **success** (testes 277/277, Dusk 69/69, smoke `/up`). Smoke ao
+  vivo em `https://quantah-homolog.34.39.229.117.sslip.io`: `/intelligence`→200 "Em breve"; `/backoffice/saques`
+  sem login→302 `/login`. Barreiras de área ativas em homolog.
