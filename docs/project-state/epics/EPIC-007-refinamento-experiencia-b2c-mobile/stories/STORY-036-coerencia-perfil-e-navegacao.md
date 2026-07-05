@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: draft
-owner_agent: null
+status: done
+owner_agent: claude-programador
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: S
@@ -92,9 +92,41 @@ Siga `agent-task-format.md`. Sem tela nova. Registre a decisão sobre a rota de 
 
 ## Notas do agente (preenchido durante/após execução)
 
-> _(a preencher)_
-
 ### Decisões tomadas
+
+- **Excluir conta: removida (não bloqueada)** — apaguei `DeleteUserForm`, a rota `profile.destroy` e
+  `ProfileController@destroy`. `DELETE /profile` → 405. Registrado em **IDR-014** (fluxo LGPD vira
+  estória futura). Import `Auth` órfão removido do controller.
+- **Rótulo do menu via i18n (IDR-010):** chave-fonte `Scan` → `"Scan": "Escanear"` no `lang/pt_BR.json`.
+  A seção continua `cupons` (testid `app-nav-cupons`, `aria-current`) e o destino `/coletar` intactos —
+  só o texto muda.
+
 ### Descobertas
+
+- `getText()` do Selenium aplica `text-transform`, então o botão "Salvar" (uppercase no DS) vem como
+  "SALVAR" — no E2E asserto títulos estáveis dos formulários que permanecem ("Informações do Perfil",
+  "Atualizar Senha") em vez do texto do botão.
+- Nenhum teste dependia do rótulo "Cupons" do nav (a ref em `CapturaScreenContractTest` é "Escanear QR
+  Code", outra string). `lang/pt_BR.json` é alfabético — inseri `Scan` na posição correta.
+
+### Mapeamento CA → teste (todos verdes)
+
+- **CA-1** → `CoerenciaJornadaTest::test_perfil_nao_exibe_excluir_conta` (E2E: sem "Excluir Conta";
+  forms de dados/senha presentes).
+- **CA-2** → `ProfileTest::test_account_deletion_route_is_removed` (405 + conta persiste) e
+  `test_profile_destroy_route_name_does_not_exist`.
+- **CA-3** → `CoerenciaJornadaTest::test_menu_escanear_renomeado_mantem_destino_e_secao` (rótulo
+  "Escanear"; click → `/coletar`; `aria-current=page`).
+- **CA-4** → mesmo E2E (i18n `Scan`→Escanear, pt-BR, alvo ≥48px verificado por rect.height).
+
 ### Bloqueios encontrados
+
+Nenhum.
+
 ### Links de evidência
+
+- Testes: `ProfileTest` (rota removida) + `CoerenciaJornadaTest` (E2E) — verdes.
+- Suíte completa: **Pest 313/313**; **Dusk 89/89**.
+- Decisão: `decisions/idr/IDR-014-exclusao-de-conta-removida-nesta-fase.md`.
+- Arquivos: `AppLayout.jsx`, `lang/pt_BR.json`, `Pages/Profile/Edit.jsx`, `ProfileController.php`,
+  `routes/web.php`; removido `Pages/Profile/Partials/DeleteUserForm.jsx`.

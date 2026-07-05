@@ -55,7 +55,8 @@ class CoerenciaJornadaTest extends DuskTestCase
                 ->assertDontSee('Excluir Conta')
                 ->assertDontSee('Excluir conta')
                 // Os demais formulários seguem presentes (dados e senha).
-                ->assertSee('Salvar');
+                ->assertSee('Informações do Perfil')
+                ->assertSee('Atualizar Senha');
         });
     }
 

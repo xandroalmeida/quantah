@@ -18,7 +18,8 @@ import { t } from '@/i18n';
  */
 const SECOES = [
     { key: 'inicio', label: 'Home', href: '/inicio', icon: <HomeIcon /> },
-    { key: 'cupons', label: 'Coupons', href: '/coletar', icon: <ReceiptIcon /> },
+    // Rótulo diz o que faz — o destino é o escaneamento (/coletar), não uma lista (STORY-036).
+    { key: 'cupons', label: 'Scan', href: '/coletar', icon: <ReceiptIcon /> },
     { key: 'carteira', label: 'Wallet', href: '/carteira', icon: <WalletIcon /> },
     { key: 'perfil', label: 'Profile', href: '/profile', icon: <UserIcon /> },
 ];

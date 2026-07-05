@@ -989,8 +989,8 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-programador",
       "sprint_id": null,
       "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-036-coerencia-perfil-e-navegacao.md",
       "blocked_by": [],
@@ -1432,6 +1432,16 @@
           "ADR-001",
           "ADR-002"
         ]
+      },
+      {
+        "id": "IDR-014",
+        "title": "Exclusão de conta removida (rota + UI), não apenas escondida — fluxo LGPD vira estória futura",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-014-exclusao-de-conta-removida-nesta-fase.md",
+        "decided_at": "2026-07-05",
+        "decided_by": "programador",
+        "related_story": "STORY-036",
+        "related_adrs": []
       }
     ],
     "ddr": [

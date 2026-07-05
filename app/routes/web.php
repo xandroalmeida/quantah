@@ -94,10 +94,10 @@ Route::middleware('auth')->group(function () {
     // Painel interno da north-star (STORY-012): cupons válidos-únicos-novos por semana.
     Route::get('/interno/metricas', [MetricasController::class, 'index'])->name('interno.metricas');
 
-    // Perfil do Coletador (Breeze).
+    // Perfil do Coletador (Breeze). Exclusão de conta removida nesta fase (STORY-036) —
+    // sem rota destroy; fluxo de exclusão via LGPD/atendimento vira estória própria se preciso.
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Home-hub do Coletador (STORY-029/030 · EPIC-006) — DESTINO PÓS-LOGIN da área B2C.
