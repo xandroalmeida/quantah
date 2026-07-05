@@ -18,5 +18,8 @@ final class CupomExtraido
         public readonly int $serie,
         public readonly array $itens,
         public readonly ?string $nomeEmitente = null,
+        public readonly ?string $enderecoEmitente = null,
+        public readonly ?string $municipioEmitente = null,
+        public readonly ?string $ufEmitente = null,
     ) {}
 }

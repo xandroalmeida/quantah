@@ -49,6 +49,11 @@ export default function CupomDetalhe({ cupom }) {
                             <h1 className="break-words text-display-xs text-ink">
                                 {cupom.estabelecimento}
                             </h1>
+                            {cupom.localizacao && (
+                                <span className="text-body-sm text-mute" data-testid="screen-cupom-localizacao">
+                                    {cupom.localizacao}
+                                </span>
+                            )}
                             <span className="text-body-sm text-mute">CNPJ {cupom.cnpj}</span>
                             {cupom.data && (
                                 <span className="text-body-sm text-mute" data-testid="screen-cupom-data">

@@ -147,13 +147,62 @@ final class HttpSefazSpFetcher implements SefazSpFetcher
         // (`<div id="u20" class="txtTopo">NOME</div>`). Ausente → null (UI degrada).
         $nomeEmitente = $this->texto($this->capturar('/class="txtTopo"[^>]*>(.*?)<\/div>/is', $html)) ?: null;
 
+        // Endereço do estabelecimento: logradouro/nº/bairro, município e UF do emitente.
+        [$enderecoEmitente, $municipioEmitente, $ufEmitente] = $this->parsearEndereco($html);
+
         return [
             'numero' => $chave->numero(),
             'serie' => $chave->serie(),
             'data_emissao' => $this->dataIso($dataEmissao),
             'valor_total' => $valorTotal !== '' ? $valorTotal : '0',
             'nome_emitente' => $nomeEmitente,
+            'endereco_emitente' => $enderecoEmitente,
+            'municipio_emitente' => $municipioEmitente,
+            'uf_emitente' => $ufEmitente,
             'itens' => $itens,
+        ];
+    }
+
+    /**
+     * Extrai endereço/município/UF do emitente do bloco do topo do DANFE-SP.
+     *
+     * O emitente traz duas `<div class="text">`: a 1ª é o CNPJ, a 2ª é o endereço, com
+     * os campos separados por vírgula ("logradouro, nº, complemento, bairro, município, UF"),
+     * alguns podendo vir vazios. A UF é o último campo (sigla de 2 letras) e o município, o
+     * penúltimo; o restante forma o endereço. Bloco ausente/incompleto → null (UI degrada).
+     *
+     * @return array{0: ?string, 1: ?string, 2: ?string} [endereço, município, UF]
+     */
+    private function parsearEndereco(string $html): array
+    {
+        $bruto = $this->texto(
+            $this->capturar('/CNPJ:.*?<\/div>\s*<div[^>]*class="text"[^>]*>(.*?)<\/div>/is', $html)
+        );
+        if ($bruto === '') {
+            return [null, null, null];
+        }
+
+        // Campos separados por vírgula; descarta os vazios (ex.: complemento em branco).
+        $campos = array_values(array_filter(
+            array_map('trim', explode(',', $bruto)),
+            fn (string $c) => $c !== ''
+        ));
+        if ($campos === []) {
+            return [null, null, null];
+        }
+
+        // UF = último campo, se for a sigla de 2 letras; município = o campo anterior.
+        $uf = null;
+        $municipio = null;
+        if (preg_match('/^[A-Za-z]{2}$/', (string) end($campos))) {
+            $uf = strtoupper((string) array_pop($campos));
+            $municipio = $campos !== [] ? array_pop($campos) : null;
+        }
+
+        return [
+            $campos !== [] ? implode(', ', $campos) : null,
+            $municipio,
+            $uf,
         ];
     }
 

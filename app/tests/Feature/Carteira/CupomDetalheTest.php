@@ -26,6 +26,7 @@ class CupomDetalheTest extends TestCase
             'uf' => '35', 'ano_mes' => '2601', 'cnpj_emitente' => '43259548002883',
             'modelo' => '65', 'valor_total' => '235.43', 'data_emissao' => '2026-07-01 16:43:54',
             'nome_emitente' => 'Supermercados Cavicchiolli Ltda',
+            'municipio_emitente' => 'Itu', 'uf_emitente' => 'SP',
             'status' => Cupom::STATUS_VALIDADO, 'origem' => 'scan',
         ], $overrides));
 
@@ -58,6 +59,7 @@ class CupomDetalheTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Carteira/CupomDetalhe')
                 ->where('cupom.estabelecimento', 'Supermercados Cavicchiolli Ltda')
+                ->where('cupom.localizacao', 'Itu, SP')
                 ->where('cupom.data', '01/07/2026')
                 ->where('cupom.valor_total', '235,43')
                 ->where('cupom.status.codigo', 'validado')
@@ -90,6 +92,18 @@ class CupomDetalheTest extends TestCase
                 ->where('cupom.estabelecimento', 'Estabelecimento não identificado')
                 ->where('cupom.cnpj', '43.259.548/0028-83')
             );
+    }
+
+    /** Cupom sem cidade/estado do emitente: localização nula (UI omite a linha). */
+    public function test_localizacao_ausente_fica_nula(): void
+    {
+        $user = User::factory()->create();
+        $cupom = $this->cupomDoUsuario($user, ['municipio_emitente' => null, 'uf_emitente' => null]);
+
+        $this->actingAs($user)
+            ->get("/carteira/cupom/{$cupom->id}")
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('cupom.localizacao', null));
     }
 
     /** CA-4 — cupom pendente/sem itens: estado vazio tratado (extração assíncrona). */

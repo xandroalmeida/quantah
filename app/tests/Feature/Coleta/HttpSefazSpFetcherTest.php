@@ -95,6 +95,10 @@ class HttpSefazSpFetcherTest extends TestCase
         $this->assertSame('2026-07-01 16:43:54', $dados['data_emissao']);
         // STORY-034: nome do estabelecimento (emitente) capturado do DANFE (div.txtTopo).
         $this->assertSame('Supermercados Cavicchiolli Ltda', $dados['nome_emitente']);
+        // Endereço/município/UF do estabelecimento (2ª div.text do emitente, após o CNPJ).
+        $this->assertSame('Av. Tiradentes, 0, Chacara Sao Joao De Deus', $dados['endereco_emitente']);
+        $this->assertSame('Itu', $dados['municipio_emitente']);
+        $this->assertSame('SP', $dados['uf_emitente']);
 
         // Primeiro item (unidade UN) e um item por peso (unidade KG).
         $primeiro = $dados['itens'][0];

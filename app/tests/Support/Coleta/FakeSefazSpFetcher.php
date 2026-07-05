@@ -59,6 +59,9 @@ final class FakeSefazSpFetcher implements SefazSpFetcher
             // seguir válido; testes de expiração passam uma data antiga via comPayload().
             'data_emissao' => now('America/Sao_Paulo')->subDay()->format('Y-m-d H:i:s'),
             'nome_emitente' => 'Mercado Modelo Ltda',
+            'endereco_emitente' => 'Rua das Flores, 123, Centro',
+            'municipio_emitente' => 'Sao Paulo',
+            'uf_emitente' => 'SP',
             'valor_total' => '87.90',
             'numero' => 123456,
             'serie' => 1,

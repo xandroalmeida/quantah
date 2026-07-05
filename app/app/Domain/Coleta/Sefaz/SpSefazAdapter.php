@@ -72,8 +72,17 @@ final class SpSefazAdapter implements SefazAdapter
             serie: (int) $p['serie'],
             itens: $itens,
             // Nome do estabelecimento (STORY-034): opcional — fonte pode não trazer → null.
-            nomeEmitente: isset($p['nome_emitente']) && $p['nome_emitente'] !== ''
-                ? (string) $p['nome_emitente'] : null,
+            nomeEmitente: $this->texto($p, 'nome_emitente'),
+            // Endereço do estabelecimento: também opcional — degrada para null.
+            enderecoEmitente: $this->texto($p, 'endereco_emitente'),
+            municipioEmitente: $this->texto($p, 'municipio_emitente'),
+            ufEmitente: $this->texto($p, 'uf_emitente'),
         );
+    }
+
+    /** Lê um campo string opcional do payload: ausente/vazio → null. */
+    private function texto(array $p, string $campo): ?string
+    {
+        return isset($p[$campo]) && $p[$campo] !== '' ? (string) $p[$campo] : null;
     }
 }

@@ -26,7 +26,7 @@ final class DetalheCupom
     ];
 
     /**
-     * @return array{estabelecimento: string, cnpj: string, data: string, valor_total: ?string,
+     * @return array{estabelecimento: string, localizacao: ?string, cnpj: string, data: string, valor_total: ?string,
      *     status: array{codigo: string, label: string, variante: string},
      *     itens: list<array{descricao: string, quantidade: string, unidade: string, valor_unitario: string, valor_total: string}>}
      */
@@ -36,6 +36,7 @@ final class DetalheCupom
 
         return [
             'estabelecimento' => ($nome !== null && $nome !== '') ? $nome : ExtratoCarteira::ESTABELECIMENTO_FALLBACK,
+            'localizacao' => self::localizacao($cupom->municipio_emitente, $cupom->uf_emitente),
             'cnpj' => Formato::cnpj($cupom->cnpj_emitente),
             'data' => Formato::data($cupom->data_emissao),
             'valor_total' => $cupom->valor_total !== null ? self::reais((string) $cupom->valor_total) : null,
@@ -52,6 +53,20 @@ final class DetalheCupom
                 ->values()
                 ->all(),
         ];
+    }
+
+    /**
+     * "Cidade, UF" do estabelecimento — só o que a extração trouxer (ambos opcionais):
+     * "Itu, SP" / "Itu" / "SP" / null. Sem dado, a UI não renderiza a linha.
+     */
+    private static function localizacao(?string $municipio, ?string $uf): ?string
+    {
+        $partes = array_values(array_filter([
+            $municipio !== null && $municipio !== '' ? $municipio : null,
+            $uf !== null && $uf !== '' ? $uf : null,
+        ]));
+
+        return $partes === [] ? null : implode(', ', $partes);
     }
 
     /** @return array{codigo: string, label: string, variante: string} */
