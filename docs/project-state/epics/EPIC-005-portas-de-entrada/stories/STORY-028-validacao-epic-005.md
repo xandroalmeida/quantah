@@ -78,10 +78,24 @@ apenas `validation_report`; a transição EPIC-005 `in_review → done` é decis
 ## Notas do agente (preenchido durante/após execução)
 
 ### Veredito
-- <preenchido na execução>
+- **APPROVED** (2026-07-05). 33 pass, 4 pass com ressalva, 0 fail, 1 n/a justificado. Relatório completo em
+  `validation/report.md`; checklist autorado na execução em `validation/checklist.md`.
 
 ### Evidências
-- <preenchido na execução>
+- Sha deployado em homologação: `da7e2a0` (run de deploy 28737220705 = success). `HEAD` local: `b098baf`.
+- Suíte: 295/295 Feature/Unit verdes (1264 asserções); cobertura total **95,2%**; núcleos do lead e da guarda
+  do Backoffice a **100%** (≥98%). E2E Dusk das 4 telas do épico **11/11** verdes.
+- 1ª mão em homologação: as duas landings (`/`, `/intelligence`) e a lista do Backoffice acessíveis; lead
+  capturado pela landing B2B aparece na lista do Backoffice sob o papel operacional; anônimo barrado (302);
+  inválido bloqueado; duplicado idempotente sem vazar.
+- CI verde na main; deploy de homologação automatizado (`ci-cd.yml` job `deploy`, smoke em `/up`); IaC em
+  `infra/gcp/`. LGPD: PII restrita ao operador, sem PII em log, aviso de privacidade sem checkbox (DDR-006).
 
 ### Ressalvas / limitações
-- <preenchido na execução>
+- R1: flake de cold-start no 1º teste Dusk local (0/4 na re-execução isolada; CI verde) — ambiente, não regressão.
+- R2: chaves i18n em inglês no payload (source-keys do mecanismo ADR-011); copy visível é 100% pt-BR.
+- R3: `make up` presente e stack no ar, mas não re-testado em máquina limpa nesta sessão.
+- R4: saúde básica via `/up` + `Interno/MetricasController`; sem dashboard de observabilidade dedicado nesta fase.
+- n/a 3.4: sem ambiente de produção nesta fase MVP (homologação é o alvo do épico).
+- Estado no momento da validação: EPIC-005 em `ready` (não `in_review`) e STORY-028 em `draft`; dependências
+  025/026/027 `done`. A transição de status do épico é decisão do PO — **não** alterei o `status` do épico.
