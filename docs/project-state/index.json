@@ -853,7 +853,7 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "in_review",
+      "status": "done",
       "owner_agent": "claude-story031",
       "sprint_id": null,
       "path": "epics/EPIC-006-jornada-b2c/stories/STORY-031-jornada-continua-ponta-a-ponta.md",

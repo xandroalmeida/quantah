@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: in_review
+status: done
 owner_agent: claude-story031
 created_at: 2026-07-05
 updated_at: 2026-07-05
@@ -134,5 +134,6 @@ Siga `docs/skills/po/references/agent-task-format.md`. `in_progress` ao iniciar 
   **iniciar saque (atalho Prêmios, 1 toque)** com a tela pronta e o saldo em pt-BR. Cobre CA-1..CA-6.
 
 ### Links de evidência
-- Commit(s) na `main`. Pipeline CI + Deploy homologação: <a preencher>.
+- **Commit na `main`:** `92e30cf`. **Pipeline CI:** run 28745039020 (Testes+build ✅, E2E Dusk ✅,
+  **Deploy homologação ✅**). Homolog verificado: `/up` 200, `/inicio` anônimo → 302 `/login`.
 - Este é o E2E ponta a ponta que a **STORY-032** (validação do épico) referencia.
