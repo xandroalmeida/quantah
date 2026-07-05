@@ -55,6 +55,27 @@ conteúdo.
 - **Loading:** no submit (spinner inline no `button.primary` + `aria-busy`), não skeleton — telas de
   acesso não têm fetch inicial.
 
+## `pattern.public-shell` (casca das superfícies públicas)
+
+> Introduzido pelo **DDR-005** (accepted 2026-07-05). Vale para as landings públicas do EPIC-005
+> (B2C e B2B — Quantah Intelligence) e futuras páginas públicas. Materializado como
+> `Layouts/PublicLayout.jsx` (par de `GuestLayout`/`AuthenticatedLayout`); só compõe componentes DS.
+
+- **Estrutura:** `nav.bar` (sticky) + `<main>` (conteúdo da landing) + `footer` (band `ink`). Nenhum
+  primitivo novo — compõe `nav.bar`, `nav.link`, `footer`, `brand.lockup`.
+- **Header contextual por face** (prop `face`):
+  - **B2C:** `brand.lockup` → `nav.link` "Para empresas" (→ B2B) + **um** `button.primary` verde "Entrar"
+    (→ login do Coletador). Único CTA verde do contexto.
+  - **B2B (Quantah Intelligence):** `brand.lockup` → `nav.link` "Voltar ao app" (→ B2C). **Sem** CTA de
+    login (não há conta B2B nesta onda — PDR-003); o verde da face B2B é o CTA do formulário de lead.
+- **Footer comum:** wordmark + alternância entre as faces + institucional mínimo (privacidade, contato).
+  Sem inflar — só navegação entre faces e links essenciais (simplicidade radical).
+- **Regra de ouro preservada:** no máximo **um** `button.primary` verde por contexto; a alternância entre
+  faces é `nav.link` (neutro), nunca verde.
+- **A11y:** `<nav aria-label>` na barra, `<main>` no conteúdo, `<footer>`; foco visível e alvos ≥48px já
+  vêm dos componentes DS. Em ≥360px os links rolam **dentro** da barra (o `nav.bar` nunca estoura a
+  largura da página).
+
 ## `pattern.surface-rhythm` (assinatura visual)
 
 O ritmo de superfície da marca: **página sage (`canvas-soft`) → cards brancos (`canvas`)**. O

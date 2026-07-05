@@ -3,10 +3,10 @@ epic_id: EPIC-005
 slug: portas-de-entrada
 title: Portas de entrada — landing B2C e landing B2B
 wave: WAVE-2026-02
-status: draft
+status: ready
 owner_role: po
 created_at: 2026-07-04
-updated_at: 2026-07-04
+updated_at: 2026-07-05
 target_completion: 2026-08-08
 ---
 
@@ -64,12 +64,24 @@ contato pela **landing Quantah Intelligence** — tudo mobile-first e em pt-BR.
 
 ## Estórias
 
-(Preenchido no Fluxo B. Estórias verticalmente fatiadas; última é a validação.)
+Decompostas no Fluxo B (2026-07-05). Estórias verticalmente fatiadas; a última é a validação. EPIC-005 e
+EPIC-006 destravaram com o EPIC-004 `done` e podem correr em paralelo (face pública × experiência logada).
 
-- [ ] STORY-XXX — landing B2C (proposta + CTA entrar + CTA B2B), mobile-first, pt-BR
-- [ ] STORY-XXX — landing B2B (Quantah Intelligence) com captação de lead → persistência
-- [ ] STORY-XXX — lista de leads B2B no Backoffice (sob papel operacional)
-- [ ] STORY-XXX (validação) — Validação final do épico
+- [ ] **STORY-025** — landing B2C ("Cada nota conta."), CTA de entrada (→ login do EPIC-004) + CTA para o
+      B2B, mobile-first, pt-BR (`requires_design`). Bloqueia STORY-028.
+- [ ] **STORY-026** — landing B2B (Quantah Intelligence, "Do cupom ao insight.") com captação de lead
+      (nome, e-mail, empresa) → validação + persistência + deduplicação (`requires_design`, LGPD).
+      Bloqueia STORY-027 e STORY-028.
+- [ ] **STORY-027** — lista de leads B2B no Backoffice, sob o papel operacional (RBAC do ADR-009).
+      Bloqueada por STORY-026. Bloqueia STORY-028.
+- [ ] **STORY-028** (validação) — Validação final do épico (`target_role: validador`). Bloqueada por
+      025–027. `draft` até as estórias de dependência avançarem.
+
+### Ordem sugerida e paralelismo
+
+STORY-025 e STORY-026 são independentes entre si (podem começar em paralelo); STORY-027 espera STORY-026
+(consome o lead persistido); STORY-028 fecha o épico. O CTA-B2B da STORY-025 tem o destino preenchido pela
+STORY-026.
 
 ## Validação final
 
@@ -81,3 +93,7 @@ vivas em homologação, CTA B2C levando ao login e lead B2B capturado e visível
 ## Histórico
 
 - 2026-07-04 — criado por PO (Fluxo A, WAVE-2026-02). Status `draft` — decompor após EPIC-004.
+- 2026-07-05 — **decomposto (Fluxo B)** por PO, após EPIC-004 `done`. 4 estórias criadas: STORY-025
+  (landing B2C), STORY-026 (landing B2B + captação de lead), STORY-027 (lista de leads no Backoffice),
+  STORY-028 (validação). Épico → `ready`. STORY-025/026 prontas para começar (independentes); 027 espera
+  026; 028 é a validação final.

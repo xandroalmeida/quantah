@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protótipo — Landing B2C "Cada nota conta." (STORY-025)</title>
+<!--
+  PROTÓTIPO DE VALIDAÇÃO — NÃO É CÓDIGO DE PRODUÇÃO.
+  Tokens reais do DS (design/system/tokens.md). Microcopy = screen-spec §5, em pt-BR.
+  Casca pública compartilhada = DDR-005 (pattern.public-shell). Herança de marca = DDR-004.
+  Viewport via ?vp=mobile|desktop (ou os chips abaixo). Estado de foco via ?state=focus.
+  Sem rede em runtime, sem backend, sem build — abre clicando. Fonte Inter com fallback de sistema.
+  Destinos reais: "Entrar" → /login (EPIC-004) ; "Para empresas" → /intelligence (rota viva).
+-->
+<style>
+  :root{
+    --primary:#9fe870;--on-primary:#0e0f0c;--primary-active:#cdffad;--primary-neutral:#c5edab;--primary-pale:#e2f6d5;
+    --canvas:#fff;--canvas-soft:#e8ebe6;--ink:#0e0f0c;--ink-deep:#163300;--body:#454745;--mute:#868685;
+    --positive:#2ead4b;
+    --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-pill:9999px;
+    --f:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:#d5d9d2;color:var(--ink);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:14px 12px 48px;gap:14px}
+
+  /* ---- barra de controle do protótipo (fora da tela) ---- */
+  .bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;max-width:980px}
+  .bar a{font-size:12.5px;text-decoration:none;color:var(--body);background:var(--canvas);
+    border:1px solid var(--mute);border-radius:var(--r-pill);padding:4px 11px;white-space:nowrap;cursor:pointer}
+  .bar a.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .bar .lbl{font-size:10.5px;color:#4b4d4b;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .bar .sep{width:1px;height:18px;background:var(--mute);opacity:.55;margin:0 2px}
+  .note{font-size:11.5px;color:#41433f;max-width:560px;text-align:center;line-height:1.5}
+
+  /* ---- moldura de dispositivo ---- */
+  .stage{width:100%;display:flex;justify-content:center}
+  .device{width:100%;max-width:412px;background:var(--canvas-soft);border-radius:30px;
+    border:1px solid #cfd3cc;overflow:hidden;box-shadow:0 12px 40px rgba(14,15,12,.14)}
+  .device.desktop{max-width:1040px}
+  .scroll{max-height:82vh;overflow-y:auto}
+
+  /* ============ CASCA PÚBLICA (DDR-005 · nav.bar + footer) ============ */
+  .nav{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:16px;
+    background:var(--canvas);border-bottom:1px solid var(--ink);padding:12px 20px}
+  .lockup{display:inline-flex;align-items:center;gap:8px}
+  .mark{width:36px;height:36px;flex:none;border-radius:var(--r-xl);background:var(--primary);
+    color:var(--on-primary);display:inline-flex;align-items:center;justify-content:center}
+  .mark svg{width:20px;height:20px}
+  .wordmark{font-weight:900;font-size:22px;letter-spacing:-.02em;color:var(--ink);line-height:1}
+  .nav .spacer{flex:1}
+  .navlink{display:inline-flex;align-items:center;min-height:44px;padding:0 6px;border-bottom:2px solid transparent;
+    font-size:14px;font-weight:600;color:var(--body);text-decoration:none;white-space:nowrap;transition:color .1s ease-out}
+  .navlink:hover{color:var(--ink)}
+  .navlink:focus-visible{outline:none;box-shadow:0 0 0 2px var(--ink);border-radius:var(--r-sm)}
+
+  /* botão primário verde (button.primary) */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;position:relative;
+    min-height:48px;padding:12px 24px;border-radius:var(--r-xl);border:none;cursor:pointer;
+    font-family:var(--f);font-size:16px;font-weight:600;line-height:24px;text-decoration:none;
+    transition:background .1s ease-out}
+  .btn-primary{background:var(--primary);color:var(--on-primary)}
+  .btn-primary:hover{background:var(--primary-active)}
+  .btn-primary:active{background:var(--primary-neutral)}
+  .btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--canvas-soft),0 0 0 4px var(--ink)}
+  .nav .btn{min-height:44px;padding:10px 18px}
+  /* botão secundário (button.secondary, sage) — no corpo, ação para o B2B */
+  .btn-secondary{background:var(--canvas-soft);color:var(--ink)}
+  .btn-secondary:hover{background:var(--primary-pale)}
+  .btn-secondary:active{background:var(--primary-neutral)}
+
+  /* ============ HERO (hero-band · canvas-soft) ============ */
+  .hero{padding:40px 20px 28px}
+  .hero h1{font-weight:900;font-size:48px;line-height:.96;letter-spacing:-.02em;color:var(--ink)}
+  .hero .sub{margin-top:16px;font-size:20px;line-height:30px;color:var(--body);max-width:32ch}
+  .hero .cta-row{margin-top:24px;display:flex;flex-direction:column;gap:12px;align-items:stretch}
+  .hero .cta-row .btn{width:100%}
+
+  /* painel de marca (card.feature-dark) — reforço no hero desktop */
+  .brandpanel{display:none;background:var(--ink);border-radius:var(--r-xl);padding:28px;
+    color:var(--canvas-soft);flex-direction:column;gap:14px;justify-content:center}
+  .brandpanel .big{font-weight:900;font-size:40px;line-height:1;color:var(--primary);letter-spacing:-.02em}
+  .brandpanel .mock{display:inline-flex;align-items:center;gap:12px;background:#171814;border-radius:var(--r-lg);
+    padding:14px 16px;margin-top:4px}
+  .brandpanel .mock .rmark{width:40px;height:40px;border-radius:var(--r-md);background:var(--primary);
+    color:var(--on-primary);display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .brandpanel .mock .rmark svg{width:22px;height:22px}
+  .brandpanel .mock .val{font-weight:900;font-size:20px;color:var(--canvas)}
+  .brandpanel .mock .cap{font-size:13px;color:#a9ada6}
+
+  /* ============ COMO FUNCIONA (content-band · canvas) ============ */
+  .como{background:var(--canvas);padding:36px 20px}
+  .como h2{font-weight:900;font-size:28px;line-height:1.1;letter-spacing:-.01em;color:var(--ink)}
+  .steps{margin-top:22px;display:flex;flex-direction:column;gap:20px}
+  .step{display:flex;gap:14px;align-items:flex-start}
+  .step .n{flex:none;width:40px;height:40px;border-radius:var(--r-xl);background:var(--primary-pale);
+    color:var(--ink-deep);display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}
+  .step .stitle{font-weight:600;font-size:18px;color:var(--ink);line-height:1.25}
+  .step .sbody{margin-top:4px;font-size:16px;line-height:24px;color:var(--body)}
+
+  /* ============ BAND DE FECHO (hero-band-dark · ink + verde) ============ */
+  .closing{background:var(--ink);padding:40px 20px;text-align:center;display:flex;flex-direction:column;
+    align-items:center;gap:16px}
+  .closing .tag{font-weight:900;font-size:34px;line-height:1;letter-spacing:-.02em;color:var(--primary)}
+  .closing .sub{font-size:16px;line-height:24px;color:#c7cbc4;max-width:34ch}
+  .closing .btn{margin-top:4px}
+
+  /* ============ FOOTER (footer · band ink) ============ */
+  .foot{background:var(--ink);border-top:1px solid #26271f;color:var(--canvas-soft);
+    padding:28px 20px;display:flex;flex-direction:column;gap:14px;font-size:14px}
+  .foot .flink{display:flex;flex-wrap:wrap;gap:14px 20px}
+  .foot a{color:var(--canvas-soft);text-decoration:none;border-bottom:2px solid transparent;padding-bottom:2px}
+  .foot a:hover{color:#fff}
+  .foot a:focus-visible{outline:none;box-shadow:0 0 0 2px var(--primary);border-radius:var(--r-sm)}
+  .foot .fword{font-weight:900;font-size:18px;color:#fff;letter-spacing:-.02em}
+  .foot .fcopy{color:var(--mute);font-size:12px}
+
+  /* ============ DESKTOP (≥1024 emulado dentro da moldura) ============ */
+  .device.desktop .hero{padding:56px 48px 44px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+  .device.desktop .hero h1{font-size:64px;line-height:.94}
+  .device.desktop .hero .sub{font-size:20px;max-width:38ch}
+  .device.desktop .hero .cta-row{flex-direction:row;align-items:center;gap:14px}
+  .device.desktop .hero .cta-row .btn{width:auto}
+  .device.desktop .brandpanel{display:flex}
+  .device.desktop .como{padding:48px}
+  .device.desktop .steps{flex-direction:row;gap:24px}
+  .device.desktop .step{flex-direction:column;gap:12px;flex:1}
+  .device.desktop .closing{padding:56px 48px}
+  .device.desktop .closing .tag{font-size:44px}
+  .device.desktop .foot{flex-direction:row;align-items:center;justify-content:space-between;padding:32px 48px}
+  .device.desktop .foot .flink{justify-content:flex-end}
+
+  /* estado de foco demonstrado (?state=focus) */
+  body.state-focus .demo-focus{outline:none;box-shadow:0 0 0 2px var(--canvas-soft),0 0 0 4px var(--ink)}
+</style>
+</head>
+<body>
+
+  <div class="bar" role="navigation" aria-label="Controles do protótipo">
+    <span class="lbl">Viewport</span>
+    <a data-vp="mobile">Mobile ≥360</a>
+    <a data-vp="desktop">Desktop ≥1024</a>
+    <span class="sep"></span>
+    <span class="lbl">Estado</span>
+    <a data-state="default">Padrão</a>
+    <a data-state="focus">Foco (CTA entrar)</a>
+  </div>
+  <p class="note">Protótipo de validação (STORY-025). Casca DDR-005. Só tokens do DS. "Entrar" leva ao
+    login do EPIC-004; "Para empresas" leva à landing B2B (/intelligence). Sem dados/rede — landing estática.</p>
+
+  <div class="stage">
+    <div class="device" id="device">
+      <div class="scroll">
+
+        <!-- ===== HEADER (pattern.public-shell · face=b2c) ===== -->
+        <nav class="nav" data-testid="public-nav" aria-label="Navegação principal">
+          <span class="lockup" aria-label="Quantah — página inicial">
+            <span class="mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+                <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1V2l-2 1-2-1-2 1-2-1-2 1-2-1Z"/>
+                <path d="M8 7h8M8 11h8M8 15h5"/>
+              </svg>
+            </span>
+            <span class="wordmark">Quantah</span>
+          </span>
+          <span class="spacer"></span>
+          <a class="navlink" href="#" data-testid="landing-b2c-nav-b2b">Para empresas</a>
+          <a class="btn btn-primary" href="#" data-testid="landing-b2c-nav-entrar">Entrar</a>
+        </nav>
+
+        <!-- ===== HERO (hero-band) ===== -->
+        <section class="hero" data-testid="landing-b2c-hero" aria-labelledby="hero-h1">
+          <div class="hero-copy">
+            <h1 id="hero-h1">Cada nota conta.</h1>
+            <p class="sub">Transforme as notas fiscais das suas compras em dinheiro de volta.
+              Escaneie o cupom, junte cashback e saque quando quiser.</p>
+            <div class="cta-row">
+              <a class="btn btn-primary demo-focus" href="#" data-testid="landing-b2c-cta-entrar">Entrar / Criar conta</a>
+              <a class="btn btn-secondary" href="#" data-testid="landing-b2c-cta-b2b">Para empresas →</a>
+            </div>
+          </div>
+          <aside class="brandpanel" aria-hidden="true">
+            <span class="big">Cada nota<br>vira saldo.</span>
+            <span class="mock">
+              <span class="rmark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+                  <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1V2l-2 1-2-1-2 1-2-1-2 1-2-1Z"/>
+                  <path d="M8 7h8M8 11h8M8 15h5"/>
+                </svg>
+              </span>
+              <span>
+                <span class="val">+ R$ 0,03</span><br>
+                <span class="cap">creditados nesta nota</span>
+              </span>
+            </span>
+          </aside>
+        </section>
+
+        <!-- ===== COMO FUNCIONA (content-band) ===== -->
+        <section class="como" data-testid="landing-b2c-como-funciona" aria-labelledby="como-h2">
+          <h2 id="como-h2">Como funciona</h2>
+          <div class="steps">
+            <div class="step">
+              <span class="n" aria-hidden="true">1</span>
+              <div><div class="stitle">Escaneie a nota</div>
+                <div class="sbody">Aponte a câmera para o QR Code do cupom fiscal da sua compra.</div></div>
+            </div>
+            <div class="step">
+              <span class="n" aria-hidden="true">2</span>
+              <div><div class="stitle">Acumule cashback</div>
+                <div class="sbody">Cada nota validada vira saldo em reais na sua carteira.</div></div>
+            </div>
+            <div class="step">
+              <span class="n" aria-hidden="true">3</span>
+              <div><div class="stitle">Saque o saldo</div>
+                <div class="sbody">Quando quiser, saque por PIX direto para a sua conta.</div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== BAND DE FECHO (hero-band-dark) ===== -->
+        <section class="closing" aria-labelledby="closing-h2">
+          <div class="tag" id="closing-h2">Cada nota conta.</div>
+          <p class="sub">Comece agora a transformar seus cupons em cashback.</p>
+          <a class="btn btn-primary" href="#" data-testid="landing-b2c-cta-entrar-fim">Entrar / Criar conta</a>
+        </section>
+
+        <!-- ===== FOOTER (footer · band ink) ===== -->
+        <footer class="foot" data-testid="public-footer">
+          <span class="fword">Quantah</span>
+          <nav class="flink" aria-label="Links do rodapé">
+            <a href="#" data-testid="landing-b2c-foot-b2b">Para empresas</a>
+            <a href="#">Privacidade</a>
+            <a href="#">Contato</a>
+          </nav>
+          <span class="fcopy">© 2026 Quantah · Cada nota conta.</span>
+        </footer>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Controle do protótipo: viewport + estado, refletidos na URL (?vp=&state=).
+  const device = document.getElementById('device');
+  const params = new URLSearchParams(location.search);
+  let vp = params.get('vp') || 'mobile';
+  let state = params.get('state') || 'default';
+
+  function apply(){
+    device.classList.toggle('desktop', vp === 'desktop');
+    document.body.classList.toggle('state-focus', state === 'focus');
+    document.querySelectorAll('[data-vp]').forEach(a=>a.classList.toggle('on', a.dataset.vp===vp));
+    document.querySelectorAll('[data-state]').forEach(a=>a.classList.toggle('on', a.dataset.state===state));
+    const u = new URLSearchParams({vp, state});
+    history.replaceState(null,'', location.pathname+'?'+u.toString());
+  }
+  document.querySelectorAll('[data-vp]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();vp=a.dataset.vp;apply();}));
+  document.querySelectorAll('[data-state]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();state=a.dataset.state;apply();}));
+  // CTAs são navegação de mentira no protótipo — não saem da página.
+  document.querySelectorAll('.scroll a').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
+  apply();
+</script>
+</body>
+</html>
