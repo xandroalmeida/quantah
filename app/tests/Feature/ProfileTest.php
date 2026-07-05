@@ -61,39 +61,27 @@ class ProfileTest extends TestCase
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
-    public function test_user_can_delete_their_account(): void
+    /** STORY-036 CA-2 — a exclusão de conta foi removida: a rota não executa e a conta persiste. */
+    public function test_account_deletion_route_is_removed(): void
     {
         $user = User::factory()->create();
 
         $response = $this
             ->actingAs($user)
-            ->delete('/profile', [
-                'password' => 'password',
-            ]);
+            ->delete('/profile', ['password' => 'password']);
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/');
-
-        $this->assertGuest();
-        $this->assertNull($user->fresh());
+        // Rota removida → método não permitido nesta URI (GET/PATCH ainda existem).
+        $response->assertStatus(405);
+        $this->assertNotNull($user->fresh(), 'a conta não pode ter sido excluída');
+        $this->assertAuthenticated();
     }
 
-    public function test_correct_password_must_be_provided_to_delete_account(): void
+    /** STORY-036 CA-2 — a rota nomeada `profile.destroy` não existe mais no roteador. */
+    public function test_profile_destroy_route_name_does_not_exist(): void
     {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->from('/profile')
-            ->delete('/profile', [
-                'password' => 'wrong-password',
-            ]);
-
-        $response
-            ->assertSessionHasErrors('password')
-            ->assertRedirect('/profile');
-
-        $this->assertNotNull($user->fresh());
+        $this->assertFalse(
+            app('router')->getRoutes()->hasNamedRoute('profile.destroy'),
+            'a rota profile.destroy deveria ter sido removida'
+        );
     }
 }
