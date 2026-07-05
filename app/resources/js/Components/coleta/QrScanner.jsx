@@ -13,10 +13,13 @@ import { CameraIcon, FlashIcon } from '@/Components/icons';
  *   3. `@zxing/browser` (import dinâmico, TRY_HARDER) — último recurso na foto.
  *
  * "Tirar foto" congela o quadro atual do vídeo num canvas (drawImage, síncrono) e
- * tenta MUITAS variantes: recorte na mira (tira o texto ao redor), com/sem realce de
- * contraste, em escalas diferentes, invertendo. A foto fica visível na tela e, se não
- * ler, mostra um aviso claro sobre a imagem + "Tentar de novo" (nada de paredão de
- * texto). Diagnóstico técnico só aparece com `?diag=1` na URL.
+ * tenta muitas variantes: recorte na mira, com/sem realce de contraste, em escala
+ * menor, invertendo. A foto fica visível e, se não ler, mostra um caminho honesto
+ * ("não foi possível ler") + "Tentar de novo".
+ *
+ * Diagnóstico: quando não lê, dispara em background um OCR da chave de 44 dígitos e
+ * registra a tentativa no backend (`/coleta/ilegivel`) para diagnóstico futuro. Isso
+ * NÃO muda o que o usuário vê — para ele, segue "não foi possível ler".
  *
  * Props:
  *  - onDetected(text): conteúdo do QR (a URL/`p=` assinado da NFC-e).
@@ -39,15 +42,6 @@ export default function QrScanner({ onDetected, onError }) {
     // 'nenhum' (mirando) | 'lendo' (foto congelada, decodificando) | 'falhou' (não leu)
     const [estadoFoto, setEstadoFoto] = useState('nenhum');
     const [fotoUrl, setFotoUrl] = useState(null);
-    const [diag, setDiag] = useState([]);
-    const [mostrarDiag] = useState(
-        () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('diag'),
-    );
-
-    const registrar = useCallback((msg) => {
-        const t = (performance.now() / 1000).toFixed(1);
-        setDiag((d) => [...d.slice(-39), `${t}s ${msg}`]);
-    }, []);
 
     const suportaDetectorNativo = () =>
         typeof window !== 'undefined' && 'BarcodeDetector' in window;
@@ -131,7 +125,7 @@ export default function QrScanner({ onDetected, onError }) {
     };
 
     // --- Decode ---------------------------------------------------------------
-    const lerCanvasComZxing = async (canvas, rotulo) => {
+    const lerCanvasComZxing = async (canvas) => {
         try {
             const { BrowserQRCodeReader } = await import('@zxing/browser');
             const { DecodeHintType } = await import('@zxing/library');
@@ -139,10 +133,8 @@ export default function QrScanner({ onDetected, onError }) {
             hints.set(DecodeHintType.TRY_HARDER, true);
             const leitor = new BrowserQRCodeReader(hints);
             const res = await leitor.decodeFromImageUrl(canvas.toDataURL('image/png'));
-            registrar(`zxing(${rotulo}): ${res ? 'ACHOU' : 'nada'}`);
             return res?.getText() ?? null;
-        } catch (e) {
-            registrar(`zxing(${rotulo}): ${e?.name ?? e}`);
+        } catch {
             return null;
         }
     };
@@ -157,28 +149,81 @@ export default function QrScanner({ onDetected, onError }) {
         const central = recortar(canvasFull, (w - lado) / 2, (h - lado) / 2, lado, lado);
 
         const variantes = [
-            ['central', central],
-            ['central+contraste', realcarContraste(central)],
-            ['central x0.5', desenhar(central, Math.round(central.width / 2), Math.round(central.height / 2))],
-            ['inteiro', canvasFull],
-            ['inteiro+contraste', realcarContraste(canvasFull)],
+            central,
+            realcarContraste(central),
+            desenhar(central, Math.round(central.width / 2), Math.round(central.height / 2)),
+            canvasFull,
+            realcarContraste(canvasFull),
         ];
 
-        for (const [rot, cv] of variantes) {
+        for (const cv of variantes) {
             if (emitidoRef.current) return null;
             try {
                 const id = imageDataDe(cv);
                 const r = jsQR(id.data, id.width, id.height, { inversionAttempts: 'attemptBoth' });
-                registrar(`jsQR(${rot}): ${r?.data ? 'ACHOU' : 'nada'}`);
                 if (r?.data) return r.data;
-            } catch (e) {
-                registrar(`jsQR(${rot}) erro: ${e?.name ?? e}`);
+            } catch {
+                /* variante ruim; tenta a próxima. */
             }
         }
 
-        const z = await lerCanvasComZxing(central, 'central');
+        const z = await lerCanvasComZxing(central);
         if (z) return z;
-        return lerCanvasComZxing(realcarContraste(central), 'central+contraste');
+        return lerCanvasComZxing(realcarContraste(central));
+    };
+
+    // --- Diagnóstico de captura ilegível (background, invisível ao usuário) ----
+    // Dígito verificador mod-11 (mesma regra de App\Domain\Coleta\ChaveAcesso).
+    const dvValido = (chave44) => {
+        const pesos = [2, 3, 4, 5, 6, 7, 8, 9];
+        const inv = chave44.slice(0, 43).split('').reverse();
+        let soma = 0;
+        for (let i = 0; i < inv.length; i++) soma += Number(inv[i]) * pesos[i % 8];
+        const resto = soma % 11;
+        const dv = resto <= 1 ? 0 : 11 - resto;
+        return dv === Number(chave44[43]);
+    };
+
+    const extrairChaveValida = (texto) => {
+        const digitos = (texto.match(/\d/g) ?? []).join('');
+        for (let i = 0; i + 44 <= digitos.length; i++) {
+            const cand = digitos.slice(i, i + 44);
+            if (dvValido(cand)) return cand;
+        }
+        return null;
+    };
+
+    // OCR só de dígitos (a chave costuma estar impressa acima do QR). Best-effort.
+    const ocrDigitos = async (canvas) => {
+        const { createWorker } = await import('tesseract.js');
+        const worker = await createWorker('eng');
+        try {
+            await worker.setParameters({ tessedit_char_whitelist: '0123456789 ' });
+            const { data } = await worker.recognize(canvas);
+            return data?.text ?? '';
+        } finally {
+            await worker.terminate();
+        }
+    };
+
+    // Registra a captura ilegível para diagnóstico futuro — com a chave se o OCR pegou.
+    // Fire-and-forget: nunca afeta o que o usuário vê.
+    const reportarIlegivel = async (canvas) => {
+        let chave = null;
+        try {
+            const texto = await Promise.race([
+                ocrDigitos(canvas),
+                new Promise((resolve) => setTimeout(() => resolve(''), 20000)),
+            ]);
+            chave = extrairChaveValida(texto);
+        } catch {
+            /* OCR indisponível/falhou — registra a falha sem chave. */
+        }
+        try {
+            await window.axios?.post('/coleta/ilegivel', { chave });
+        } catch {
+            /* telemetria best-effort. */
+        }
     };
 
     // --- Câmera ao vivo -------------------------------------------------------
@@ -187,12 +232,10 @@ export default function QrScanner({ onDetected, onError }) {
 
         const midia = navigator.mediaDevices;
         if (!midia?.getUserMedia) {
-            registrar('sem getUserMedia');
             onErrorRef.current('unsupported');
             return;
         }
 
-        registrar('abrindo câmera…');
         let stream;
         try {
             stream = await midia.getUserMedia({
@@ -206,7 +249,6 @@ export default function QrScanner({ onDetected, onError }) {
         } catch (e) {
             if (!ativoRef.current) return;
             const nome = e?.name ?? '';
-            registrar('getUserMedia falhou: ' + nome);
             if (nome === 'NotAllowedError' || nome === 'SecurityError') onErrorRef.current('permission');
             else if (nome === 'NotFoundError' || nome === 'OverconstrainedError' || nome === 'DevicesNotFoundError')
                 onErrorRef.current('nocamera');
@@ -222,9 +264,7 @@ export default function QrScanner({ onDetected, onError }) {
 
         const track = stream.getVideoTracks()[0];
         const caps = track?.getCapabilities?.() ?? {};
-        const cfg = track?.getSettings?.() ?? {};
         setTemLanterna(Boolean(caps.torch));
-        registrar(`câmera ok ${cfg.width ?? '?'}x${cfg.height ?? '?'} torch=${Boolean(caps.torch)} detectorNativo=${suportaDetectorNativo()}`);
         if (Array.isArray(caps.focusMode) && caps.focusMode.includes('continuous')) {
             try {
                 await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
@@ -265,17 +305,16 @@ export default function QrScanner({ onDetected, onError }) {
             if (ativoRef.current && !emitidoRef.current && streamRef.current) setTimeout(tick, 250);
         };
         setTimeout(tick, 300);
-    }, [emitir, registrar, carregarJsQR]);
+    }, [emitir, carregarJsQR]);
 
     useEffect(() => {
         ativoRef.current = true;
-        registrar(`montado; detectorNativo=${suportaDetectorNativo()}`);
         iniciarCamera();
         return () => {
             ativoRef.current = false;
             pararCamera();
         };
-    }, [iniciarCamera, pararCamera, registrar]);
+    }, [iniciarCamera, pararCamera]);
 
     // --- Ações ----------------------------------------------------------------
     const alternarLanterna = async () => {
@@ -294,13 +333,11 @@ export default function QrScanner({ onDetected, onError }) {
         if (emitidoRef.current || estadoFoto === 'lendo') return;
         const canvas = capturarQuadro();
         if (!canvas) {
-            registrar('sem quadro: vídeo 0x0');
             setFotoUrl(null);
             setEstadoFoto('falhou');
             return;
         }
-        registrar(`foto ${canvas.width}x${canvas.height} — tentando ler…`);
-        // Congela a imagem na tela (miniatura leve) para o usuário ver o que foi capturado.
+        // Congela a imagem na tela (miniatura leve) para o usuário ver o que capturou.
         setFotoUrl(desenhar(canvas, Math.round(canvas.width / 3), Math.round(canvas.height / 3)).toDataURL('image/jpeg', 0.7));
         setEstadoFoto('lendo');
         try {
@@ -309,15 +346,14 @@ export default function QrScanner({ onDetected, onError }) {
                 new Promise((resolve) => setTimeout(() => resolve('__timeout__'), 12000)),
             ]);
             if (texto && texto !== '__timeout__') {
-                registrar('ACHOU — emitindo');
                 emitir(texto);
                 return;
             }
-            registrar(texto === '__timeout__' ? 'timeout 12s' : 'nenhum QR');
             setEstadoFoto('falhou');
-        } catch (e) {
-            registrar('EXCEÇÃO: ' + (e?.name ?? '') + ' ' + (e?.message ?? String(e)));
+            reportarIlegivel(canvas); // diagnóstico em background — não trava a UX.
+        } catch {
             setEstadoFoto('falhou');
+            reportarIlegivel(canvas);
         }
     };
 
@@ -327,6 +363,20 @@ export default function QrScanner({ onDetected, onError }) {
     };
 
     const congelado = estadoFoto !== 'nenhum';
+
+    const Lanterna = () =>
+        temLanterna && (
+            <Button
+                variant={lanternaLigada ? 'primary' : 'secondary'}
+                onClick={alternarLanterna}
+                className="flex-1"
+                data-testid="screen-captura-torch-btn"
+                aria-pressed={lanternaLigada}
+            >
+                <FlashIcon className="h-lg w-lg" />
+                {lanternaLigada ? 'Desligar luz' : 'Lanterna'}
+            </Button>
+        );
 
     return (
         <div className="flex flex-col gap-md">
@@ -370,10 +420,10 @@ export default function QrScanner({ onDetected, onError }) {
                         data-testid="screen-captura-photo-failed"
                     >
                         <p className="text-body-md font-semibold text-canvas">
-                            Capturei a imagem, mas não consegui ler o QR.
+                            Não foi possível ler o QR desta nota.
                         </p>
                         <p className="text-body-sm text-canvas/80">
-                            Aproxime e encha o quadro verde com o QR.
+                            A impressão pode estar danificada. Aproxime, encha o quadro verde e tente de novo.
                         </p>
                     </div>
                 )}
@@ -381,18 +431,7 @@ export default function QrScanner({ onDetected, onError }) {
 
             {estadoFoto === 'falhou' ? (
                 <div className="flex gap-md">
-                    {temLanterna && (
-                        <Button
-                            variant={lanternaLigada ? 'primary' : 'secondary'}
-                            onClick={alternarLanterna}
-                            className="flex-1"
-                            data-testid="screen-captura-torch-btn"
-                            aria-pressed={lanternaLigada}
-                        >
-                            <FlashIcon className="h-lg w-lg" />
-                            {lanternaLigada ? 'Desligar luz' : 'Lanterna'}
-                        </Button>
-                    )}
+                    <Lanterna />
                     <Button
                         variant="primary"
                         onClick={tentarDeNovo}
@@ -405,18 +444,7 @@ export default function QrScanner({ onDetected, onError }) {
                 </div>
             ) : (
                 <div className="flex gap-md">
-                    {temLanterna && (
-                        <Button
-                            variant={lanternaLigada ? 'primary' : 'secondary'}
-                            onClick={alternarLanterna}
-                            className="flex-1"
-                            data-testid="screen-captura-torch-btn"
-                            aria-pressed={lanternaLigada}
-                        >
-                            <FlashIcon className="h-lg w-lg" />
-                            {lanternaLigada ? 'Desligar luz' : 'Lanterna'}
-                        </Button>
-                    )}
+                    <Lanterna />
                     <Button
                         variant="secondary"
                         onClick={capturarEDecodificar}
@@ -428,16 +456,6 @@ export default function QrScanner({ onDetected, onError }) {
                         Tirar foto
                     </Button>
                 </div>
-            )}
-
-            {/* Diagnóstico técnico — só com ?diag=1 na URL. */}
-            {mostrarDiag && diag.length > 0 && (
-                <pre
-                    data-testid="screen-captura-diag"
-                    className="max-h-40 overflow-auto whitespace-pre-wrap rounded-lg bg-ink/5 p-sm text-left font-mono text-[10px] leading-tight text-body"
-                >
-                    {diag.join('\n')}
-                </pre>
             )}
         </div>
     );

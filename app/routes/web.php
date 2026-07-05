@@ -94,6 +94,12 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:30,1')
         ->name('coleta.store');
 
+    // Diagnóstico de captura ilegível (QR não decodificado no cliente). Best-effort do
+    // front (fire-and-forget); grava para diagnóstico futuro. Ver ColetaController::ilegivel.
+    Route::post('/coleta/ilegivel', [ColetaController::class, 'ilegivel'])
+        ->middleware('throttle:30,1')
+        ->name('coleta.ilegivel');
+
     // Carteira do Colaborador (STORY-016): saldo em reais + histórico de cashback.
     Route::get('/carteira', [CarteiraController::class, 'index'])->name('carteira.index');
 

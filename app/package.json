@@ -24,6 +24,7 @@
     "dependencies": {
         "@zxing/browser": "^0.1.5",
         "jsqr": "^1.4.0",
-        "react-imask": "^7.6.1"
+        "react-imask": "^7.6.1",
+        "tesseract.js": "^7.0.0"
     }
 }

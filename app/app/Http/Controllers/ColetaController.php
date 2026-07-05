@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Coleta\ChaveAcesso;
+use App\Domain\Coleta\ChaveAcessoInvalidaException;
 use App\Domain\Coleta\IngestaoCupomService;
+use App\Models\CapturaIlegivel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -67,5 +71,34 @@ class ColetaController extends Controller
 
         // CAPTURADO ou DUPLICADO → confirmação via flash (sem PII).
         return back()->with('coleta', $resultado->toArray());
+    }
+
+    /**
+     * Diagnóstico de captura ilegível — o cliente não conseguiu ler o QR (impressão
+     * danificada) e registra a tentativa para diagnóstico futuro. Guarda a chave só se o
+     * OCR entregou 44 dígitos com DV válido; caso contrário, registra a falha sem chave.
+     * Nunca afeta o usuário (fire-and-forget do front): responde 204.
+     */
+    public function ilegivel(Request $request): HttpResponse
+    {
+        $dados = $request->validate([
+            'chave' => ['nullable', 'string', 'max:2048'],
+        ]);
+
+        $chave = null;
+        if (! empty($dados['chave'])) {
+            try {
+                $chave = ChaveAcesso::deEntrada($dados['chave'])->valor();
+            } catch (ChaveAcessoInvalidaException) {
+                $chave = null; // OCR impreciso: registra a falha, mas sem chave inválida.
+            }
+        }
+
+        CapturaIlegivel::create([
+            'user_id' => $request->user()?->id,
+            'chave' => $chave,
+        ]);
+
+        return response()->noContent();
     }
 }
