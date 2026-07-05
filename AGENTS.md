@@ -7,11 +7,11 @@ template que o gerou.)
 
 **Quantah** — plataforma de inteligência de preços via NFC-e que coleta cupons fiscais de forma
 colaborativa (crowdsourcing) para construir uma base de preços do varejo em tempo quase real, monetizada
-como inteligência de mercado (B2B).
+como inteligência de mercado (B2B). O nome tem duplo sentido: "**quanto** custa" + "**quantidade** de dados".
 
-Público: consumidores brasileiros que recebem NFC-e nas compras (coleta) e clientes B2B — indústria/CPG,
-varejo e terceiros de dados (demanda). Personas: **Colaborador** (envia cupons) e **Analista B2B**
-(consome inteligência de preços). Quem aprova: **Alexandro**.
+O produto tem **dois lados**: quem oferta o dado (**Colaborador** — envia cupons, movido por cashback) e
+quem consome/paga por ele (**Analista B2B** — inteligência de preços). O app de consumidor é o mecanismo de
+coleta; o painel B2B (Quantah Intelligence) é onde está a receita. Quem aprova: **Alexandro**.
 
 A fonte de verdade de produto/negócio/marca é **`docs/visao.md`** — leia antes de decidir qualquer coisa
 de produto.
@@ -25,36 +25,48 @@ profissionais: **`po`**, **`arquiteto`**, **`designer`**, **`programador`**, **`
 E2E e decisões registradas (ADR/PDR/DDR/IDR). O `idealizador` fica dormente (é da fase POC).
 
 Carregue a skill do papel e siga o método dela — não cruze papéis. A configuração do projeto (stack,
-caminhos, glossário) está em **`docs/skills/_project.md`**.
+caminhos, glossário, personas) está em **`docs/skills/_project.md`** — leia primeiro numa sessão nova.
+
+O trabalho é organizado em **waves → épicos → estórias**, com o estado vivo em `docs/project-state/`.
+
+## Onde estamos
+
+- **WAVE-2026-01** — "Provar a coleta em SP" — **fechada**. Loop `cupom → saldo em cashback` vivo em
+  homologação (EPICs 000–003).
+- **WAVE-2026-02** (ativa) — "De POC a produto": landing pages B2C/B2B, identidade/acesso do Colaborador
+  (login Google + e-mail/senha), segmentação das 3 áreas (B2C/B2B/Backoffice) e jornada B2C mobile em
+  pt-BR (EPICs 004–007).
+
+O ponto de entrada do estado é **`docs/project-state/index.json`** (`current_wave`, épicos e status).
+Consulte-o antes de assumir o que está pronto.
 
 ## Estrutura
 
-- **`app/`** — o código do app: Laravel + Inertia/React + PostgreSQL. **Ainda não scaffoldado** — o
-  esqueleto é criado pela `setup-ambiente` no Claude Code (ver "Como rodar").
+- **`app/`** — o código, já scaffoldado: **Laravel 13 + Inertia/React + PostgreSQL** (Vite + Tailwind no
+  front, **Laravel Dusk** para E2E). Lógica de negócio isolada em `app/app/Domain/` (ex.: `Cashback`);
+  ações em `app/app/Actions/`. Roda em Docker via **Laravel Sail** (ver "Como rodar").
+- **`infra/`** — deploy da homologação: `docker-compose.prod.yml`, `Caddyfile`, provisionamento `gcp/`.
+- **`.github/workflows/ci-cd.yml`** — CI (testes + build + E2E) e deploy por tag (ver "Deploy").
 - **`docs/visao.md`** — documento de visão (produto, negócio, marca).
-- **`docs/skills/`** — os papéis e as sub-skills de stack (`stacks/`).
-- **`docs/project-state/`** — o estado vivo (épicos, sprints, decisões, design, bugs…), com `index.json`.
+- **`docs/skills/`** — os papéis e as sub-skills de stack (`stacks/`), mais `_project.md`.
+- **`docs/project-state/`** — o estado vivo (waves, épicos, sprints, decisões, design, bugs…) e `index.json`.
 - **`docs/especificacao/`** e **`docs/prototipo/`** — especificação durável e protótipo/handoff.
+- **`docs/DESIGN-wise.md`** — a linguagem visual (interpretação inspirada na Wise).
 
 ## Como rodar
 
-O app viverá em `app/`. Para subir o preview, no **Claude Code** (na máquina real) diga: **"prepare o
-ambiente e suba o preview"** — a sub-skill `docs/skills/setup-ambiente/` faz tudo (instala o que faltar,
-monta o esqueleto Laravel + Inertia/React, prepara o Postgres) e abre **http://localhost:8000**. O
-**Cowork** constrói (edita o código), o **Claude Code** roda o preview, e o **hot reload** conecta os
-dois: ao editar, a tela recarrega ao vivo.
+Tudo por Docker/Sail, orquestrado pelo **`app/Makefile`** — não precisa de PHP na máquina. De dentro de
+`app/`:
 
-> **Por que o `app/` está vazio:** o scaffold precisa de PHP/Composer, que não existem no sandbox do
-> Cowork (é o esperado). O primeiro comando no Claude Code (`setup-ambiente`) cria o esqueleto e o sobe.
+- **`make up`** — sobe app + Postgres, instala deps, migra e semeia, em **http://localhost:8000**
+  (usuário de seed: `test@example.com`). `make down` / `make restart` gerenciam os containers.
+- **`make test`** — suíte unit + feature. **`make e2e`** — E2E em browser real (Dusk via Selenium).
+- **`make fresh`** / **`make seed`** — recria/repovoa o banco. **`make shell`** — shell no container.
+- **`make help`** lista todos os alvos.
 
-## Primeiro passo de MVP
-
-1. **PO** (`docs/skills/po/`) — Fluxo 0: visão, personas, north-star, lendo `docs/visao.md`; depois
-   quebrar em épicos/estórias e semear o `index.json`.
-2. **Arquiteto** (`docs/skills/arquiteto/`) — ratificar ou trocar a stack pelo **ADR-000** já criado
-   (`docs/project-state/decisions/adr/ADR-000-stack-default.md`) e aprofundar os pontos **[→ Fase
-   técnica]** da visão (extração/adaptadores SEFAZ, deduplicação, anti-fraude, matching de produtos,
-   pagamento).
+No **Claude Code** (máquina real) você também pode dizer **"prepare o ambiente e suba o preview"** — a
+sub-skill `docs/skills/setup-ambiente/` cobre o primeiro setup. Ao editar o código, o hot reload recarrega
+a tela ao vivo.
 
 ## Deploy
 
@@ -67,11 +79,11 @@ um ciclo). O passo a passo e as regras de versão estão em **`docs/deploy.md`**
 
 - O **idiomático da stack** está nas sub-skills de `docs/skills/stacks/` da stack ativa (postgres,
   laravel, inertia-react) — consulte antes de inventar.
-- **Não versione** segredos nem artefatos pesados: `app/.env`, `app/.bin/`, `app/vendor/`,
-  `app/node_modules/`, `*.sqlite`, `app/public/build/`. O `.gitignore` na raiz cobre isso.
+- **Não versione** segredos nem artefatos pesados: `app/.env`, `app/vendor/`, `app/node_modules/`,
+  `*.sqlite`, `app/public/build/`. O `.gitignore` na raiz cobre isso.
 - **Dev e teste em bancos separados** — a suíte roda contra o banco de teste, nunca o de dev (ver
   `docs/skills/stacks/database/database-method.md` e `docs/skills/stacks/laravel/SKILL.md`).
-- Este repositório é **independente** — nasceu com um git novo, **sem** remote do template. Não adicione
-  um remote por engano (risco de `push` no lugar errado).
+- O **remote** é `origin → github.com:xandroalmeida/quantah` (independente do template que gerou o repo).
+  Push só nele; não adicione outros remotes por engano.
 - Mudou algo durável de produto/arquitetura/design? Registre no estado (`docs/project-state/`) conforme
   a skill do papel manda.
