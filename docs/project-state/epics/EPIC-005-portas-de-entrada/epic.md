@@ -3,7 +3,7 @@ epic_id: EPIC-005
 slug: portas-de-entrada
 title: Portas de entrada — landing B2C e landing B2B
 wave: WAVE-2026-02
-status: ready
+status: done
 owner_role: po
 created_at: 2026-07-04
 updated_at: 2026-07-05
@@ -34,11 +34,11 @@ contato pela **landing Quantah Intelligence** — tudo mobile-first e em pt-BR.
 
 ## Entregável visível no fim do épico
 
-- [ ] **Landing B2C** pública (mobile-first, DS, pt-BR) com a proposta de valor ("Cada nota conta."),
+- [x] **Landing B2C** pública (mobile-first, DS, pt-BR) com a proposta de valor ("Cada nota conta."),
       **CTA para entrar/cadastrar** (→ login do EPIC-004) e **CTA para a página B2B**.
-- [ ] **Landing B2B — Quantah Intelligence** pública com a proposta ("Do cupom ao insight.") e **CTA de
+- [x] **Landing B2B — Quantah Intelligence** pública com a proposta ("Do cupom ao insight.") e **CTA de
       captação de lead** (formulário: nome, e-mail, empresa).
-- [ ] Lead B2B **persistido e visível no Backoffice** (lista simples, sob o papel operacional).
+- [x] Lead B2B **persistido e visível no Backoffice** (lista simples, sob o papel operacional).
 
 ## Fora de escopo (explicitamente)
 
@@ -67,15 +67,15 @@ contato pela **landing Quantah Intelligence** — tudo mobile-first e em pt-BR.
 Decompostas no Fluxo B (2026-07-05). Estórias verticalmente fatiadas; a última é a validação. EPIC-005 e
 EPIC-006 destravaram com o EPIC-004 `done` e podem correr em paralelo (face pública × experiência logada).
 
-- [ ] **STORY-025** — landing B2C ("Cada nota conta."), CTA de entrada (→ login do EPIC-004) + CTA para o
+- [x] **STORY-025** — landing B2C ("Cada nota conta."), CTA de entrada (→ login do EPIC-004) + CTA para o
       B2B, mobile-first, pt-BR (`requires_design`). Bloqueia STORY-028.
-- [ ] **STORY-026** — landing B2B (Quantah Intelligence, "Do cupom ao insight.") com captação de lead
+- [x] **STORY-026** — landing B2B (Quantah Intelligence, "Do cupom ao insight.") com captação de lead
       (nome, e-mail, empresa) → validação + persistência + deduplicação (`requires_design`, LGPD).
       Bloqueia STORY-027 e STORY-028.
-- [ ] **STORY-027** — lista de leads B2B no Backoffice, sob o papel operacional (RBAC do ADR-009).
+- [x] **STORY-027** — lista de leads B2B no Backoffice, sob o papel operacional (RBAC do ADR-009).
       Bloqueada por STORY-026. Bloqueia STORY-028.
-- [ ] **STORY-028** (validação) — Validação final do épico (`target_role: validador`). Bloqueada por
-      025–027. `draft` até as estórias de dependência avançarem.
+- [x] **STORY-028** (validação) — Validação final do épico (`target_role: validador`). Bloqueada por
+      025–027. Veredito **APPROVED** (relatório + checklist).
 
 ### Ordem sugerida e paralelismo
 
@@ -97,3 +97,10 @@ vivas em homologação, CTA B2C levando ao login e lead B2B capturado e visível
   (landing B2C), STORY-026 (landing B2B + captação de lead), STORY-027 (lista de leads no Backoffice),
   STORY-028 (validação). Épico → `ready`. STORY-025/026 prontas para começar (independentes); 027 espera
   026; 028 é a validação final.
+- 2026-07-05 — **EPIC-005 `done`** (PO / Alexandro): épico fechado com base no veredito **APPROVED** da
+  STORY-028 (33 pass, 4 pass com ressalva, 0 fail, 1 n/a; 4 ressalvas factuais não-bloqueantes). Todas as
+  estórias 025–028 `done`; validação `approved` sobre o sha `da7e2a0` em homologação (as duas landings e a
+  lista de leads no Backoffice vivas; loop lead→captura→Backoffice verificado de 1ª mão; suíte 295/295,
+  cobertura 95,2%, núcleos a 100%; Dusk 11/11; CI verde). Corrigida a inconsistência da STORY-028
+  (frontmatter `draft`→`done`, alinhando ao `index.json`). Commit de fechamento mantido local por decisão
+  do PO (evita disparar deploy de homologação por commit só de docs) — sem push.

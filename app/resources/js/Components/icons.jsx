@@ -107,3 +107,11 @@ export function QrIcon(props) {
         </Svg>
     );
 }
+
+export function PlusIcon(props) {
+    return (
+        <Svg {...props}>
+            <path d="M12 5v14M5 12h14" />
+        </Svg>
+    );
+}

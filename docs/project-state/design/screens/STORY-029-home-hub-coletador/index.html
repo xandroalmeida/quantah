@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protótipo — Home-hub do Coletador (STORY-029)</title>
+<!--
+  PROTÓTIPO DE VALIDAÇÃO — NÃO É CÓDIGO DE PRODUÇÃO.
+  Tokens reais do DS Quantah (design/system/tokens.md). Microcopy = screen-spec §5.
+  Estados via ?state=positivo|zero|loading|erro (ou chips no topo).
+  Viewport via ?vp=mobile|desktop (toggle no topo) — a navegação muda entre os dois.
+  Sem rede: dados mockados inline.
+-->
+<style>
+  :root{
+    --primary:#9fe870; --on-primary:#0e0f0c; --primary-active:#cdffad; --primary-pale:#e2f6d5; --primary-neutral:#c5edab;
+    --canvas:#ffffff; --canvas-soft:#e8ebe6;
+    --ink:#0e0f0c; --ink-deep:#163300; --body:#454745; --mute:#868685;
+    --positive:#2ead4b; --positive-deep:#054d28;
+    --negative:#d03238; --negative-bg:#320707;
+    --r-xl:24px; --r-lg:16px; --r-sm:8px; --r-pill:9999px;
+    --f:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:var(--canvas-soft);color:var(--ink);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:16px 12px 0;gap:12px}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:640px}
+  .bar a{font-size:13px;text-decoration:none;color:var(--body);background:var(--canvas);
+    border:1px solid var(--mute);border-radius:var(--r-pill);padding:4px 12px}
+  .bar a.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .bar .sep{width:1px;height:20px;background:var(--mute);opacity:.5}
+  .bar .lbl{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+
+  /* device frame */
+  .device{width:100%;background:var(--canvas-soft);border-radius:28px;border:1px solid #d5d9d2;
+    overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .device.mobile{max-width:412px;min-height:760px}
+  .device.desktop{max-width:900px;min-height:600px}
+
+  /* top nav (desktop) */
+  .navbar{display:flex;align-items:center;gap:24px;background:var(--canvas);border-bottom:1px solid var(--ink);
+    padding:14px 24px}
+  .navbar .brand{font-weight:900;font-size:18px;margin-right:auto}
+  .navbar a{font-size:15px;font-weight:600;color:var(--body);text-decoration:none;padding:6px 2px;
+    border-bottom:2px solid transparent}
+  .navbar a.cur{color:var(--ink);border-color:var(--primary)}
+
+  /* scroll area */
+  .scroll{flex:1;overflow-y:auto;padding:20px 16px 24px}
+  .desktop .scroll{padding:32px 24px}
+  .wrap{display:flex;flex-direction:column;gap:24px;width:100%;margin:0 auto}
+  .desktop .wrap{max-width:640px}
+
+  /* header: saudação + brand.mark */
+  .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  h1.greeting{font-size:32px;line-height:1.05;font-weight:900}
+  .mark{width:36px;height:36px;border-radius:8px;background:var(--primary);flex:none;
+    display:flex;align-items:center;justify-content:center}
+  .mark svg{width:22px;height:22px;color:var(--on-primary)}
+
+  /* saldo card (feature-dark) */
+  .saldo{background:var(--ink);color:var(--primary-neutral);border-radius:var(--r-xl);padding:24px;
+    display:flex;flex-direction:column;gap:8px}
+  .saldo .lbl{font-size:14px;color:var(--primary-neutral)}
+  .saldo .val{font-size:56px;line-height:1;font-weight:900;color:var(--primary)}
+  .saldo .hint{font-size:14px;color:var(--canvas-soft);opacity:.85}
+
+  /* primary CTA */
+  .btn{min-height:52px;border:none;border-radius:var(--r-xl);font-size:16px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;text-decoration:none;width:100%}
+  .btn.primary{background:var(--primary);color:var(--on-primary)}
+  .btn.primary:hover{background:var(--primary-active)}
+  .btn .ic{width:22px;height:22px;color:var(--on-primary)}
+  .support{font-size:14px;line-height:20px;color:var(--body);text-align:center;margin-top:-8px}
+
+  /* welcome block (estado zero) — card.content no estilo empty-state */
+  .welcome{background:var(--canvas);border-radius:var(--r-xl);padding:32px 24px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:16px}
+  .welcome .ic{width:40px;height:40px;color:var(--mute)}
+  .welcome h2{font-size:24px;font-weight:600}
+  .welcome p{font-size:16px;line-height:24px;color:var(--body);max-width:34ch}
+
+  /* skeleton — placeholders com contraste sobre a página sage */
+  .sk-saldo{height:132px;border-radius:var(--r-xl);background:#c9cec6;animation:pulse 1.2s ease-in-out infinite}
+  .sk-cta{height:52px;border-radius:var(--r-xl);background:#c9cec6;animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+  /* error snackbar (referência) */
+  .snack{display:flex;align-items:center;gap:12px;background:var(--negative-bg);color:var(--canvas);
+    border-radius:var(--r-xl);padding:14px 18px;font-size:14px}
+  .snack .ic{width:20px;height:20px;color:var(--canvas);flex:none}
+  .snack .retry{margin-left:auto;background:none;border:1px solid var(--canvas);color:var(--canvas);
+    border-radius:var(--r-pill);padding:6px 14px;font-size:14px;font-weight:600;cursor:pointer;min-height:auto;width:auto}
+
+  /* bottom nav (mobile) */
+  .bottomnav{display:flex;background:var(--canvas);border-top:1px solid var(--ink)}
+  .bottomnav a{flex:1;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2px;text-decoration:none;color:var(--mute);font-size:11px;font-weight:600}
+  .bottomnav a.cur{color:var(--ink)}
+  .bottomnav a.cur .ic{color:var(--ink)}
+  .bottomnav a .ic{width:24px;height:24px;color:var(--mute)}
+
+  svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+  <nav class="bar" id="bar"></nav>
+  <div id="app"></div>
+<script>
+  const WALLET = `<svg class="ic" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 12h.01"/><path d="M3 9h13a2 2 0 0 1 0 4H3"/></svg>`;
+  const RECEIPT = `<svg class="ic" viewBox="0 0 24 24"><path d="M5 2v20l2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>`;
+  const HOME = `<svg class="ic" viewBox="0 0 24 24"><path d="M3 10 12 3l9 7"/><path d="M5 9v11h14V9"/></svg>`;
+  const USER = `<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>`;
+  const PLUS = `<svg class="ic" viewBox="0 0 24 24" style="stroke-width:3"><path d="M12 5v14M5 12h14"/></svg>`;
+  const ALERT = `<svg class="ic" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>`;
+  // brand.mark: glifo de nota fiscal (recibo + linhas) sobre tile verde
+  const MARK = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18l2-1 2 1 2-1 2 1 2-1 2 1V3l-2 1-2-1-2 1-2-1-2 1z"/><path d="M9 8h6M9 12h6"/></svg>`;
+
+  const NOME = 'Ana';
+  const SALDO_POS = '12,47';
+
+  const bottomNav = () => `
+    <nav class="bottomnav" data-testid="screen-home-nav" aria-label="Seções">
+      <a href="#" class="cur" aria-current="page">${HOME}Início</a>
+      <a href="#">${RECEIPT}Cupons</a>
+      <a href="#">${WALLET}Carteira</a>
+      <a href="#">${USER}Perfil</a>
+    </nav>`;
+
+  const topNav = () => `
+    <nav class="navbar" aria-label="Seções">
+      <span class="brand">Quantah</span>
+      <a href="#" class="cur" aria-current="page">Início</a>
+      <a href="#">Cupons</a><a href="#">Carteira</a><a href="#">Perfil</a>
+    </nav>`;
+
+  const header = () => `
+    <div class="head">
+      <h1 class="greeting" data-testid="screen-home-greeting">Olá, ${NOME}</h1>
+      <span class="mark" data-testid="screen-home-brand" aria-hidden="true">${MARK}</span>
+    </div>`;
+
+  const saldoCard = (valor) => `
+    <section class="saldo" data-testid="screen-home-saldo-card">
+      <span class="lbl">Seu saldo</span>
+      <span class="val" data-testid="screen-home-saldo">R$ ${valor}</span>
+      <span class="hint">Cada nota conta.</span>
+    </section>`;
+
+  const ctaColetar = (tid) => `
+    <a class="btn primary" href="#" data-testid="${tid}"><span class="ic" aria-hidden="true">${PLUS}</span>Coletar cupom</a>`;
+
+  const support = () => `
+    <p class="support" data-testid="screen-home-support">Registre mais uma nota e aumente seu cashback.</p>`;
+
+  const welcome = () => `
+    <section class="welcome" data-testid="screen-home-welcome">
+      ${RECEIPT}
+      <h2>Comece a ganhar cashback</h2>
+      <p>Registre uma nota fiscal e ganhe 0,1% de cada compra de volta.</p>
+      ${ctaColetar('screen-home-cta')}
+    </section>`;
+
+  const skeleton = () => `
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div class="sk-saldo"></div>
+      <div class="sk-cta"></div>
+    </div>`;
+
+  const errorSnack = () => `
+    <div class="snack" role="status" aria-live="polite">
+      ${ALERT}<span>Não foi possível carregar sua página.</span>
+      <button class="retry" onclick="go('positivo')">Tentar de novo</button>
+    </div>`;
+
+  const BODY = {
+    positivo: () => saldoCard(SALDO_POS) + ctaColetar('screen-home-cta') + support(),
+    zero:     () => saldoCard('0,00') + welcome(),
+    loading:  () => skeleton(),
+    erro:     () => saldoCard(SALDO_POS) + errorSnack(),
+  };
+
+  function params(){ return new URLSearchParams(location.search); }
+  function go(s){ const p=params(); p.set('state',s); location.search=p.toString(); }
+
+  function render(){
+    const p = params();
+    const state = p.get('state') || 'positivo';
+    const vp = p.get('vp') || 'mobile';
+    const nav = vp==='desktop' ? topNav() : '';
+    const foot = vp==='desktop' ? '' : bottomNav();
+    const showHead = state!=='loading';
+    document.getElementById('app').innerHTML = `
+      <div class="device ${vp}" data-testid="screen-home">
+        ${nav}
+        <div class="scroll">
+          <div class="wrap">
+            ${showHead ? header() : ''}
+            ${(BODY[state]||BODY.positivo)()}
+          </div>
+        </div>
+        ${foot}
+      </div>`;
+    const states = Object.keys(BODY);
+    document.getElementById('bar').innerHTML =
+      `<span class="lbl">estado</span>` +
+      states.map(k=>`<a href="?state=${k}&vp=${vp}" class="${k===state?'on':''}">${k}</a>`).join('') +
+      `<span class="sep"></span><span class="lbl">tela</span>` +
+      ['mobile','desktop'].map(v=>`<a href="?state=${state}&vp=${v}" class="${v===vp?'on':''}">${v}</a>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

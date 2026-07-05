@@ -184,7 +184,7 @@
       "slug": "portas-de-entrada",
       "title": "Portas de entrada — landing B2C e landing B2B",
       "wave": "WAVE-2026-02",
-      "status": "ready",
+      "status": "done",
       "path": "epics/EPIC-005-portas-de-entrada/epic.md",
       "story_ids": [
         "STORY-025",
@@ -192,7 +192,12 @@
         "STORY-027",
         "STORY-028"
       ],
-      "validation_report": null,
+      "validation_report": {
+        "path": "epics/EPIC-005-portas-de-entrada/validation/report.md",
+        "verdict": "approved",
+        "validated_at": "2026-07-05",
+        "validated_by": "validador (sessão story-028)"
+      },
       "created_at": "2026-07-04",
       "updated_at": "2026-07-05"
     },
@@ -201,12 +206,17 @@
       "slug": "jornada-b2c",
       "title": "Jornada do Coletador — home-hub e fluxo completo pós-login",
       "wave": "WAVE-2026-02",
-      "status": "draft",
+      "status": "ready",
       "path": "epics/EPIC-006-jornada-b2c/epic.md",
-      "story_ids": [],
+      "story_ids": [
+        "STORY-029",
+        "STORY-030",
+        "STORY-031",
+        "STORY-032"
+      ],
       "validation_report": null,
       "created_at": "2026-07-04",
-      "updated_at": "2026-07-04"
+      "updated_at": "2026-07-05"
     }
   ],
   "stories": [
@@ -779,14 +789,100 @@
       "target_role": "validador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "validador-story028",
       "sprint_id": null,
       "path": "epics/EPIC-005-portas-de-entrada/stories/STORY-028-validacao-epic-005.md",
       "blocked_by": [
         "STORY-025",
         "STORY-026",
         "STORY-027"
+      ],
+      "blocks": [],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-029",
+      "epic_id": "EPIC-006",
+      "title": "Home-hub do Coletador como destino pós-login (saldo + CTA de coleta)",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": "SCREEN-STORY-029-home-hub-coletador",
+      "status": "in_review",
+      "owner_agent": "claude-story029",
+      "sprint_id": null,
+      "path": "epics/EPIC-006-jornada-b2c/stories/STORY-029-home-hub-coletador.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-030",
+        "STORY-031",
+        "STORY-032"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-030",
+      "epic_id": "EPIC-006",
+      "title": "Navegação coesa da área B2C (home ↔ coleta ↔ carteira/extrato ↔ saque)",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": "SCREEN-STORY-030-navegacao-b2c",
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-006-jornada-b2c/stories/STORY-030-navegacao-coesa-b2c.md",
+      "blocked_by": [
+        "STORY-029"
+      ],
+      "blocks": [
+        "STORY-031",
+        "STORY-032"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-031",
+      "epic_id": "EPIC-006",
+      "title": "Jornada contínua — saldo reflete a coleta e loop coletar → saldo → extrato → saque",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-006-jornada-b2c/stories/STORY-031-jornada-continua-ponta-a-ponta.md",
+      "blocked_by": [
+        "STORY-029",
+        "STORY-030"
+      ],
+      "blocks": [
+        "STORY-032"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-032",
+      "epic_id": "EPIC-006",
+      "title": "Validação final do EPIC-006 (Jornada do Coletador)",
+      "type": "validation",
+      "target_role": "validador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-006-jornada-b2c/stories/STORY-032-validacao-epic-006.md",
+      "blocked_by": [
+        "STORY-029",
+        "STORY-030",
+        "STORY-031"
       ],
       "blocks": [],
       "created_at": "2026-07-05",
@@ -1167,6 +1263,18 @@
         "related_adrs": [
           "ADR-011"
         ]
+      },
+      {
+        "id": "IDR-011",
+        "title": "Destino pós-login — home-hub reaproveitando a rota `dashboard` (sem introduzir /inicio)",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-011-destino-pos-login-reaproveita-rota-dashboard.md",
+        "decided_at": "2026-07-05",
+        "decided_by": "programador",
+        "related_story": "STORY-029",
+        "related_adrs": [
+          "ADR-010"
+        ]
       }
     ],
     "ddr": [
@@ -1480,6 +1588,34 @@
           "footer"
         ],
         "owner_designer": "designer",
+        "created_at": "2026-07-05",
+        "updated_at": "2026-07-05"
+      },
+      {
+        "id": "SCREEN-STORY-029-home-hub-coletador",
+        "story": "STORY-029",
+        "epic": "EPIC-006",
+        "status": "ready",
+        "path": "design/screens/STORY-029-home-hub-coletador/screen-spec.md",
+        "prototype_path": "design/screens/STORY-029-home-hub-coletador/index.html",
+        "prototype_last_validated_at": "2026-07-05",
+        "viewports": [
+          "mobile",
+          "desktop"
+        ],
+        "related_ddrs": [
+          "DDR-004"
+        ],
+        "ds_components_used": [
+          "card.feature-dark",
+          "button.primary",
+          "card.content",
+          "empty-state",
+          "nav.bottom",
+          "nav.bar",
+          "brand.mark"
+        ],
+        "owner_designer": "claude-story029",
         "created_at": "2026-07-05",
         "updated_at": "2026-07-05"
       }

@@ -3,10 +3,10 @@ epic_id: EPIC-004
 slug: acesso-e-areas
 title: Acesso e áreas — identidade do Coletador e segmentação de públicos
 wave: WAVE-2026-02
-status: ready
+status: done
 owner_role: po
 created_at: 2026-07-04
-updated_at: 2026-07-04
+updated_at: 2026-07-05
 target_completion: 2026-07-25
 ---
 
@@ -90,8 +90,9 @@ correr em paralelo; a validação (STORY-024) é a última.
       Breeze reescrito no DS, pt-BR via i18n, placeholder do Google; Unit+Feature 251/251, Dusk 61/61; homolog verde.
 - [x] **STORY-022** — login com Google (fluxo OAuth + modelo de contas). **`done`** — Socialite + contas
       por colunas (ADR-010); verificado ao vivo em homolog (Google login OK; e-mail via Gmail SMTP).
-- [ ] **STORY-023** — segmentação das 3 áreas (B2C/B2B/Backoffice) + guardas de acesso.
-- [ ] **STORY-024** (validação) — Validação final do épico (`target_role: validador`).
+- [x] **STORY-023** — segmentação das 3 áreas (B2C/B2B/Backoffice) + guardas de acesso. **`done`**.
+- [x] **STORY-024** (validação) — Validação final do épico (`target_role: validador`). **`done`** —
+      veredito `approved_with_pending` (0 bloqueantes; F-NB-1 não-bloqueante → WISH-004).
 
 ## Validação final
 
@@ -128,3 +129,12 @@ resíduo de inglês/Laravel.
   ADR-010); driver fake nos testes/CI, real em homolog via secrets individuais injetados no deploy.
   Confirmação de e-mail ligada; e-mail (reset + verificação) enviando via Gmail SMTP em homolog.
   Verificado ao vivo por Alexandro. Próximo: STORY-023 (segmentação das 3 áreas) → STORY-024 (validação).
+- 2026-07-05 — **STORY-023 `done`** + **STORY-024 `done`** (validador): segmentação das 3 áreas
+  (B2C/B2B/Backoffice) por guardas ativa; validação final com veredito **`approved_with_pending`** —
+  0 fails bloqueantes, 1 não-bloqueante (F-NB-1: CI sem scanner de deps/segredos → registrado em
+  **WISH-004**). Evidência de 1ª mão sobre o sha `e1d97f0` (277 unit+feature/1100 asserções, cobertura
+  global 95,0%, núcleo a 100%; Dusk 69/69; CI run `28727597678` verde). Relatório em `validation/report.md`.
+- 2026-07-05 — **EPIC-004 `done`** (PO / Alexandro): épico fechado com base no veredito (pendência
+  F-NB-1 não-bloqueante endereçada como WISH-004). Commit de docs da validação (`8b4dad6`) mantido local
+  por decisão do PO (evita disparar deploy de homolog por commit só de docs). EPIC-005 e EPIC-006
+  destravados para decomposição (Fluxo B).

@@ -8,7 +8,7 @@ tags: [debito, enablement, dx]
 spec_link: null
 rejected_reason: null
 created_at: 2026-07-02
-updated_at: 2026-07-02
+updated_at: 2026-07-05
 ---
 
 # WISH-001 — Provar "sobe com um comando" (make up) a partir de clone limpo
@@ -46,3 +46,6 @@ passo manual" dos padrões de qualidade.
 ## Notas / histórico
 
 - `2026-07-02` — Captura inicial. Origem: ressalva factual da validação do EPIC-000.
+- `2026-07-05` — **Recorrência.** A validação do EPIC-005 registrou a mesma lacuna (ressalva R3: `make up`
+  presente e stack no ar, mas não re-testado em máquina limpa). Reforça este item — não gera WISH novo.
+  Ref.: `epics/EPIC-005-portas-de-entrada/validation/report.md` (R3).

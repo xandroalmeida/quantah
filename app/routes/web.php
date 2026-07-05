@@ -4,6 +4,7 @@ use App\Http\Controllers\Backoffice\LeadsController;
 use App\Http\Controllers\Backoffice\SaquesController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\ColetaController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Intelligence\LeadController;
 use App\Http\Controllers\Interno\MetricasController;
 use App\Http\Controllers\ProfileController;
@@ -99,10 +100,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Dashboard pós-login (Breeze) — exige e-mail verificado (STORY-022).
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Home-hub do Coletador (STORY-029 · EPIC-006) — DESTINO PÓS-LOGIN da área B2C.
+// Substitui a página genérica de scaffolding (Breeze Dashboard) pelo centro da jornada:
+// saldo da carteira (EPIC-003) + CTA de coleta (EPIC-002). Mantém o nome `dashboard` e a
+// guarda `verified` (STORY-022) — é para onde todos os fluxos de acesso já apontam. A
+// navegação coesa (renomear a URL, atalhos, ≤2 toques) é a STORY-030.
+Route::get('/dashboard', [HomeController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // ---------------------------------------------------------------------------
 // Área Backoffice — Operação interna (AUTENTICADO + RBAC · ADR-009/ADR-010 §3)
