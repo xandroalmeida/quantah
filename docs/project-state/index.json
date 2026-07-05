@@ -214,7 +214,22 @@
         "STORY-031",
         "STORY-032"
       ],
-      "validation_report": null,
+      "validation_report": {
+        "path": "epics/EPIC-006-jornada-b2c/validation/report.md",
+        "verdict": "approved",
+        "validated_at": "2026-07-05",
+        "validated_by": "validador (sessão claude-story032)",
+        "deployed_sha": "905197d",
+        "blockers": [],
+        "non_blocking_findings": [
+          "R1: a11y AA verificada via tokens/estrutura do DS + E2E (alvos ≥48px, foco, aria); sem auditoria axe/Lighthouse automatizada.",
+          "R2: jornada autenticada verificada pelo E2E Dusk (browser real) sobre o sha deployado, não por login manual em homolog (sem credencial de Coletador semeada).",
+          "R3: no E2E, a coleta que credita é representada por cupom validado + serviço real de crédito (validação SEFAZ assíncrona fora do browser; UI da coleta para em pendente).",
+          "R4: EmailVerificationNotificationController 0% / EmailVerificationPromptController 66,7% são controllers Breeze pré-existentes (EPIC-004); EPIC-006 só trocou route('dashboard')→route('inicio') neles.",
+          "R5: partials do Perfil mantêm estilo Breeze cinza dentro da casca DS (logo Laravel removido; restyle é dívida fora do escopo de navegação).",
+          "R6: strings novas usam chave = string-fonte em inglês (IDR-010); texto renderizado 100% pt-BR."
+        ]
+      },
       "created_at": "2026-07-04",
       "updated_at": "2026-07-05"
     }
@@ -875,8 +890,8 @@
       "target_role": "validador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-story032",
       "sprint_id": null,
       "path": "epics/EPIC-006-jornada-b2c/stories/STORY-032-validacao-epic-006.md",
       "blocked_by": [

@@ -8,8 +8,8 @@ type: validation
 target_role: validador
 requires_design: false
 design_screen_id: null
-status: draft
-owner_agent: null
+status: done
+owner_agent: claude-story032
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: M
@@ -80,10 +80,23 @@ apenas `validation_report`; a transição EPIC-006 `in_review → done` é decis
 ## Notas do agente (preenchido durante/após execução)
 
 ### Veredito
-- <preenchido na execução>
+- 2026-07-05 — **APPROVED.** 32 `pass`, 6 `pass com ressalva`, 0 `fail` (0 bloqueantes), 2 `n/a` justificado.
+  Relatório: `validation/report.md`; checklist autorado: `validation/checklist.md`. `EPIC-006.validation_report`
+  setado no `index.json`. **Não** alterei o status do épico (transição `in_review → done` é do PO).
 
 ### Evidências
-- <preenchido na execução>
+- 2026-07-05 — Sha deployado em homologação: `905197d` (run de deploy 28745142487 = success). Homolog:
+  `/up` 200; `/` 200; `/login` branded sem logo Laravel; `/inicio` anônimo → 302 `/login`; `/dashboard` → 404;
+  rotas logadas anônimas → 302 `/login`.
+- 2026-07-05 — Suíte 303/303 verde (1403 asserções). Cobertura geral 95,2%; `HomeController` 100%; núcleos
+  `ExtratoCarteira`/`CreditarCashbackService` 100%. E2E Dusk (browser real, 390px): `HomeHubTest`,
+  `NavegacaoB2cTest`, `JornadaContinuaTest` — job "E2E (Dusk): success" nos runs de deploy.
+- 2026-07-05 — Cada CA das STORY-029/030/031 mapeado a ≥1 teste com asserção real (ver tabela do bloco 1 no
+  relatório).
 
 ### Ressalvas / limitações
-- <preenchido na execução>
+- 2026-07-05 — 6 ressalvas factuais, nenhuma bloqueante (detalhadas no relatório): R1 a11y sem axe automatizado;
+  R2 jornada autenticada via E2E (não login manual — sem credencial semeada); R3 coleta representada no E2E
+  (validação SEFAZ assíncrona fora do browser); R4 cobertura de 2 controllers Breeze pré-existentes do EPIC-004;
+  R5 partials do Perfil com estilo Breeze dentro da casca (logo Laravel removido); R6 chaves i18n em inglês
+  (IDR-010). Não corrigi nada (fronteira de papel) — registrado para o PO decidir.
