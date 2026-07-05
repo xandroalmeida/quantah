@@ -2,7 +2,7 @@
 id: SCREEN-STORY-030-navegacao-b2c
 story: STORY-030
 epic: EPIC-006-jornada-b2c
-status: ready                # protótipo validado pelo humano (Alexandro) em 2026-07-05
+status: shipped              # implementada e mergeada na main (STORY-030); protótipo validado 2026-07-05
 created_at: 2026-07-05
 updated_at: 2026-07-05
 owner_designer: claude-story030
@@ -212,3 +212,4 @@ Vocabulário e tom: `voice-and-tone.md` (App do Colaborador — direto, simples,
 |---|---|---|---|
 | 2026-07-05 | criação (spec + protótipo v1) | claude-story030 | rabisco → spec do padrão de navegação; DDR-007 proposto |
 | 2026-07-05 | validação humana — **aprovado** | Alexandro | DDR-007 aceito; atalho de saque = "Prêmios"; URL renomeada p/ /inicio → `ready` |
+| 2026-07-05 | implementada (casca AppLayout) + deploy homolog | claude-story030 | 5 telas na casca; scaffolding Breeze removido → `shipped` |

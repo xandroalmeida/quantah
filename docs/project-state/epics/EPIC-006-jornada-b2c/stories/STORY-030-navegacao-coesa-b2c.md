@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-030-navegacao-b2c   # rabisco em draft (design/screens/STORY-030-navegacao-b2c/)
-status: in_review
+status: done
 owner_agent: claude-story030
 created_at: 2026-07-05
 updated_at: 2026-07-05
@@ -149,6 +149,12 @@ Siga `docs/skills/po/references/agent-task-format.md`. `in_progress` ao iniciar 
   (CA-3), nenhuma rota logada com logo do Laravel (CA-4). Toda a suíte Dusk verde após o refactor da casca.
 
 ### Links de evidência
-- Commit(s) na `main` (desenvolvimento direto na main). Pipeline CI + Deploy homologação: <a preencher>.
+- **Commit na `main`:** `a07fed8` (desenvolvimento direto na main, conforme diretriz do PO).
+- **Pipeline CI:** run 28744704471 (Testes+build ✅, E2E Dusk ✅, **Deploy homologação ✅**).
+- **Homologação verificada (2026-07-05):** `https://quantah-homolog.34.39.229.117.sslip.io` — `/up` 200;
+  `/inicio` anônimo → 302 `/login` (home renomeada + guarda ao vivo); `/dashboard` → **404** (rota antiga
+  removida, rename confirmado); `/coletar`,`/carteira`,`/carteira/saque`,`/profile` anônimos → 302 `/login`.
+  A navegação/atalhos ponta a ponta são cobertos pelo E2E Dusk (CI verde) e serão revalidados de 1ª mão na
+  STORY-032.
 - Design: `design/screens/STORY-030-navegacao-b2c/` (spec + protótipo, validado 2026-07-05). DDR:
   `decisions/ddr/DDR-007-casca-de-navegacao-da-area-logada.md` (accepted). IDR-011 atualizado.
