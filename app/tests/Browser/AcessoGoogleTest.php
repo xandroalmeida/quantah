@@ -44,7 +44,7 @@ class AcessoGoogleTest extends DuskTestCase
                 ->assertDontSee('Em breve') // placeholder da STORY-021 saiu
                 ->click('[data-testid=acesso-google-btn]')
                 ->waitForLocation('/dashboard', 10)
-                ->assertSee('Você está logado!')
+                ->assertSee('Seu saldo') // destino pós-login é a home-hub (STORY-029), não o scaffolding
                 ->logout(); // isola a sessão para os próximos testes
         });
 
@@ -65,7 +65,7 @@ class AcessoGoogleTest extends DuskTestCase
             // e-mail controlado via query (o fake reconstrói a identidade).
             $browser->visit('/auth/google/redirect?email='.self::EMAIL_LINK.'&id=gid-e2e')
                 ->waitForLocation('/dashboard', 10)
-                ->assertSee('Você está logado!')
+                ->assertSee('Seu saldo') // destino pós-login é a home-hub (STORY-029), não o scaffolding
                 ->logout(); // isola a sessão para os próximos testes
         });
 

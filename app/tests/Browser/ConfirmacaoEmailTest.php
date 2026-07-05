@@ -50,7 +50,7 @@ class ConfirmacaoEmailTest extends DuskTestCase
 
             $browser->visit($url)
                 ->waitForLocation('/dashboard', 10)
-                ->assertSee('Você está logado!')
+                ->assertSee('Seu saldo') // destino pós-login é a home-hub (STORY-029), não o scaffolding
                 ->logout();
         });
 

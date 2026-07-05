@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-029-home-hub-coletador   # rabisco em draft (design/screens/STORY-029-home-hub-coletador/)
-status: ready
-owner_agent: null
+status: in_review
+owner_agent: claude-story029
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: M
@@ -125,14 +125,42 @@ frontmatter e no `index.json`. Ao terminar, preencha "Notas do agente", marque `
 
 ## Notas do agente (preenchido durante/após execução)
 
+### Sync Designer↔Programador (modelo paralelo, PDR-002)
+- 2026-07-05 — Mesma sessão nos dois papéis. Rabisco → spec/protótipo aprovados pelo humano antes do
+  código (portão de design). Alinhamento técnico: saldo vem server-rendered como prop Inertia (mesmo
+  read-model `ExtratoCarteira` de `/carteira`) → sem loading client-side (skeleton só referência); nome
+  da saudação vem do `auth.user` já compartilhado. Estados desenhados: **positivo** e **zero/1º acesso**.
+
 ### Decisões tomadas
-- <data> — <decisão>
+- 2026-07-05 — **Destino pós-login reaproveita a rota `dashboard`** (renderiza `Home/Hub` em vez da página
+  genérica; mantém nome/guarda `['auth','verified']`). Um ponto de troca move todos os fluxos de login de
+  uma vez, sem tocar nos 8 controllers de acesso nem no fluxo de verificação de e-mail. Removida a
+  `Pages/Dashboard.jsx` (scaffolding). Rename da URL para `/inicio` e casca de nav compartilhada ficam na
+  STORY-030. Registrado em **IDR-011**.
+- 2026-07-05 — **Textos via i18n (`t()`, IDR-010):** as strings novas da tela usam chave = string-fonte em
+  inglês em `lang/pt_BR.json` (reaproveitei `Every receipt counts.` → "Cada nota conta."; corrigi
+  `Home` → "Início"). CTA "Coletar cupom" (fiel ao CA-3, confirmado pelo humano). Rótulos de nav seguem
+  como nas telas irmãs (Carteira/Privacidade/Showcase); a STORY-030 os centraliza no shell compartilhado.
+- 2026-07-05 — **`brand.mark`** (DDR-004) no topo substituindo qualquer resíduo de logo do Laravel;
+  saldo no `card.feature-dark` (único momento de marca); CTA verde `button.primary` (único accent).
 
 ### Descobertas
-- <data> — <gotcha>
+- 2026-07-05 — O `app.blade.php` (raiz Inertia/Breeze) faz `@vite` do componente de página atual, então a
+  página nova (`Home/Hub.jsx`) precisa estar no manifest do Vite: rodar `npm run build` antes dos testes
+  Feature que renderizam a rota (senão `ViteException: Unable to locate file in Vite manifest`).
+- 2026-07-05 — 3 testes Dusk do EPIC-004 asseguravam o conteúdo da página genérica ("Você está logado!")
+  após o login (`AcessoGoogleTest` ×2, `ConfirmacaoEmailTest`). Atualizados para asserir a home-hub
+  ("Seu saldo") — o destino pós-login mudou legitimamente nesta estória. Reforça a cobertura da CA-1.
 
 ### Cobertura final
-- Unitários: <%> · E2E: <cenários / evidência>
+- **Unitários/Feature:** suíte completa verde — 299 passed, 1304 assertions. Novos: `HomeHubTest` (Feature,
+  4 casos: guarda de acesso, destino = `Home/Hub`, saldo 12,47 e saldo zero). `HomeController` é fino e
+  100% exercitado (a meta ≥80%/≥98% é medida no PR/CI). Sem runner JS (IDR-003); a UI é coberta por E2E.
+- **E2E (Dusk, browser real, viewport mobile 390px):** `HomeHubTest` — 4 casos passando: saudação+saldo
+  (CA-1/2/4, sem "Você está logado!" e `assertSourceMissing` do logo Laravel), CTA "Coletar cupom" →
+  `/coletar` (CA-3), 1º acesso (saldo zero + boas-vindas + CTA), anônimo → `/login` (CA-5).
 
 ### Links de evidência
-- PR: <url> · Pipeline: <url> · Deploy de homologação: <url>
+- PR: <a preencher ao abrir> · Pipeline: <a preencher> · Deploy de homologação: <a preencher/verificar>
+- Spec/protótipo: `design/screens/STORY-029-home-hub-coletador/` (screen-spec.md + index.html, validado
+  2026-07-05). IDR: `decisions/idr/IDR-011-destino-pos-login-reaproveita-rota-dashboard.md`.
