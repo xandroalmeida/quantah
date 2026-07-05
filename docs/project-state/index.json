@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-07-05T12:00:00Z",
+  "generated_at": "2026-07-05T13:40:00Z",
   "project": {
     "name": "Quantah",
     "current_wave": "WAVE-2026-02",
@@ -38,7 +38,8 @@
       "epic_ids": [
         "EPIC-004",
         "EPIC-005",
-        "EPIC-006"
+        "EPIC-006",
+        "EPIC-007"
       ]
     }
   ],
@@ -233,6 +234,24 @@
         ]
       },
       "created_at": "2026-07-04",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "EPIC-007",
+      "slug": "refinamento-experiencia-b2c-mobile",
+      "title": "Refinamento da experiência B2C mobile — casca app-like, cupom detalhado e ajustes de jornada",
+      "wave": "WAVE-2026-02",
+      "status": "ready",
+      "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/epic.md",
+      "story_ids": [
+        "STORY-033",
+        "STORY-034",
+        "STORY-035",
+        "STORY-036",
+        "STORY-037"
+      ],
+      "validation_report": null,
+      "created_at": "2026-07-05",
       "updated_at": "2026-07-05"
     }
   ],
@@ -900,6 +919,104 @@
         "STORY-029",
         "STORY-030",
         "STORY-031"
+      ],
+      "blocks": [],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-033",
+      "epic_id": "EPIC-007",
+      "title": "Casca mobile app-like — nav.bottom fixo e visível, header sem corte e modo standalone",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-033-casca-mobile-app-like.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-037"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-034",
+      "epic_id": "EPIC-007",
+      "title": "Cupom com contexto — estabelecimento e data na listagem + tela de detalhe com itens",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": "SCREEN-STORY-034-detalhe-cupom",
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-034-cupom-listagem-e-detalhe.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-037"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-035",
+      "epic_id": "EPIC-007",
+      "title": "Validade parametrizável na coleta — rejeitar cupom com mais de N dias (default 7)",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-035-validade-cupom-parametrizavel.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-037"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-036",
+      "epic_id": "EPIC-007",
+      "title": "Coerência de jornada — remover excluir conta e renomear o menu \"Cupons\" para escanear",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-036-coerencia-perfil-e-navegacao.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-037"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-037",
+      "epic_id": "EPIC-007",
+      "title": "Validação final do EPIC-007 (Refinamento da experiência B2C mobile)",
+      "type": "validation",
+      "target_role": "validador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-037-validacao-epic-007.md",
+      "blocked_by": [
+        "STORY-033",
+        "STORY-034",
+        "STORY-035",
+        "STORY-036"
       ],
       "blocks": [],
       "created_at": "2026-07-05",

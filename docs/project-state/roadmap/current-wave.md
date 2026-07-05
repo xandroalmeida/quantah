@@ -27,7 +27,8 @@ real** com usuários e, com ele, o **primeiro baseline** da north-star.
 |---|---|---|---|---|
 | 1 | **EPIC-004 Acesso e áreas** | ✅ done | Identidade de acesso do Coletador + 3 áreas segmentadas | Coletador entra por login de marca (Google ou e-mail/senha), em pt-BR, sem logo do Laravel; áreas B2C/B2B/Backoffice separadas por guardas — em homologação. Validado 2026-07-05 (`approved_with_pending`; F-NB-1 → WISH-004). |
 | 2 | **EPIC-005 Portas de entrada** | ✅ done | Landing B2C e landing B2B (Quantah Intelligence) | Visitante entende a proposta; CTA B2C leva ao login; lead B2B capturado e visível no backoffice — em homologação. Validado 2026-07-05 (`approved`; 4 ressalvas não-bloqueantes → WISH-005/006 e reforço a WISH-001). |
-| 3 | **EPIC-006 Jornada do Coletador** | 🔜 ready | Home-hub e fluxo completo pós-login (mobile) | Coletador logado chega à home-hub e percorre coletar → saldo → extrato → saque, sem página genérica — em homologação. Decomposto 2026-07-05 (STORY-029/030/031 + validação 032). |
+| 3 | **EPIC-006 Jornada do Coletador** | ✅ done | Home-hub e fluxo completo pós-login (mobile) | Coletador logado chega à home-hub e percorre coletar → saldo → extrato → saque, sem página genérica — em homologação. Validado 2026-07-05 (`approved`; 6 ressalvas não-bloqueantes R1–R6). |
+| 4 | **EPIC-007 Refinamento B2C mobile** | 🔜 ready | Casca app-like + cupom detalhado + ajustes de jornada | No celular: `nav.bottom` fixo em todas as telas, detalhe do cupom com itens em 1 toque, cupom fora da janela rejeitado, sem excluir conta, menu de escanear renomeado — em homologação. Decomposto 2026-07-05 (STORY-033/034/035/036 + validação 037). |
 
 ## Justificativa da sequência
 
@@ -74,10 +75,16 @@ CI, observabilidade RED) que pode ou não entrar nesta onda.
 
 ## Próximo passo
 
-**EPIC-004 e EPIC-005 fechados** (`done`, validados 2026-07-05). **EPIC-006 decomposto** (Fluxo B,
-2026-07-05) e em `ready`: STORY-029 (home-hub) → STORY-030 (navegação coesa) → STORY-031 (jornada contínua
-ponta a ponta) → STORY-032 (validação). É o **último épico da onda** — fechá-lo completa a WAVE-2026-02 e
-habilita o piloto. STORY-029/030 são `requires_design` (brief em `EPIC-006/design-handoff.md`): Designer e
-Programador pegam juntas pelo modelo paralelo. Housekeeping das ressalvas do EPIC-005 registrado na wishlist
-(WISH-005 chaves i18n no payload, WISH-006 dashboard de observabilidade; R3 reforça WISH-001; WISH-004
-segue pendente). Commits de docs mantidos locais por decisão do PO (sem push).
+**EPIC-004, EPIC-005 e EPIC-006 fechados** (`done`, validados 2026-07-05). **EPIC-007 adicionado à onda e
+decomposto** (Fluxos A+B, 2026-07-05) e em `ready`: refinamento da experiência B2C mobile a partir de 9
+ajustes do teste no celular (Alexandro), **consolidados em 4 frentes** + validação — STORY-033 (casca mobile
+app-like) · STORY-034 (cupom: estabelecimento/data na listagem + tela de detalhe com itens) · STORY-035
+(validade parametrizável na coleta) · STORY-036 (remover excluir conta + renomear menu de escanear) →
+STORY-037 (validação). É o **último épico da onda** — fechá-lo completa a WAVE-2026-02 e habilita o piloto
+com menos atrito. STORY-034 é `requires_design` (brief em `EPIC-007/design-handoff.md`): Designer e
+Programador pegam juntas pelo modelo paralelo. Ordem sugerida: 033 e 035 primeiro (baixo risco, isoladas),
+034 em paralelo (maior, tem dado novo + tela), 036 rápida; 037 fecha. Possíveis IDRs em 034 (captura do
+nome do emitente na extração SEFAZ + coluna `nome_emitente`) e 035 (semântica da janela de validade).
+Housekeeping das ressalvas do EPIC-005 registrado na wishlist (WISH-005 chaves i18n no payload, WISH-006
+dashboard de observabilidade; R3 reforça WISH-001; WISH-004 segue pendente). Commits de docs mantidos locais
+por decisão do PO (sem push).
