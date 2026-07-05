@@ -241,7 +241,7 @@
       "slug": "refinamento-experiencia-b2c-mobile",
       "title": "Refinamento da experiência B2C mobile — casca app-like, cupom detalhado e ajustes de jornada",
       "wave": "WAVE-2026-02",
-      "status": "ready",
+      "status": "done",
       "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/epic.md",
       "story_ids": [
         "STORY-033",
@@ -250,7 +250,12 @@
         "STORY-036",
         "STORY-037"
       ],
-      "validation_report": null,
+      "validation_report": {
+        "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/validation/report.md",
+        "verdict": "approved",
+        "validated_by": "claude-validador",
+        "validated_at": "2026-07-05"
+      },
       "created_at": "2026-07-05",
       "updated_at": "2026-07-05"
     }
@@ -1008,8 +1013,8 @@
       "target_role": "validador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-validador",
       "sprint_id": null,
       "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-037-validacao-epic-007.md",
       "blocked_by": [

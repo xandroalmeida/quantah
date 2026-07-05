@@ -8,8 +8,8 @@ type: validation
 target_role: validador
 requires_design: false
 design_screen_id: null
-status: draft
-owner_agent: null
+status: done
+owner_agent: claude-validador
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: M
@@ -77,9 +77,23 @@ Siga `agent-task-format.md` e o método do validador. Não corrija código; regi
 
 ## Notas do agente (preenchido durante/após execução)
 
-> _(a preencher)_
-
 ### Veredito
+
+**APPROVED.** 19 passes, 3 passes com ressalva, 0 fails, 2 n/a justificados. Estórias 033–036 `done`;
+suíte completa verde (Pest 323/323; Dusk 90/90); cobertura total 95,2% e código novo ≥ 87,5%.
+
 ### Ressalvas (não-bloqueantes)
+
+- **R1** — Rejeição por prazo é aferida na extração assíncrona; a confirmação de captura não mostra o
+  motivo de forma síncrona em produção (microcopy pronta/ancorada — IDR-013).
+- **R2** — Homologação no aparelho não exercitada (PO manteve commits locais, repo sem remote).
+- **R3** — Foco índigo do Breeze nos formulários do Perfil permanece (dívida R5 do EPIC-006, fora de escopo).
+
 ### Bloqueios
+
+Nenhum.
+
 ### Links de evidência
+
+- Relatório: `validation/report.md`; checklist: `validation/checklist.md`.
+- Suíte: `sail artisan test` (323) + `sail artisan dusk` (90); cobertura `--coverage` 95,2%.
