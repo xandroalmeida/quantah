@@ -7,23 +7,17 @@ import { CameraIcon, FlashIcon } from '@/Components/icons';
  * térmica ruim (STORY-009; reforço pós-campo: cupom desbotado/brilhoso não lê).
  *
  * A assinatura do cupom (`p=chave|versão|amb|token|hash`) só existe DENTRO do QR —
- * não há como recuperá-la se o QR não for lido. Por isso o foco é ler o QR de fato,
- * do decodificador mais tolerante ao mais compatível:
- *   1. `BarcodeDetector` nativo (Android Chrome) — decodifica QR sujo/torto muito
- *      melhor e mais barato que JS puro.
- *   2. `@zxing/browser` por import dinâmico (iOS Safari e afins) — fica fora do
- *      bundle inicial; só baixa quando a câmera abre (IDR-003).
+ * não há como recuperá-la se o QR não for lido. Foco: ler o QR de fato.
+ *   1. `BarcodeDetector` nativo (Android Chrome) no vídeo ao vivo — rápido.
+ *   2. `@zxing/browser` por import dinâmico (iOS Safari e afins).
  *
- * A câmera é aberta com constraints próprias (traseira + alta resolução + foco
- * contínuo) para termos acesso ao track e oferecer **lanterna** (mata o reflexo do
- * papel térmico, a maior causa de falha) e **tirar foto** — que NÃO abre a câmera
- * nativa (isso saía do app e disputava o hardware, voltando vazio) NEM usa a captura
- * de foto do track (que pendura em vários Androids). Em vez disso congela o quadro
- * atual do vídeo num canvas de forma síncrona (drawImage, que não trava) e decodifica
- * com mais esforço (zxing TRY_HARDER + realce de contraste), lendo onde o loop ao vivo
- * não fecha. Sempre termina num desfecho visível — nunca fica "sem fazer nada".
+ * "Tirar foto" congela o quadro atual do vídeo num canvas de forma síncrona
+ * (drawImage não trava) e decodifica com mais esforço (zxing TRY_HARDER + realce de
+ * contraste). NÃO usa a captura de foto do track (que pendura em vários Androids) nem
+ * abre a câmera nativa (input capture — saía do app e disputava o hardware).
  *
- * Falha de câmera vira `onError(kind)` para a página cair no caminho de colar (CA-2).
+ * DIAGNÓSTICO: enquanto investigamos a foto que "não faz nada", há um painel visível
+ * que registra cada passo e qualquer erro (nome + mensagem). Remover depois de fechar.
  *
  * Props:
  *  - onDetected(text): conteúdo do QR (a URL/`p=` assinado da NFC-e).
@@ -35,7 +29,6 @@ export default function QrScanner({ onDetected, onError }) {
     const zxingRef = useRef(null);
     const ativoRef = useRef(false);
     const emitidoRef = useRef(false);
-    // Refs de callback: mantêm o efeito de montagem estável (roda uma vez só).
     const onDetectedRef = useRef(onDetected);
     const onErrorRef = useRef(onError);
     onDetectedRef.current = onDetected;
@@ -44,13 +37,19 @@ export default function QrScanner({ onDetected, onError }) {
     const [temLanterna, setTemLanterna] = useState(false);
     const [lanternaLigada, setLanternaLigada] = useState(false);
     const [decodificandoFoto, setDecodificandoFoto] = useState(false);
-    const [avisoFoto, setAvisoFoto] = useState(false);
+    const [avisoFoto, setAvisoFoto] = useState(null);
     const [segundos, setSegundos] = useState(0);
+    const [diag, setDiag] = useState([]);
+
+    // Registra uma linha de diagnóstico visível (guarda as últimas 40).
+    const registrar = useCallback((msg) => {
+        const t = (performance.now() / 1000).toFixed(1);
+        setDiag((d) => [...d.slice(-39), `${t}s ${msg}`]);
+    }, []);
 
     const suportaDetectorNativo = () =>
         typeof window !== 'undefined' && 'BarcodeDetector' in window;
 
-    // Libera o hardware da câmera (sem encerrar o componente).
     const pararCamera = useCallback(() => {
         zxingRef.current?.stop();
         zxingRef.current = null;
@@ -59,7 +58,6 @@ export default function QrScanner({ onDetected, onError }) {
         setLanternaLigada(false);
     }, []);
 
-    // Emite o resultado uma vez só e encerra a câmera.
     const emitir = useCallback(
         (texto) => {
             if (emitidoRef.current || !texto) return;
@@ -70,17 +68,17 @@ export default function QrScanner({ onDetected, onError }) {
         [pararCamera],
     );
 
-    // Abre a câmera e inicia a leitura contínua. Reentrante: pode ser chamada de novo
-    // para retomar o vídeo depois de uma tentativa de foto que não decodificou.
     const iniciarCamera = useCallback(async () => {
         if (!ativoRef.current || emitidoRef.current || streamRef.current) return;
 
         const midia = navigator.mediaDevices;
         if (!midia?.getUserMedia) {
+            registrar('sem getUserMedia (navegador não suporta)');
             onErrorRef.current('unsupported');
             return;
         }
 
+        registrar('abrindo câmera…');
         let stream;
         try {
             stream = await midia.getUserMedia({
@@ -94,6 +92,7 @@ export default function QrScanner({ onDetected, onError }) {
         } catch (e) {
             if (!ativoRef.current) return;
             const nome = e?.name ?? '';
+            registrar('getUserMedia falhou: ' + nome);
             if (nome === 'NotAllowedError' || nome === 'SecurityError') {
                 onErrorRef.current('permission');
             } else if (
@@ -114,10 +113,14 @@ export default function QrScanner({ onDetected, onError }) {
         }
         streamRef.current = stream;
 
-        // Capacidades do track: lanterna e foco contínuo (quando o aparelho expõe).
         const track = stream.getVideoTracks()[0];
         const caps = track?.getCapabilities?.() ?? {};
+        const cfg = track?.getSettings?.() ?? {};
         setTemLanterna(Boolean(caps.torch));
+        registrar(
+            `câmera ok ${cfg.width ?? '?'}x${cfg.height ?? '?'} ` +
+                `torch=${Boolean(caps.torch)} detectorNativo=${suportaDetectorNativo()}`,
+        );
         if (Array.isArray(caps.focusMode) && caps.focusMode.includes('continuous')) {
             try {
                 await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
@@ -146,7 +149,7 @@ export default function QrScanner({ onDetected, onError }) {
                         return;
                     }
                 } catch {
-                    /* frame ruim (sem foco/estabilidade); tenta o próximo. */
+                    /* frame ruim; tenta o próximo. */
                 }
                 if (ativoRef.current && !emitidoRef.current && streamRef.current) {
                     setTimeout(tick, 200);
@@ -154,29 +157,30 @@ export default function QrScanner({ onDetected, onError }) {
             };
             setTimeout(tick, 200);
         } else {
+            registrar('modo zxing ao vivo (sem detector nativo)');
             try {
                 const { BrowserQRCodeReader } = await import('@zxing/browser');
                 const leitor = new BrowserQRCodeReader();
                 zxingRef.current = await leitor.decodeFromStream(stream, video, (res) => {
                     if (res) emitir(res.getText());
                 });
-            } catch {
+            } catch (e) {
+                registrar('zxing ao vivo falhou: ' + (e?.name ?? e));
                 if (ativoRef.current) onErrorRef.current('unsupported');
             }
         }
-    }, [emitir]);
+    }, [emitir, registrar]);
 
-    // Ciclo de vida: abre a câmera ao montar, libera ao desmontar.
     useEffect(() => {
         ativoRef.current = true;
+        registrar(`montado; detectorNativo=${suportaDetectorNativo()}`);
         iniciarCamera();
         return () => {
             ativoRef.current = false;
             pararCamera();
         };
-    }, [iniciarCamera, pararCamera]);
+    }, [iniciarCamera, pararCamera, registrar]);
 
-    // Conta o tempo tentando para sugerir lanterna/foto quando está difícil.
     useEffect(() => {
         const id = setInterval(() => setSegundos((s) => s + 1), 1000);
         return () => clearInterval(id);
@@ -202,10 +206,7 @@ export default function QrScanner({ onDetected, onError }) {
         return canvas;
     };
 
-    // Captura o quadro atual do vídeo num canvas — SÍNCRONO (drawImage não trava).
-    // Deliberadamente não usa a API de captura de foto do track (takePhoto/grabFrame):
-    // ela pendura em vários Androids (o await nunca volta), e era o que fazia a foto
-    // "não fazer nada".
+    // Congela o quadro atual do vídeo num canvas — SÍNCRONO (drawImage não trava).
     const capturarQuadro = () => {
         const video = videoRef.current;
         if (!video?.videoWidth) return null;
@@ -229,7 +230,7 @@ export default function QrScanner({ onDetected, onError }) {
     };
 
     // Decode esforçado com zxing (TRY_HARDER) sobre um canvas.
-    const lerCanvasComZxing = async (canvas) => {
+    const lerCanvasComZxing = async (canvas, rotulo) => {
         try {
             const { BrowserQRCodeReader } = await import('@zxing/browser');
             const { DecodeHintType } = await import('@zxing/library');
@@ -237,51 +238,70 @@ export default function QrScanner({ onDetected, onError }) {
             hints.set(DecodeHintType.TRY_HARDER, true);
             const leitor = new BrowserQRCodeReader(hints);
             const res = await leitor.decodeFromImageUrl(canvas.toDataURL('image/png'));
+            registrar(`zxing(${rotulo}): ${res ? 'ACHOU' : 'nada'}`);
             return res?.getText() ?? null;
-        } catch {
-            return null; // NotFound e afins → não achou.
+        } catch (e) {
+            registrar(`zxing(${rotulo}): ${e?.name ?? e}`); // NotFound = normal
+            return null;
         }
     };
 
-    // Lê o QR num quadro congelado, do mais rápido ao mais esforçado.
     const lerNoQuadro = async (canvas) => {
         if (suportaDetectorNativo()) {
             try {
                 const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
                 const codigos = await detector.detect(canvas);
+                registrar(`detector nativo: ${codigos?.length ?? 0} código(s)`);
                 if (codigos?.length) return codigos[0].rawValue;
-            } catch {
-                /* segue para o zxing. */
+            } catch (e) {
+                registrar('detector nativo erro: ' + (e?.name ?? e));
             }
         }
-        const cru = await lerCanvasComZxing(canvas);
+        const cru = await lerCanvasComZxing(canvas, 'cru');
         if (cru) return cru;
-        return lerCanvasComZxing(realcarContraste(canvas));
+        return lerCanvasComZxing(realcarContraste(canvas), 'contraste');
     };
 
-    // "Tirar foto": congela o quadro atual e tenta ler com mais esforço. Não pode travar
-    // (captura síncrona) e sempre termina num desfecho visível (sucesso ou aviso).
+    // "Tirar foto": congela o quadro e tenta ler com mais esforço. Cada passo é logado
+    // no painel de diagnóstico; nunca fica mudo.
     const capturarEDecodificar = async () => {
-        if (emitidoRef.current || decodificandoFoto) return;
+        registrar(
+            `clique foto: stream=${!!streamRef.current} ` +
+                `video=${videoRef.current?.videoWidth ?? 0}x${videoRef.current?.videoHeight ?? 0} ` +
+                `ocupado=${decodificandoFoto}`,
+        );
+        if (emitidoRef.current || decodificandoFoto) {
+            registrar('ignorado (ocupado ou já emitido)');
+            return;
+        }
         setAvisoFoto(null);
         setDecodificandoFoto(true);
         try {
             const canvas = capturarQuadro();
             if (!canvas) {
+                registrar('sem quadro: vídeo 0x0 (câmera não pronta)');
                 setAvisoFoto('camera');
                 return;
             }
-            // Rede de segurança: se o decode empacar, desiste em 8s e avisa.
+            registrar(`quadro ${canvas.width}x${canvas.height} — decodificando…`);
             const texto = await Promise.race([
                 lerNoQuadro(canvas),
-                new Promise((resolve) => setTimeout(() => resolve(null), 8000)),
+                new Promise((resolve) => setTimeout(() => resolve('__timeout__'), 8000)),
             ]);
+            if (texto === '__timeout__') {
+                registrar('decode: TIMEOUT 8s');
+                setAvisoFoto('erro');
+                return;
+            }
             if (texto) {
+                registrar('QR lido — emitindo');
                 emitir(texto);
                 return;
             }
+            registrar('decode: nenhum QR encontrado');
             setAvisoFoto(`nqr:${canvas.width}x${canvas.height}`);
-        } catch {
+        } catch (e) {
+            registrar('EXCEÇÃO: ' + (e?.name ?? '') + ' ' + (e?.message ?? String(e)));
             setAvisoFoto('erro');
         } finally {
             setDecodificandoFoto(false);
@@ -293,7 +313,7 @@ export default function QrScanner({ onDetected, onError }) {
             return 'A câmera ainda não está pronta. Espere o vídeo aparecer e tente de novo.';
         }
         if (aviso === 'erro') {
-            return 'Algo falhou ao ler a foto. Tente de novo.';
+            return 'Algo falhou ao ler a foto. Veja o diagnóstico abaixo.';
         }
         const tam = typeof aviso === 'string' && aviso.startsWith('nqr:') ? ` (${aviso.slice(4)})` : '';
         return `Não encontrei o QR na imagem${tam}. Aproxime, encha o quadro e ligue a lanterna.`;
@@ -356,6 +376,16 @@ export default function QrScanner({ onDetected, onError }) {
                         Está difícil? Ligue a lanterna ou toque em “Tirar foto”.
                     </p>
                 )
+            )}
+
+            {/* Painel de diagnóstico (temporário) — mostra o passo a passo e os erros. */}
+            {diag.length > 0 && (
+                <pre
+                    data-testid="screen-captura-diag"
+                    className="max-h-40 overflow-auto whitespace-pre-wrap rounded-lg bg-ink/5 p-sm text-left font-mono text-[10px] leading-tight text-body"
+                >
+                    {diag.join('\n')}
+                </pre>
             )}
         </div>
     );
