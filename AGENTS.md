@@ -56,6 +56,13 @@ dois: ao editar, a tela recarrega ao vivo.
    técnica]** da visão (extração/adaptadores SEFAZ, deduplicação, anti-fraude, matching de produtos,
    pagamento).
 
+## Deploy
+
+O deploy **não** é automático no push da `main` — é disparado por **tag** de git. Homologação usa
+`vMAJOR.MINOR.PATCH-rc-N` (ex.: `v0.1.1-rc-0`); produção usará `vMAJOR.MINOR.PATCH` (ainda não ativo).
+**MAJOR e MINOR só sobem quando o Alexandro pedir**; o fluxo normal mexe só no `rc` (e no `patch` ao abrir
+um ciclo). O passo a passo e as regras de versão estão em **`docs/deploy.md`** — leia antes de tagar.
+
 ## Convenções
 
 - O **idiomático da stack** está nas sub-skills de `docs/skills/stacks/` da stack ativa (postgres,
