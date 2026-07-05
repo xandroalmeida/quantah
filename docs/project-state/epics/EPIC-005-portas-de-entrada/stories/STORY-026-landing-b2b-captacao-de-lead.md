@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-026-landing-b2b-quantah-intelligence   # rabisco em draft (design/screens/STORY-026-landing-b2b-quantah-intelligence.md)
-status: ready
-owner_agent: null
+status: in_progress
+owner_agent: claude-story026
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: M
@@ -125,6 +125,32 @@ validada pelo PO). Perguntas em aberto no handoff. Segue o fluxo paralelo (PDR-0
 spec + protótipo HTML → validação humana antes de `ready`.
 
 ## Notas do agente (preenchido durante/após execução)
+
+### Sync de viabilidade (Designer × Programador · 2026-07-05)
+
+Fluxo paralelo (PDR-002). Casca pública já existe (DDR-005 / `PublicLayout` face `b2b`). Limitações da
+stack e ajustes acordados:
+
+- **Rota `/intelligence` passa a servir a landing B2B** (`LandingB2B`), substituindo
+  `Pages/Intelligence/Reservado.jsx` (área "reservada" da STORY-023). Impacto de teste **consciente**:
+  `SegmentacaoAreasTest` (Feature e Browser) asserta hoje o "Em breve" (`b2b-em-breve`) da página
+  reservada — será **repontado** para a landing real (pública, sem login, "Do cupom ao insight.",
+  formulário de lead). A barreira B2B "sem login" continua válida (não há CTA de entrada na face B2B).
+- **Formulário:** `pattern.form` com `useForm` + `TextField` (o `Field` já entrega a11y: `aria-invalid`,
+  `aria-describedby`, `role="alert"` no erro, label associado). `Button loading={processing}` (spinner no
+  botão, sem tela branca). Padrão do `Saque/Solicitar.jsx`.
+- **Backend (núcleo ≥98%):** controller fino + `FormRequest` (validação pt-BR) + ação de domínio
+  `CapturarLead` (normaliza e-mail, deduplica) — isolar a regra num objeto testável garante os 98%.
+  Modelo `Lead` + migração `leads` (nome, e-mail **único**, empresa, timestamps).
+- **Duplicado idempotente (CA-4 / LGPD):** `firstOrCreate` por e-mail normalizado (minúsculas/trim) →
+  **mesma** tela de agradecimento em ambos os casos, sem revelar existência de terceiro. Sem PII em log.
+- **Sucesso = tela dedicada de agradecimento (decisão #3 do PO):** via **PRG** (POST redireciona para
+  GET dedicado, refresh-safe) — formaliza em **DDR-006** (gate G3) antes de codar UI. Evita `snackbar`-only.
+- **LGPD (decisão #4 do PO):** aviso curto + link para a política, **sem checkbox**. Proponho o texto
+  (G3), o PO valida. **Gap:** não existe página/rota de política de privacidade hoje → o destino do link
+  precisa de decisão do PO (criar página mínima `/privacidade` nesta estória × outro destino).
+- **Ordem:** DDR-006 + texto LGPD (G3) → migração/modelo/ação/testes vermelhos → controller/rotas →
+  UI (landing + form + agradecimento) → Dusk (feliz + desvio) → CI/homolog.
 
 ### Decisões tomadas
 - <data> — <decisão local, ex.: modelo do lead>

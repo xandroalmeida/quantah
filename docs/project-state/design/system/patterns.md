@@ -55,6 +55,22 @@ conteúdo.
 - **Loading:** no submit (spinner inline no `button.primary` + `aria-busy`), não skeleton — telas de
   acesso não têm fetch inicial.
 
+## `pattern.lead-confirmacao` (confirmação pós-envio de lead)
+
+> Introduzido pelo **DDR-006** (accepted 2026-07-05). Confirmação de captação de lead B2B (EPIC-005) e
+> futuras capturas. **Tela dedicada** (não `snackbar`), servida por **PRG** (POST → redirect → GET).
+
+- **Estrutura:** dentro da casca pública (`pattern.public-shell`, face `b2b`) → `content-band` com
+  confirmação positiva **sóbria** (marca/`badge.positive` — usa `positive`, **não** o verde de CTA) +
+  headline de recebimento + **próximo passo** ("entraremos em contato") + `CtaLink` de saída (neutro).
+- **PRG:** o POST que cria o lead **redireciona** para a rota dedicada de agradecimento; refresh e "voltar"
+  não reenviam (sem lead duplicado por F5).
+- **Idempotência sem vazamento (LGPD):** e-mail novo e e-mail já cadastrado terminam na **mesma** tela —
+  a confirmação nunca revela se o contato já existia.
+- **A11y:** ao montar, mover o foco para o `<h1>` da confirmação (`tabindex="-1"` + `focus()`); tom B2B
+  sério, sem emoji.
+- **Não** reusar `empty-state` (semântica "sem dados + criar", diferente de "recebido com sucesso").
+
 ## `pattern.public-shell` (casca das superfícies públicas)
 
 > Introduzido pelo **DDR-005** (accepted 2026-07-05). Vale para as landings públicas do EPIC-005

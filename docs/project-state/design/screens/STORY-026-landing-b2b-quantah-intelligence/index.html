@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protótipo — Landing B2B "Do cupom ao insight." (STORY-026)</title>
+<!--
+  PROTÓTIPO DE VALIDAÇÃO — NÃO É CÓDIGO DE PRODUÇÃO.
+  Tokens reais do DS (design/system/tokens.md). Microcopy = screen-spec §5, pt-BR (tom B2B sério).
+  Casca pública DDR-005 (face b2b). Tela de agradecimento DDR-006 (pattern.lead-confirmacao).
+  Viewport via ?vp=mobile|desktop. Estado do formulário via ?state=:
+    padrao | preenchendo | enviando | erro-campo | duplicado | erro-rede | sucesso
+  Sem rede/backend — o formulário não envia de verdade. Texto LGPD validado pelo PO.
+-->
+<style>
+  :root{
+    --primary:#9fe870;--on-primary:#0e0f0c;--primary-active:#cdffad;--primary-neutral:#c5edab;--primary-pale:#e2f6d5;
+    --canvas:#fff;--canvas-soft:#e8ebe6;--ink:#0e0f0c;--ink-deep:#163300;--body:#454745;--mute:#868685;
+    --positive:#2ead4b;--positive-deep:#054d28;--negative:#d03238;--negative-darkest:#a7000d;--negative-bg:#320707;
+    --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-pill:9999px;
+    --f:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:#d5d9d2;color:var(--ink);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:14px 12px 48px;gap:14px}
+  .bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;max-width:1000px}
+  .bar a{font-size:12.5px;text-decoration:none;color:var(--body);background:var(--canvas);
+    border:1px solid var(--mute);border-radius:var(--r-pill);padding:4px 11px;white-space:nowrap;cursor:pointer}
+  .bar a.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .bar .lbl{font-size:10.5px;color:#4b4d4b;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .bar .sep{width:1px;height:18px;background:var(--mute);opacity:.55;margin:0 2px}
+  .note{font-size:11.5px;color:#41433f;max-width:600px;text-align:center;line-height:1.5}
+
+  .stage{width:100%;display:flex;justify-content:center}
+  .device{width:100%;max-width:412px;background:var(--canvas-soft);border-radius:30px;
+    border:1px solid #cfd3cc;overflow:hidden;box-shadow:0 12px 40px rgba(14,15,12,.14)}
+  .device.desktop{max-width:1040px}
+  .scroll{max-height:82vh;overflow-y:auto;position:relative}
+
+  /* casca pública (DDR-005 · face b2b) */
+  .nav{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:16px;
+    background:var(--canvas);border-bottom:1px solid var(--ink);padding:12px 20px}
+  .lockup{display:inline-flex;align-items:center;gap:8px}
+  .mark{width:36px;height:36px;flex:none;border-radius:var(--r-xl);background:var(--primary);
+    color:var(--on-primary);display:inline-flex;align-items:center;justify-content:center}
+  .mark svg{width:20px;height:20px}
+  .wordmark{font-weight:900;font-size:20px;letter-spacing:-.02em;color:var(--ink);line-height:1}
+  .wordmark small{display:block;font-weight:600;font-size:11px;letter-spacing:.02em;color:var(--body)}
+  .nav .spacer{flex:1}
+  .navlink{display:inline-flex;align-items:center;min-height:44px;padding:0 6px;font-size:14px;font-weight:600;
+    color:var(--body);text-decoration:none;white-space:nowrap}
+  .navlink:hover{color:var(--ink)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;position:relative;
+    min-height:48px;padding:12px 24px;border-radius:var(--r-xl);border:none;cursor:pointer;
+    font-family:var(--f);font-size:16px;font-weight:600;line-height:24px;text-decoration:none;transition:background .1s}
+  .btn-primary{background:var(--primary);color:var(--on-primary);width:100%}
+  .btn-primary:hover{background:var(--primary-active)}
+  .btn-primary:focus-visible{outline:none;box-shadow:0 0 0 2px var(--canvas),0 0 0 4px var(--ink)}
+  .btn-neutral{background:var(--canvas-soft);color:var(--ink)}
+  .btn[disabled]{cursor:not-allowed}
+  .spinner{width:18px;height:18px;border:2px solid rgba(14,15,12,.3);border-top-color:var(--on-primary);
+    border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* hero-band-dark */
+  .hero{background:var(--ink);padding:40px 20px 32px}
+  .hero h1{font-weight:900;font-size:44px;line-height:.98;letter-spacing:-.02em;color:var(--primary)}
+  .hero .sub{margin-top:16px;font-size:18px;line-height:1.5;color:#c7cbc4;max-width:40ch}
+
+  /* content-band (o que é / para quem) */
+  .content{background:var(--canvas);padding:32px 20px;display:flex;flex-direction:column;gap:20px}
+  .feat .ft{font-weight:600;font-size:18px;color:var(--ink)}
+  .feat .fb{margin-top:4px;font-size:16px;line-height:24px;color:var(--body)}
+
+  /* formulário (pattern.form) */
+  .formband{background:var(--canvas-soft);padding:28px 20px}
+  .card{background:var(--canvas);border-radius:var(--r-xl);padding:24px 22px;display:flex;flex-direction:column;gap:16px}
+  .card h2{font-weight:900;font-size:24px;letter-spacing:-.01em;color:var(--ink)}
+  .card .lead{font-size:14.5px;color:var(--body);line-height:1.45;margin-top:-6px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-size:14px;color:var(--ink)}
+  .field input{min-height:48px;border:1px solid var(--ink);border-radius:var(--r-md);padding:12px 16px;
+    font-family:var(--f);font-size:16px;color:var(--ink);background:var(--canvas)}
+  .field input::placeholder{color:var(--mute)}
+  .field input:focus{outline:none;box-shadow:0 0 0 2px var(--ink)}
+  .field.err input{border-color:var(--negative);box-shadow:0 0 0 1px var(--negative)}
+  .field .msg{font-size:14px;font-weight:600;color:var(--negative-darkest);display:none}
+  .lgpd{font-size:12px;line-height:1.5;color:var(--mute)}
+  .lgpd a{color:var(--body);text-decoration:underline}
+
+  /* snackbar danger (erro de rede) */
+  .snackbar{display:none;position:sticky;bottom:12px;margin:12px 20px 0;background:var(--negative-bg);
+    color:#fff;border-radius:var(--r-xl);padding:12px 16px;font-size:14px;align-items:center;gap:12px;justify-content:space-between}
+  .snackbar b{font-weight:600}
+  .snackbar .retry{background:transparent;border:1px solid #fff;color:#fff;border-radius:var(--r-pill);
+    padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+
+  /* tela de agradecimento (DDR-006 · pattern.lead-confirmacao) */
+  .thanks{display:none;background:var(--canvas);padding:48px 24px;flex-direction:column;align-items:center;
+    gap:16px;text-align:center;min-height:360px;justify-content:center}
+  .thanks .ok{width:56px;height:56px;border-radius:50%;background:var(--primary-pale);color:var(--positive-deep);
+    display:inline-flex;align-items:center;justify-content:center}
+  .thanks .ok svg{width:28px;height:28px}
+  .thanks h1{font-weight:900;font-size:28px;letter-spacing:-.01em;color:var(--ink)}
+  .thanks p{font-size:16px;line-height:24px;color:var(--body);max-width:34ch}
+  .thanks .dupnote{font-size:11.5px;color:var(--mute);margin-top:2px}
+
+  /* footer */
+  .foot{background:var(--ink);color:var(--canvas-soft);padding:28px 20px;display:flex;flex-direction:column;gap:12px;font-size:14px}
+  .foot .fword{font-weight:900;font-size:18px;color:#fff}
+  .foot a{color:var(--canvas-soft);text-decoration:none}
+  .foot .fcopy{color:var(--mute);font-size:12px}
+
+  /* desktop */
+  .device.desktop .hero{padding:56px 48px}
+  .device.desktop .hero h1{font-size:60px}
+  .device.desktop .content{padding:40px 48px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+  .device.desktop .formband{padding:44px 48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+  .device.desktop .formband .intro{align-self:center}
+  .device.desktop .foot{flex-direction:row;justify-content:space-between;align-items:center;padding:32px 48px}
+  .intro{display:none}
+  .device.desktop .intro{display:block}
+  .device.desktop .intro .it{font-weight:900;font-size:26px;color:var(--ink);letter-spacing:-.01em}
+  .device.desktop .intro .ib{margin-top:10px;font-size:16px;color:var(--body);line-height:1.5;max-width:38ch}
+
+  /* --- máquina de estados --- */
+  body[data-state=enviando] .btn-primary .label{visibility:hidden}
+  body[data-state=enviando] .btn-primary .spinner{display:block}
+  body:not([data-state=enviando]) .spinner{display:none}
+  body[data-state=erro-campo] .field.email{}
+  body[data-state=erro-campo] .field.email input{border-color:var(--negative);box-shadow:0 0 0 1px var(--negative)}
+  body[data-state=erro-campo] .field.email .msg{display:block}
+  body[data-state=erro-rede] .snackbar{display:flex}
+  body[data-state=sucesso] .landing, body[data-state=duplicado] .landing{display:none}
+  body[data-state=sucesso] .thanks, body[data-state=duplicado] .thanks{display:flex}
+  body[data-state=duplicado] .thanks .dupnote{display:block}
+  body:not([data-state=duplicado]) .thanks .dupnote{display:none}
+</style>
+</head>
+<body data-state="padrao">
+
+  <div class="bar" role="navigation" aria-label="Controles do protótipo">
+    <span class="lbl">Viewport</span>
+    <a data-vp="mobile">Mobile ≥360</a>
+    <a data-vp="desktop">Desktop ≥1024</a>
+    <span class="sep"></span>
+    <span class="lbl">Estado</span>
+    <a data-st="padrao">Padrão</a>
+    <a data-st="preenchendo">Preenchendo</a>
+    <a data-st="enviando">Enviando</a>
+    <a data-st="erro-campo">Erro por campo</a>
+    <a data-st="duplicado">Duplicado</a>
+    <a data-st="erro-rede">Erro de rede</a>
+    <a data-st="sucesso">Sucesso</a>
+  </div>
+  <p class="note">Protótipo STORY-026 (landing B2B). Casca DDR-005 (face b2b, sem "Entrar"), tela de
+    agradecimento DDR-006 (PRG). Só tokens do DS. Texto LGPD validado pelo PO. "Duplicado" mostra a MESMA
+    tela de agradecimento (idempotente, sem vazar terceiro).</p>
+
+  <div class="stage">
+    <div class="device" id="device">
+      <div class="scroll">
+
+        <!-- HEADER (face b2b: sem CTA de login) -->
+        <nav class="nav" aria-label="Navegação principal">
+          <span class="lockup">
+            <span class="mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+                <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1V2l-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M8 7h8M8 11h8M8 15h5"/>
+              </svg>
+            </span>
+            <span class="wordmark">Quantah<small>Intelligence</small></span>
+          </span>
+          <span class="spacer"></span>
+          <a class="navlink" href="#">Voltar ao app</a>
+        </nav>
+
+        <!-- LANDING (some no sucesso/duplicado) -->
+        <div class="landing">
+          <!-- HERO hero-band-dark -->
+          <section class="hero" aria-labelledby="b2b-h1">
+            <h1 id="b2b-h1">Do cupom ao insight.</h1>
+            <p class="sub">Preço praticado, share of shelf e índices de inflação por região, a partir de
+              milhões de cupons fiscais. Para indústria, varejo e times de dados.</p>
+          </section>
+
+          <!-- CONTENT o que é / para quem -->
+          <section class="content" aria-label="O que é o Quantah Intelligence">
+            <div class="feat"><div class="ft">Preço real, item a item</div>
+              <div class="fb">O que foi de fato pago no varejo, por região e período — direto da nota fiscal.</div></div>
+            <div class="feat"><div class="ft">Sortimento e share of shelf</div>
+              <div class="fb">Que produtos aparecem, onde e com que frequência na cesta do consumidor.</div></div>
+            <div class="feat"><div class="ft">Para quem decide com dados</div>
+              <div class="fb">Indústria/CPG, varejo e times de dados que precisam de preço e sortimento reais.</div></div>
+          </section>
+
+          <!-- FORM pattern.form -->
+          <section class="formband" aria-labelledby="form-h2">
+            <div class="intro">
+              <div class="it">Fale com o time do Intelligence.</div>
+              <div class="ib">Deixe seu contato e mostramos como transformar cupons fiscais em decisão de
+                preço e sortimento.</div>
+            </div>
+            <form class="card" onsubmit="return false">
+              <h2 id="form-h2">Quero saber mais</h2>
+              <p class="lead">Nome, e-mail e empresa — nossa equipe entra em contato.</p>
+              <div class="field"><label for="f-nome">Nome</label>
+                <input id="f-nome" type="text" placeholder="Seu nome" data-testid="landing-b2b-field-nome" /></div>
+              <div class="field email"><label for="f-email">E-mail</label>
+                <input id="f-email" type="email" placeholder="voce@empresa.com.br" data-testid="landing-b2b-field-email"
+                  aria-describedby="err-email" />
+                <span class="msg" id="err-email" role="alert" data-testid="landing-b2b-error-email">Use um e-mail válido, com @ e domínio.</span></div>
+              <div class="field"><label for="f-empresa">Empresa</label>
+                <input id="f-empresa" type="text" placeholder="Nome da empresa" data-testid="landing-b2b-field-empresa" /></div>
+              <p class="lgpd">Ao enviar, você concorda que a Quantah use seu nome, e-mail e empresa para
+                entrar em contato sobre o Quantah Intelligence. Saiba como tratamos seus dados na
+                <a href="#">Política de Privacidade</a>.</p>
+              <button class="btn btn-primary" type="submit" data-testid="landing-b2b-cta-enviar">
+                <span class="label">Quero saber mais</span>
+                <span class="spinner" aria-hidden="true"></span>
+              </button>
+            </form>
+          </section>
+
+          <!-- snackbar de erro de rede -->
+          <div class="snackbar" role="alert" data-testid="landing-b2b-erro-rede">
+            <span><b>Não foi possível enviar agora.</b> Verifique a conexão e tente de novo.</span>
+            <button class="retry" type="button">Tentar de novo</button>
+          </div>
+        </div>
+
+        <!-- TELA DE AGRADECIMENTO (DDR-006) — sucesso e duplicado terminam aqui -->
+        <section class="thanks" aria-labelledby="ok-h1" data-testid="landing-b2b-sucesso">
+          <span class="ok" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5"/>
+            </svg>
+          </span>
+          <h1 id="ok-h1" tabindex="-1">Recebemos seu contato.</h1>
+          <p>Nossa equipe do Quantah Intelligence entra em contato em breve pelo e-mail informado.</p>
+          <span class="dupnote">[estado duplicado: e-mail já cadastrado → mesma tela, sem confirmar/negar existência]</span>
+          <a class="btn btn-neutral" href="#" style="width:auto" data-testid="landing-b2b-sucesso-voltar">Voltar ao Quantah Intelligence</a>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="foot">
+          <span class="fword">Quantah</span>
+          <a href="#">Para você (app)</a>
+          <span class="fcopy">© 2026 Quantah · Do cupom ao insight.</span>
+        </footer>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+  var device = document.getElementById('device');
+  var p = new URLSearchParams(location.search);
+  var vp = p.get('vp') || 'mobile';
+  var st = p.get('state') || 'padrao';
+  function apply(){
+    device.classList.toggle('desktop', vp==='desktop');
+    document.body.setAttribute('data-state', st);
+    document.querySelectorAll('[data-vp]').forEach(function(a){a.classList.toggle('on',a.dataset.vp===vp);});
+    document.querySelectorAll('[data-st]').forEach(function(a){a.classList.toggle('on',a.dataset.st===st);});
+    if(st==='preenchendo'){ var e=document.getElementById('f-email'); if(e) e.focus(); }
+    history.replaceState(null,'',location.pathname+'?'+new URLSearchParams({vp:vp,state:st}).toString());
+  }
+  document.querySelectorAll('[data-vp]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();vp=a.dataset.vp;apply();});});
+  document.querySelectorAll('[data-st]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();st=a.dataset.st;apply();});});
+  document.querySelectorAll('.scroll a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();});});
+  apply();
+</script>
+</body>
+</html>

@@ -738,8 +738,8 @@
       "target_role": "programador",
       "requires_design": true,
       "design_screen_id": "SCREEN-STORY-026-landing-b2b-quantah-intelligence",
-      "status": "ready",
-      "owner_agent": null,
+      "status": "in_progress",
+      "owner_agent": "claude-story026",
       "sprint_id": null,
       "path": "epics/EPIC-005-portas-de-entrada/stories/STORY-026-landing-b2b-captacao-de-lead.md",
       "blocked_by": [],
@@ -1268,6 +1268,30 @@
         "related_adrs": [
           "ADR-010"
         ]
+      },
+      {
+        "id": "DDR-006",
+        "title": "Confirmação pós-envio de lead — tela dedicada de agradecimento (PRG), não snackbar",
+        "status": "accepted",
+        "path": "decisions/ddr/DDR-006-tela-de-agradecimento-do-lead.md",
+        "created_at": "2026-07-05",
+        "decided_at": "2026-07-05",
+        "decided_by": "designer",
+        "approved_by": "Alexandro",
+        "scope": "navegação / confirmação",
+        "affects_screens": [
+          "SCREEN-STORY-026-landing-b2b-quantah-intelligence"
+        ],
+        "related_stories": [
+          "STORY-026"
+        ],
+        "related_ddrs": [
+          "DDR-005"
+        ],
+        "related_pdrs": [
+          "PDR-001",
+          "PDR-003"
+        ]
       }
     ]
   },
@@ -1431,15 +1455,18 @@
         "id": "SCREEN-STORY-026-landing-b2b-quantah-intelligence",
         "story": "STORY-026",
         "epic": "EPIC-005",
-        "status": "draft",
+        "status": "ready",
         "path": "design/screens/STORY-026-landing-b2b-quantah-intelligence.md",
+        "prototype_path": "design/screens/STORY-026-landing-b2b-quantah-intelligence/index.html",
+        "prototype_last_validated_at": "2026-07-05",
         "viewports": [
           "mobile",
           "desktop"
         ],
         "related_ddrs": [
           "DDR-004",
-          "DDR-005"
+          "DDR-005",
+          "DDR-006"
         ],
         "ds_components_used": [
           "hero-band-dark",
