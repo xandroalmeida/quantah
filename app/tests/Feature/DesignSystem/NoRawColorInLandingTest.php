@@ -19,6 +19,7 @@ class NoRawColorInLandingTest extends TestCase
             'resources/js/Pages/LandingB2C.jsx',
             'resources/js/Layouts/PublicLayout.jsx',
             'resources/js/Components/Band.jsx',
+            'resources/js/Components/CtaLink.jsx',
         ];
 
         $out = [];

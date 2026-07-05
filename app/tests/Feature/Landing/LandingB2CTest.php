@@ -3,6 +3,7 @@
 namespace Tests\Feature\Landing;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -14,6 +15,15 @@ use Tests\TestCase;
  */
 class LandingB2CTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Feature test valida rota/componente/acesso (CA-1) — não o build de JS. Desacopla do
+        // manifesto do Vite; a renderização real em browser é coberta pelo Dusk (CA-6).
+        $this->withoutVite();
+    }
+
     /** CA-1 — caminho feliz: a raiz é servida via Inertia com a página LandingB2C e responde 200. */
     public function test_landing_b2c_is_served_at_root_via_inertia(): void
     {
@@ -46,7 +56,7 @@ class LandingB2CTest extends TestCase
     public function test_cta_destinations_exist(): void
     {
         // CTA primário → login do Coletador (EPIC-004).
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('login'), 'A rota nomeada login deveria existir.');
+        $this->assertTrue(Route::has('login'), 'A rota nomeada login deveria existir.');
 
         // CTA para o B2B → landing Quantah Intelligence (rota pública viva).
         $this->get('/intelligence')->assertOk();

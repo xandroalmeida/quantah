@@ -6,7 +6,6 @@ use App\Http\Controllers\ColetaController;
 use App\Http\Controllers\Interno\MetricasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaqueController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -23,16 +22,14 @@ use Inertia\Inertia;
 */
 
 // ---------------------------------------------------------------------------
-// Área pública — vitrine / home (sem segmentação de público)
+// Área pública — landing B2C / home (sem segmentação de público)
+// Entrada do funil B2C (STORY-025): "Cada nota conta." Pública, sem login; o CTA
+// primário leva ao /login do Coletador (EPIC-004) e o secundário à landing B2B
+// (/intelligence). Substitui a hello-world de scaffolding do EPIC-000.
 // ---------------------------------------------------------------------------
 
 Route::get('/', function () {
-    return Inertia::render('Hello', [
-        'appName' => config('app.name'),
-        'environment' => app()->environment(),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return Inertia::render('LandingB2C');
 })->name('home');
 
 // Vitrine do Design System (EPIC-001). Pública para inspeção/E2E; virada à
