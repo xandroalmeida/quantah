@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: ready
-owner_agent: null
+status: in_review
+owner_agent: claude-story031
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: M
@@ -112,13 +112,27 @@ Siga `docs/skills/po/references/agent-task-format.md`. `in_progress` ao iniciar 
 ## Notas do agente (preenchido durante/após execução)
 
 ### Decisões tomadas
-- <data> — <decisão>
+- 2026-07-05 — **Sem código de produção novo:** a costura já funcionava após 029/030 — a home lê o saldo
+  fresco (read-model `ExtratoCarteira`) a cada render server-side, então o saldo reflete o crédito sem novo
+  login (CA-1) sem glue adicional. Esta estória entrega a **prova** (Feature + E2E).
+- 2026-07-05 — **Representação da "coleta que gera crédito":** a validação do cupom é **assíncrona** (SEFAZ,
+  EPIC-002) e **não roda no browser** (a coleta pela UI para em `pendente` — ver `ColetaCapturaTest`). Por
+  isso, no meio do E2E, a coleta válida é representada por um cupom já `validado` + o **serviço real de
+  crédito** (`CreditarCashbackService::creditarPorCupom`, EPIC-003), gravado no banco de dev que o app lê.
+  O "coletar a partir da home" é exercido de verdade pela UI (CTA → `/coletar`, 1 toque).
 
 ### Descobertas
-- <data> — <gotcha>
+- 2026-07-05 — Nos testes Dusk é possível **interpolar PHP entre passos do browser** (o closure roda no
+  processo de teste): usei isso para creditar a carteira no banco de dev entre o "coletar" e o "voltar à
+  home", tornando o "saldo atualiza" observável na mesma sessão.
 
 ### Cobertura final
-- Unitários: <%> · E2E: <cenários / evidência>
+- **Feature** `JornadaContinuaTest`: CA-1 (saldo da home 0,00 → 4,89 na mesma sessão, sem novo login pelo
+  caminho real de crédito) e CA-2 (crédito no extrato). Suíte completa verde — 303 passed, 1403 assertions.
+- **E2E (Dusk, browser real, mobile 390px)** `JornadaContinuaTest`: loop completo entrar → home → **coletar
+  (CTA, 1 toque)** → saldo atualiza (R$ 4,89) → **extrato (atalho Histórico, 1 toque)** com o crédito →
+  **iniciar saque (atalho Prêmios, 1 toque)** com a tela pronta e o saldo em pt-BR. Cobre CA-1..CA-6.
 
 ### Links de evidência
-- PR: <url> · Pipeline: <url> · Deploy de homologação: <url>
+- Commit(s) na `main`. Pipeline CI + Deploy homologação: <a preencher>.
+- Este é o E2E ponta a ponta que a **STORY-032** (validação do épico) referencia.
