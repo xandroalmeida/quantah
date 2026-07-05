@@ -111,7 +111,9 @@ class BackofficeSaquesTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($col) {
             $browser->loginAs($col)
                 ->visit('/backoffice/saques')
-                ->assertSee('403');
+                ->waitFor('[data-testid=barreira-403]', 10)
+                ->assertSee('Acesso restrito') // barreira branded em pt-BR (STORY-023)
+                ->logout();
         });
     }
 }
