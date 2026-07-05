@@ -2,11 +2,14 @@
  * NavBottom (nav.bottom do DS · app do Colaborador, STORY-006). Navegação inferior
  * mobile; item **ativo** com indicador `primary` (ícone verde). Alvos ≥48px
  * (`min-h-3xl`/`min-w-3xl`). Recebe `items: [{ label, icon, active, href }]`.
+ *
+ * `pb-[env(safe-area-inset-bottom)]`: em aparelhos com notch/barra de gestos, a barra ganha folga
+ * abaixo dos alvos (que seguem ≥48px), sem ficar sob a área de sistema. (STORY-033)
  */
 export default function NavBottom({ items = [], itemProps, className = '', ...props }) {
     return (
         <nav
-            className={`flex items-stretch justify-around border-t border-ink bg-canvas text-ink ${className}`}
+            className={`flex items-stretch justify-around border-t border-ink bg-canvas pb-[env(safe-area-inset-bottom)] text-ink ${className}`}
             {...props}
         >
             {items.map((item) => (

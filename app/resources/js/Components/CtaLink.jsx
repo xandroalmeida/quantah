@@ -10,7 +10,7 @@ import { Link } from '@inertiajs/react';
  * A11y: alvo ≥48px (min-h-3xl), foco visível por teclado (mesmo anel do Button).
  */
 const SHAPE =
-    'inline-flex items-center justify-center gap-sm rounded-xl px-xl py-md min-h-3xl ' +
+    'inline-flex items-center justify-center gap-sm rounded-xl px-md py-md min-h-3xl md:px-xl ' +
     'text-button-md font-semibold transition-colors duration-fast ' +
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ' +
     'focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-soft';

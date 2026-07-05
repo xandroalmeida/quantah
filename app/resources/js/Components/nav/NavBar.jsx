@@ -8,7 +8,7 @@ export default function NavBar({ className = '', children, ...props }) {
         <nav
             // overflow-x-auto: em telas estreitas os links rolam DENTRO da barra, sem
             // empurrar a largura da página (regra de ouro: body nunca rola na horizontal).
-            className={`sticky top-0 z-20 flex items-center gap-lg overflow-x-auto border-b border-ink bg-canvas px-xl py-md text-ink ${className}`}
+            className={`sticky top-0 z-20 flex items-center gap-sm overflow-x-auto border-b border-ink bg-canvas px-md py-md text-ink md:gap-lg md:px-xl ${className}`}
             {...props}
         >
             {children}

@@ -2,7 +2,16 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {{-- viewport-fit=cover habilita env(safe-area-inset-*) (notch/barra de gestos) — STORY-033 --}}
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+        {{-- PWA app-like (STORY-033): manifest standalone + metatags iOS (add à tela inicial sem barra) --}}
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#ffffff">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Quantah">
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 

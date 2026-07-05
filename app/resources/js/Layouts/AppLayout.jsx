@@ -33,7 +33,11 @@ export default function AppLayout({ active, children }) {
     }));
 
     return (
-        <div className="flex h-screen flex-col bg-canvas-soft">
+        // h-[100dvh] (viewport dinâmico) sobrepõe o fallback h-screen (100vh): no Safari iOS o
+        // 100vh conta a área atrás da barra do navegador e empurrava o nav.bottom para fora do
+        // viewport (some em Carteira/Perfil). Com dvh a casca mede só o que está visível, então o
+        // nav.bottom (shrink-0) fica sempre colado ao fundo visível e o conteúdo rola por baixo. (STORY-033)
+        <div className="flex h-screen h-[100dvh] flex-col bg-canvas-soft">
             <NavBar className="hidden lg:flex">
                 <span className="mr-auto font-display text-body-lg font-black text-ink">
                     Quantah

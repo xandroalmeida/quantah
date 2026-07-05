@@ -34,9 +34,9 @@ export default function PublicLayout({ face = 'b2c', children }) {
         <div className="flex min-h-screen flex-col bg-canvas-soft">
             <NavBar aria-label="Navegação principal" data-testid="public-nav">
                 <Link href={cfg.home} aria-label="Quantah — página inicial" className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ink">
-                    <BrandLockup />
+                    <BrandLockup compact />
                 </Link>
-                <div className="ml-auto flex items-center gap-lg">
+                <div className="ml-auto flex items-center gap-sm md:gap-lg">
                     <NavLink href={cfg.cross.href} data-testid={cfg.cross.navTestid}>
                         {cfg.cross.label}
                     </NavLink>

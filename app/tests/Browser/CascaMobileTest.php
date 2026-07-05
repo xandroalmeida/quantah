@@ -127,6 +127,12 @@ class CascaMobileTest extends DuskTestCase
                 $this->assertGreaterThanOrEqual(0, $entrar['left'], "Entrar cortado à esquerda @ {$largura}px");
                 $this->assertLessThanOrEqual($innerW + 1, $entrar['right'], "Entrar cortado à direita @ {$largura}px");
                 $this->assertLessThanOrEqual(1, $this->overflowHorizontal($browser), "overflow na landing @ {$largura}px");
+
+                // O header não pode rolar na horizontal (scrollbar interno = overflow visível).
+                $navOverflow = (int) $browser->script(
+                    "var n=document.querySelector('[data-testid=public-nav]');return n.scrollWidth - n.clientWidth;"
+                )[0];
+                $this->assertLessThanOrEqual(1, $navOverflow, "header rola na horizontal @ {$largura}px");
             }
         });
     }
@@ -134,14 +140,29 @@ class CascaMobileTest extends DuskTestCase
     /** CA-4 — manifest.json e metatags iOS presentes; manifest válido (standalone + ícones). */
     public function test_manifest_e_metatags_pwa_presentes(): void
     {
-        $this->browse(function (Browser $browser) {
-            $browser->visit('/')
-                ->assertPresent('link[rel="manifest"]')
-                ->assertPresent('meta[name="theme-color"]')
-                ->assertPresent('meta[name="apple-mobile-web-app-capable"]')
-                ->assertPresent('meta[name="apple-mobile-web-app-status-bar-style"]')
-                ->assertPresent('meta[name="apple-mobile-web-app-title"]')
-                ->assertPresent('link[rel="apple-touch-icon"]');
+        // As tags vivem no <head> (fora do escopo `body` do assertPresent do Dusk) → checa via DOM.
+        $seletores = [
+            'link[rel="manifest"]',
+            'meta[name="theme-color"]',
+            'meta[name="apple-mobile-web-app-capable"]',
+            'meta[name="apple-mobile-web-app-status-bar-style"]',
+            'meta[name="apple-mobile-web-app-title"]',
+            'link[rel="apple-touch-icon"]',
+        ];
+
+        $this->browse(function (Browser $browser) use ($seletores) {
+            $browser->visit('/')->waitFor('[data-testid=public-nav]', 10);
+
+            foreach ($seletores as $sel) {
+                $existe = $browser->script("return document.querySelector('{$sel}') !== null;")[0];
+                $this->assertTrue($existe, "tag ausente no documento: {$sel}");
+            }
+
+            // O manifest referenciado é servido e habilita standalone (Android/Chrome).
+            $capable = $browser->script(
+                "return document.querySelector('meta[name=\"apple-mobile-web-app-capable\"]').content;"
+            )[0];
+            $this->assertSame('yes', $capable);
         });
 
         $caminho = public_path('manifest.json');

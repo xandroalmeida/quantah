@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-07-05T13:40:00Z",
+  "generated_at": "2026-07-05",
   "project": {
     "name": "Quantah",
     "current_wave": "WAVE-2026-02",
@@ -932,8 +932,8 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-programador",
       "sprint_id": null,
       "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-033-casca-mobile-app-like.md",
       "blocked_by": [],
@@ -1409,6 +1409,16 @@
         "related_adrs": [
           "ADR-010"
         ]
+      },
+      {
+        "id": "IDR-012",
+        "title": "Casca mobile — 100dvh (não position:fixed), PWA instalável sem service worker, header responsivo",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-012-casca-mobile-dvh-e-pwa-instalavel.md",
+        "decided_at": "2026-07-05",
+        "decided_by": "programador",
+        "related_story": "STORY-033",
+        "related_adrs": []
       }
     ],
     "ddr": [
