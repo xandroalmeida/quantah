@@ -2,7 +2,7 @@
 id: SCREEN-STORY-025-landing-b2c
 story: STORY-025-landing-b2c
 epic: EPIC-005-portas-de-entrada
-status: ready
+status: shipped
 created_at: 2026-07-05
 updated_at: 2026-07-05
 owner_designer: designer

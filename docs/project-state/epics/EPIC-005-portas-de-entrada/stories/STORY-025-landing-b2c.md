@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-025-landing-b2c   # rabisco em draft (design/screens/STORY-025-landing-b2c.md)
-status: in_progress
+status: done
 owner_agent: claude-story025
 created_at: 2026-07-05
 updated_at: 2026-07-05
@@ -97,15 +97,25 @@ ADR cobrindo, **pare e registre** em "Notas do agente".
 
 ## Definição de Pronto (DoD)
 
-- [ ] Todos os critérios de aceite passam.
-- [ ] Testes unitários escritos e passando, atingindo a cobertura exigida.
-- [ ] Teste E2E (CA-6) escrito e passando em homologação.
-- [ ] Entrada em `design.screens[]` (`SCREEN-STORY-025-landing-b2c`) existe antes de `in_review`
-      (invariante v2 #9).
-- [ ] Pipeline de CI verde; deploy de homologação realizado e verificado.
-- [ ] IDR registrado se houve descoberta técnica relevante.
-- [ ] `index.json` atualizado: status = `done`.
-- [ ] "Notas do agente" preenchidas.
+- [x] Todos os critérios de aceite passam.
+- [x] Testes escritos e passando, atingindo a cobertura exigida (95% total ≥ 80%).
+- [x] Teste E2E (CA-6) escrito e passando; landing viva em homologação.
+- [x] Entrada em `design.screens[]` (`SCREEN-STORY-025-landing-b2c`) existe e está `ready`/`shipped`.
+- [x] Pipeline de CI verde; deploy de homologação realizado e verificado (smoke de 1ª mão).
+- [x] IDR registrado se houve descoberta técnica relevante (nenhuma — sem decisão técnica durável nova).
+- [x] `index.json` atualizado: status = `done`.
+- [x] "Notas do agente" preenchidas.
+
+### Mapeamento CA → teste
+
+| CA | Teste(s) |
+|---|---|
+| CA-1 (rota pública sem redirect) | `Feature/Landing/LandingB2CTest` (served_at_root, is_public, visible_to_authenticated, unknown_route_404) |
+| CA-2 (DS/tokens + pt-BR + sem scaffolding) | `Feature/DesignSystem/NoRawColorInLandingTest`; `Browser/LandingB2CTest` (proposta pt-BR, assertDontSee Laravel/Hello); `Browser/ThemeTest` (tokens do DS em browser real) |
+| CA-3 (CTA entrar → login) | `Browser/LandingB2CTest::test_visitante_mobile_...leva_ao_login`; `Feature/Landing/LandingB2CTest::test_cta_destinations_exist` |
+| CA-4 (CTA → B2B) | `Browser/LandingB2CTest::test_cta_para_empresas_leva_ao_b2b`; destino `/intelligence` em `test_cta_destinations_exist` |
+| CA-5 (mobile-first + a11y AA) | `Browser/LandingB2CTest` (viewport 390×844); `Browser/ThemeTest` (contraste AA on-primary/primary, foco visível por Tab) |
+| CA-6 (E2E browser real mobile) | `Browser/LandingB2CTest` (feliz mobile: proposta pt-BR → CTA → /login) |
 
 ## Protocolo do agente (obrigatório)
 
@@ -168,8 +178,21 @@ declarando a troca. Limitações da stack (Inertia + React) levantadas e ajustes
 - <nenhum até aqui>
 
 ### Cobertura final
-- Unitários: <%>
-- E2E: <cenários, evidência>
+- Feature/Unit: **278 testes verdes**; cobertura **total 95%** (gate CI `--min=80`).
+- E2E (Dusk): **69 verdes**; cenários da landing: (feliz mobile) proposta pt-BR → CTA entrar → /login;
+  (alternativo) CTA "Para empresas" → /intelligence. `ThemeTest` repontado à home (tokens do DS em
+  browser real).
 
 ### Links de evidência
-- PR / Pipeline / Deploy de homologação: <urls>
+- Commits (main): `531ae57` (docs/DDR-005/spec/protótipo), `4371b89` (testes vermelhos), `9400b79`
+  (feat landing + PublicLayout), `3a41898` (E2E + ThemeTest).
+- CI/CD (run 28729491898): Testes+build, E2E (Dusk) e Deploy homologação — **verde**, com smoke test.
+- Homologação verificada (1ª mão): `https://quantah-homolog.34.39.229.117.sslip.io/` → `LandingB2C`
+  (HTTP 200, público), "Cada nota conta." e "Como funciona" no payload, sem resíduo de scaffolding
+  renderizado; `/login` e `/intelligence` respondem 200 (destinos dos CTAs).
+
+### Decisões de implementação
+- Sem PR (trabalho direto na `main`, conforme combinado); `PublicLayout` + `Band` + `CtaLink` reusam o
+  DS (DDR-005); Hello (scaffolding EPIC-000) aposentado, testes substituídos por equivalentes da landing.
+- Feature test da landing usa `withoutVite()` para desacoplar rota/componente/acesso do build de JS; a
+  renderização real fica no Dusk.
