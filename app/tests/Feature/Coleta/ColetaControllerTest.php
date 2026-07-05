@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Coleta;
 
+use App\Http\Controllers\ColetaController;
 use App\Jobs\ExtrairCupomJob;
 use App\Models\Cupom;
 use App\Models\User;
@@ -156,7 +157,7 @@ class ColetaControllerTest extends TestCase
     public function test_microcopy_de_cupom_expirado_e_ptbr_com_o_prazo_da_config(): void
     {
         config(['coleta.janela_dias' => 7]);
-        $msg = \App\Http\Controllers\ColetaController::microcopyRejeicao('cupom_expirado');
+        $msg = ColetaController::microcopyRejeicao('cupom_expirado');
 
         $this->assertStringContainsString('prazo', $msg);
         $this->assertStringContainsString('7 dias', $msg);
@@ -165,6 +166,6 @@ class ColetaControllerTest extends TestCase
 
         // O N acompanha a config (sem número mágico).
         config(['coleta.janela_dias' => 15]);
-        $this->assertStringContainsString('15 dias', \App\Http\Controllers\ColetaController::microcopyRejeicao('cupom_expirado'));
+        $this->assertStringContainsString('15 dias', ColetaController::microcopyRejeicao('cupom_expirado'));
     }
 }
