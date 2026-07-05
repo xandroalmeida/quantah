@@ -45,7 +45,39 @@ class HandleInertiaRequests extends Middleware
             // (pt-BR); o mapa é idêntico entre páginas, então o custo é um bundle pequeno (~13KB).
             'locale' => App::getLocale(),
             'translations' => fn () => $this->translations(),
+            // Versão (tag) do app — carimbo discreto de build para QA/homologação. Fonte:
+            // env APP_VERSION (deploy) → arquivo VERSION versionado → 'dev'. Ver appVersion().
+            'version' => fn () => $this->appVersion(),
         ];
+    }
+
+    /**
+     * Versão exibida do app. Prioriza APP_VERSION (o deploy pode injetar `git describe`);
+     * senão lê o arquivo `VERSION` na raiz (versionado, viaja no mount/imagem); senão 'dev'.
+     * O runtime não depende de `.git` (ausente no container). Memoizado na requisição.
+     */
+    protected function appVersion(): string
+    {
+        static $version = null;
+
+        if ($version !== null) {
+            return $version;
+        }
+
+        $env = env('APP_VERSION');
+        if (is_string($env) && trim($env) !== '') {
+            return $version = trim($env);
+        }
+
+        $path = base_path('VERSION');
+        if (is_file($path)) {
+            $conteudo = trim((string) file_get_contents($path));
+            if ($conteudo !== '') {
+                return $version = $conteudo;
+            }
+        }
+
+        return $version = 'dev';
     }
 
     /**

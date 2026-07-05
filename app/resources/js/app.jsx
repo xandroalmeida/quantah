@@ -4,6 +4,7 @@ import './bootstrap';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import VersionStamp from './Components/VersionStamp';
 import { setTranslations } from './i18n';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Quantah';
@@ -22,7 +23,15 @@ createInertiaApp({
 
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        // Versão global (constante na sessão) — lida uma vez do prop compartilhado.
+        const version = props.initialPage.props.version;
+
+        root.render(
+            <>
+                <App {...props} />
+                <VersionStamp version={version} />
+            </>,
+        );
     },
     progress: {
         color: '#4B5563',
