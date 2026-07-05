@@ -184,7 +184,7 @@
       "slug": "portas-de-entrada",
       "title": "Portas de entrada — landing B2C e landing B2B",
       "wave": "WAVE-2026-02",
-      "status": "ready",
+      "status": "done",
       "path": "epics/EPIC-005-portas-de-entrada/epic.md",
       "story_ids": [
         "STORY-025",

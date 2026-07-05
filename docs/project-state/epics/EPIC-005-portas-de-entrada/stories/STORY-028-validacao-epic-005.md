@@ -8,8 +8,8 @@ type: validation
 target_role: validador
 requires_design: false
 design_screen_id: null
-status: draft
-owner_agent: null
+status: done
+owner_agent: validador
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: M
@@ -66,9 +66,9 @@ Validação não escreve código de produção — sem exigência de cobertura p
 
 ## Definição de Pronto (DoD)
 
-- [ ] Relatório publicado com veredito; checklist preenchido item a item com evidência.
-- [ ] `EPIC-005.validation_report` setado no `index.json`; `index.json` = `done` para esta estória.
-- [ ] "Notas do agente" preenchidas. **Não** alterar o `status` do épico (é do PO).
+- [x] Relatório publicado com veredito; checklist preenchido item a item com evidência.
+- [x] `EPIC-005.validation_report` setado no `index.json`; `index.json` = `done` para esta estória.
+- [x] "Notas do agente" preenchidas. **Não** alterar o `status` do épico (é do PO).
 
 ## Protocolo do agente (obrigatório)
 
