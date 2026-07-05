@@ -122,16 +122,17 @@ class CapturaScreenContractTest extends TestCase
         // Lanterna: o reflexo no papel térmico brilhoso é a maior causa de falha de leitura.
         $this->assertStringContainsString('torch', $src,
             'Deveria oferecer a lanterna (torch) para matar o reflexo.');
-        // "Tirar foto" captura um quadro do PRÓPRIO stream ao vivo (não abre a câmera
-        // nativa, que saía do app e disputava o hardware): ImageCapture em alta resolução...
-        $this->assertStringContainsString('ImageCapture', $src,
-            'A foto deveria capturar do stream ao vivo via ImageCapture (não input capture).');
-        $this->assertMatchesRegularExpression('/takePhoto|grabFrame/', $src,
-            'Deveria puxar o quadro do track (takePhoto/grabFrame).');
-        // ...com fallback de desenhar o frame do vídeo num canvas (iOS Safari).
+        // "Tirar foto" congela o quadro do vídeo num canvas de forma SÍNCRONA (drawImage,
+        // que não trava) — nada de ImageCapture.takePhoto/grabFrame, que penduram em
+        // vários Androids e faziam a foto "não fazer nada".
         $this->assertStringContainsString('drawImage', $src,
-            'Deveria ter fallback de canvas (drawImage) para quem não tem ImageCapture.');
-        // E não deve voltar a abrir a câmera nativa por input file.
+            'A foto deveria congelar o quadro do vídeo num canvas (drawImage), síncrono.');
+        $this->assertStringNotContainsString('ImageCapture', $src,
+            'Não deveria usar ImageCapture (takePhoto/grabFrame penduram e travam a foto).');
+        // Decode esforçado no quadro congelado (lê QR de papel térmico desbotado).
+        $this->assertStringContainsString('TRY_HARDER', $src,
+            'O decode da foto deveria usar TRY_HARDER (esforço maior que o loop ao vivo).');
+        // E não deve abrir a câmera nativa por input file.
         $this->assertDoesNotMatchRegularExpression('/capture=["\']environment["\']/', $src,
             'Não deveria abrir a câmera nativa (input capture) — captura do stream ao vivo.');
     }

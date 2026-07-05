@@ -17,11 +17,11 @@ import { CameraIcon, FlashIcon } from '@/Components/icons';
  * A câmera é aberta com constraints próprias (traseira + alta resolução + foco
  * contínuo) para termos acesso ao track e oferecer **lanterna** (mata o reflexo do
  * papel térmico, a maior causa de falha) e **tirar foto** — que NÃO abre a câmera
- * nativa (isso saía do app e disputava o hardware, voltando vazio). Em vez disso
- * captura um quadro do próprio stream ao vivo: `ImageCapture.takePhoto()` puxa uma
- * foto em alta resolução do mesmo track (Android/Chrome), com fallback para o frame
- * atual do vídeo desenhado num canvas (iOS Safari). Congelar o quadro e decodificar
- * com mais esforço lê onde o loop ao vivo não fecha.
+ * nativa (isso saía do app e disputava o hardware, voltando vazio) NEM usa a captura
+ * de foto do track (que pendura em vários Androids). Em vez disso congela o quadro
+ * atual do vídeo num canvas de forma síncrona (drawImage, que não trava) e decodifica
+ * com mais esforço (zxing TRY_HARDER + realce de contraste), lendo onde o loop ao vivo
+ * não fecha. Sempre termina num desfecho visível — nunca fica "sem fazer nada".
  *
  * Falha de câmera vira `onError(kind)` para a página cair no caminho de colar (CA-2).
  *
@@ -202,41 +202,48 @@ export default function QrScanner({ onDetected, onError }) {
         return canvas;
     };
 
-    // Captura um quadro do MESMO stream ao vivo (sem sair do app, sem disputar câmera).
-    // Android/Chrome: foto de alta resolução via ImageCapture; iOS: frame do vídeo.
-    const capturarQuadro = async () => {
-        const track = streamRef.current?.getVideoTracks?.()[0];
+    // Captura o quadro atual do vídeo num canvas — SÍNCRONO (drawImage não trava).
+    // Deliberadamente não usa a API de captura de foto do track (takePhoto/grabFrame):
+    // ela pendura em vários Androids (o await nunca volta), e era o que fazia a foto
+    // "não fazer nada".
+    const capturarQuadro = () => {
         const video = videoRef.current;
-
-        if (track && typeof window.ImageCapture === 'function') {
-            try {
-                const captura = new window.ImageCapture(track);
-                let blob = null;
-                try {
-                    const caps = await captura.getPhotoCapabilities?.();
-                    const cfg = caps?.imageWidth?.max
-                        ? { imageWidth: caps.imageWidth.max, imageHeight: caps.imageHeight?.max }
-                        : undefined;
-                    blob = await captura.takePhoto(cfg); // alta resolução, com autofoco
-                } catch {
-                    /* takePhoto indisponível neste aparelho; usa o frame do preview. */
-                }
-                const bitmap = blob ? await createImageBitmap(blob) : await captura.grabFrame();
-                const canvas = desenharParaCanvas(bitmap, bitmap.width, bitmap.height);
-                bitmap.close?.();
-                return canvas;
-            } catch {
-                /* cai para o frame do vídeo. */
-            }
-        }
-
-        if (video?.videoWidth) {
-            return desenharParaCanvas(video, video.videoWidth, video.videoHeight);
-        }
-        return null;
+        if (!video?.videoWidth) return null;
+        return desenharParaCanvas(video, video.videoWidth, video.videoHeight);
     };
 
-    // Lê o QR num quadro congelado: detector nativo primeiro, zxing como 2ª tentativa.
+    // Realça contraste (cinza + esticão) — ajuda em QR de papel térmico desbotado.
+    const realcarContraste = (origem) => {
+        const canvas = desenharParaCanvas(origem, origem.width, origem.height);
+        const ctx = canvas.getContext('2d');
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = img.data;
+        for (let i = 0; i < d.length; i += 4) {
+            const y = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+            let v = (y - 128) * 1.6 + 128;
+            v = v < 0 ? 0 : v > 255 ? 255 : v;
+            d[i] = d[i + 1] = d[i + 2] = v;
+        }
+        ctx.putImageData(img, 0, 0);
+        return canvas;
+    };
+
+    // Decode esforçado com zxing (TRY_HARDER) sobre um canvas.
+    const lerCanvasComZxing = async (canvas) => {
+        try {
+            const { BrowserQRCodeReader } = await import('@zxing/browser');
+            const { DecodeHintType } = await import('@zxing/library');
+            const hints = new Map();
+            hints.set(DecodeHintType.TRY_HARDER, true);
+            const leitor = new BrowserQRCodeReader(hints);
+            const res = await leitor.decodeFromImageUrl(canvas.toDataURL('image/png'));
+            return res?.getText() ?? null;
+        } catch {
+            return null; // NotFound e afins → não achou.
+        }
+    };
+
+    // Lê o QR num quadro congelado, do mais rápido ao mais esforçado.
     const lerNoQuadro = async (canvas) => {
         if (suportaDetectorNativo()) {
             try {
@@ -244,38 +251,52 @@ export default function QrScanner({ onDetected, onError }) {
                 const codigos = await detector.detect(canvas);
                 if (codigos?.length) return codigos[0].rawValue;
             } catch {
-                /* tenta o zxing na mesma imagem. */
+                /* segue para o zxing. */
             }
         }
-        try {
-            const { BrowserQRCodeReader } = await import('@zxing/browser');
-            const leitor = new BrowserQRCodeReader();
-            const res = await leitor.decodeFromImageUrl(canvas.toDataURL('image/png'));
-            if (res) return res.getText();
-        } catch {
-            /* não decodificou. */
-        }
-        return null;
+        const cru = await lerCanvasComZxing(canvas);
+        if (cru) return cru;
+        return lerCanvasComZxing(realcarContraste(canvas));
     };
 
-    // "Tirar foto": congela o quadro atual do vídeo e tenta ler com mais esforço.
+    // "Tirar foto": congela o quadro atual e tenta ler com mais esforço. Não pode travar
+    // (captura síncrona) e sempre termina num desfecho visível (sucesso ou aviso).
     const capturarEDecodificar = async () => {
         if (emitidoRef.current || decodificandoFoto) return;
-        setAvisoFoto(false);
+        setAvisoFoto(null);
         setDecodificandoFoto(true);
         try {
-            const canvas = await capturarQuadro();
-            const texto = canvas ? await lerNoQuadro(canvas) : null;
+            const canvas = capturarQuadro();
+            if (!canvas) {
+                setAvisoFoto('camera');
+                return;
+            }
+            // Rede de segurança: se o decode empacar, desiste em 8s e avisa.
+            const texto = await Promise.race([
+                lerNoQuadro(canvas),
+                new Promise((resolve) => setTimeout(() => resolve(null), 8000)),
+            ]);
             if (texto) {
                 emitir(texto);
                 return;
             }
-            setAvisoFoto(true);
+            setAvisoFoto(`nqr:${canvas.width}x${canvas.height}`);
         } catch {
-            setAvisoFoto(true);
+            setAvisoFoto('erro');
         } finally {
             setDecodificandoFoto(false);
         }
+    };
+
+    const mensagemAviso = (aviso) => {
+        if (aviso === 'camera') {
+            return 'A câmera ainda não está pronta. Espere o vídeo aparecer e tente de novo.';
+        }
+        if (aviso === 'erro') {
+            return 'Algo falhou ao ler a foto. Tente de novo.';
+        }
+        const tam = typeof aviso === 'string' && aviso.startsWith('nqr:') ? ` (${aviso.slice(4)})` : '';
+        return `Não encontrei o QR na imagem${tam}. Aproxime, encha o quadro e ligue a lanterna.`;
     };
 
     return (
@@ -323,7 +344,7 @@ export default function QrScanner({ onDetected, onError }) {
 
             {avisoFoto ? (
                 <p className="text-center text-body-sm text-body" role="status">
-                    Não deu pra ler o QR nessa foto. Aproxime, ligue a lanterna e tente de novo.
+                    {mensagemAviso(avisoFoto)}
                 </p>
             ) : decodificandoFoto ? (
                 <p className="text-center text-body-sm text-mute" role="status">
