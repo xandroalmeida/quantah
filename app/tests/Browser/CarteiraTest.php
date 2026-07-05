@@ -77,7 +77,7 @@ class CarteiraTest extends DuskTestCase
                 ->assertPresent('[data-testid=screen-carteira-historico]')
                 ->assertSeeIn('[data-testid=screen-carteira-item]', 'Cupom de R$ 87,90')
                 ->assertSeeIn('[data-testid=screen-carteira-item-credito]', '+R$ 0,09')
-                ->assertVisible('[data-testid=screen-carteira-nav]');
+                ->assertVisible('[data-testid=app-nav]');
         });
     }
 

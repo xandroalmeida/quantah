@@ -100,14 +100,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Home-hub do Coletador (STORY-029 · EPIC-006) — DESTINO PÓS-LOGIN da área B2C.
+// Home-hub do Coletador (STORY-029/030 · EPIC-006) — DESTINO PÓS-LOGIN da área B2C.
 // Substitui a página genérica de scaffolding (Breeze Dashboard) pelo centro da jornada:
-// saldo da carteira (EPIC-003) + CTA de coleta (EPIC-002). Mantém o nome `dashboard` e a
-// guarda `verified` (STORY-022) — é para onde todos os fluxos de acesso já apontam. A
-// navegação coesa (renomear a URL, atalhos, ≤2 toques) é a STORY-030.
-Route::get('/dashboard', [HomeController::class, 'index'])
+// saldo da carteira (EPIC-003) + CTA de coleta (EPIC-002) + atalhos (extrato/saque). Rota
+// `inicio` em `/inicio` (renomeada de `dashboard` na STORY-030, IDR-011), guarda `verified`
+// (STORY-022). É para onde todos os fluxos de acesso redirecionam.
+Route::get('/inicio', [HomeController::class, 'index'])
     ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    ->name('inicio');
 
 // ---------------------------------------------------------------------------
 // Área Backoffice — Operação interna (AUTENTICADO + RBAC · ADR-009/ADR-010 §3)

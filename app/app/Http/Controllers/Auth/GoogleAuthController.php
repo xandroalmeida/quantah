@@ -47,7 +47,7 @@ class GoogleAuthController extends Controller
         Auth::login($user, remember: true);
         $request->session()->regenerate(); // fixation: nova sessão só no sucesso
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('inicio', absolute: false));
     }
 
     /** Volta ao login com mensagem em pt-BR, sem derrubar a sessão nem vazar detalhe técnico. */

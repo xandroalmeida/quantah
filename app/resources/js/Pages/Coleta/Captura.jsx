@@ -3,6 +3,7 @@ import Button from '@/Components/Button';
 import Card from '@/Components/Card';
 import QrScanner from '@/Components/coleta/QrScanner';
 import { QrIcon, ReceiptIcon } from '@/Components/icons';
+import AppLayout from '@/Layouts/AppLayout';
 import Snackbar from '@/Components/Snackbar';
 import TextField from '@/Components/inputs/TextField';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
@@ -179,14 +180,14 @@ export default function Captura({ entradaInicial }) {
 
 function Shell({ children }) {
     return (
-        <>
+        <AppLayout active="cupons">
             <Head title="Capturar cupom" />
-            <main
+            <div
                 data-testid="screen-captura"
-                className="flex min-h-screen flex-col items-center justify-center gap-lg bg-canvas-soft px-lg py-2xl"
+                className="flex min-h-full flex-col items-center justify-center gap-lg px-lg py-2xl"
             >
                 <div className="w-full max-w-md">{children}</div>
-            </main>
-        </>
+            </div>
+        </AppLayout>
     );
 }

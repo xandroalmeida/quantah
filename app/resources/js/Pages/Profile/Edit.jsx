@@ -1,40 +1,43 @@
+import Card from '@/Components/Card';
+import AppLayout from '@/Layouts/AppLayout';
 import { t } from '@/i18n';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 
+/**
+ * Perfil do Coletador. Usa a casca da área logada (`AppLayout`, DDR-007) — seção "Perfil" ativa,
+ * marca Quantah, **sem o logo do Laravel** nem o menu genérico do Breeze (era `AuthenticatedLayout`).
+ * Os formulários (Breeze) seguem funcionais; a jornada tem retorno consistente pela barra.
+ */
 export default function Edit({ mustVerifyEmail, status }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    {t('Profile')}
-                </h2>
-            }
-        >
+        <AppLayout active="perfil">
             <Head title={t('Profile')} />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdateProfileInformationForm
-                            mustVerifyEmail={mustVerifyEmail}
-                            status={status}
-                            className="max-w-xl"
-                        />
-                    </div>
+            <div
+                data-testid="screen-perfil"
+                className="mx-auto flex w-full max-w-2xl flex-col gap-lg px-lg py-2xl"
+            >
+                <h1 className="text-display-sm text-ink">{t('Profile')}</h1>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdatePasswordForm className="max-w-xl" />
-                    </div>
+                <Card variant="content">
+                    <UpdateProfileInformationForm
+                        mustVerifyEmail={mustVerifyEmail}
+                        status={status}
+                        className="max-w-xl"
+                    />
+                </Card>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <DeleteUserForm className="max-w-xl" />
-                    </div>
-                </div>
+                <Card variant="content">
+                    <UpdatePasswordForm className="max-w-xl" />
+                </Card>
+
+                <Card variant="content">
+                    <DeleteUserForm className="max-w-xl" />
+                </Card>
             </div>
-        </AuthenticatedLayout>
+        </AppLayout>
     );
 }

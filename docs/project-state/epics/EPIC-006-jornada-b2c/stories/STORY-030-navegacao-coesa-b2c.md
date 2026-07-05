@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-030-navegacao-b2c   # rabisco em draft (design/screens/STORY-030-navegacao-b2c/)
-status: ready
-owner_agent: null
+status: in_review
+owner_agent: claude-story030
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: M
@@ -112,14 +112,43 @@ Siga `docs/skills/po/references/agent-task-format.md`. `in_progress` ao iniciar 
 
 ## Notas do agente (preenchido durante/após execução)
 
+### Sync Designer↔Programador (modelo paralelo, PDR-002)
+- 2026-07-05 — Mesma sessão nos dois papéis. Rabisco → spec/protótipo + **DDR-007** aprovados pelo humano
+  antes do código (portões de design e DDR). Decisões do humano no gate: atalho de saque = **"Prêmios"**;
+  **renomear a URL** da home `/dashboard` → `/inicio`.
+
 ### Decisões tomadas
-- <data> — <decisão>
+- 2026-07-05 — **DDR-007 (casca de navegação da área logada, `pattern.app-shell`):** `Layouts/AppLayout.jsx`
+  com `nav.bottom` (mobile) / `nav.bar` (desktop) persistente, 4 seções raiz (Início·Cupons·Carteira·Perfil),
+  item ativo (`aria-current`), aplicada a **todas** as telas logadas (home, coleta, carteira, saque, perfil).
+  Fonte única — extraiu o `SECOES` antes duplicado. `patterns.md` atualizado na aceitação.
+- 2026-07-05 — **Retirado o scaffolding Breeze da área logada (CA-4):** removidos `AuthenticatedLayout.jsx`
+  e `ApplicationLogo.jsx` (logo do Laravel); o Perfil passou a usar a casca. Coleta e saque (antes becos sem
+  nav) ganharam a barra → retorno consistente à home (CA-3).
+- 2026-07-05 — **Atalhos rápidos na home (CA-1/CA-2):** `Histórico` → `/carteira` e `Prêmios` →
+  `/carteira/saque`, 1 toque cada (Inertia `<Link>`, alvo ≥48px).
+- 2026-07-05 — **Rename `/dashboard` → `/inicio`** (rota+nome `inicio`), atualizando os 8 redirects de
+  acesso e os `waitForLocation`/`->get('/dashboard')` dos testes num só passe. **IDR-011** atualizado.
+- 2026-07-05 — Rótulos de nav/atalhos via `t()` (IDR-010): +`Coupons`/`Wallet`/`History`/`Rewards` em
+  `lang/pt_BR.json`. `NavBottom` estendido para `data-testid` por item (`app-nav-*`) — retrocompatível.
 
 ### Descobertas
-- <data> — <gotcha>
+- 2026-07-05 — Testids de nav por item só na **barra inferior** (viewport mobile dos E2E); a barra superior
+  (desktop, `hidden lg:flex`) não recebe os mesmos testids para o Dusk não clicar num elemento oculto.
+- 2026-07-05 — `@dataProvider` por docblock não é aplicado nesta versão de PHPUnit (exigiria atributo);
+  troquei por laço interno no teste de guarda das rotas.
+- 2026-07-05 — Os formulários do Perfil (partials Breeze) seguem funcionais dentro da casca; o restyle
+  completo deles para o DS é dívida fora do escopo desta estória (nav), não bloqueia a CA-4 (logo removido).
 
 ### Cobertura final
-- Unitários: <%> · E2E: <cenários / evidência>
+- **Unitários/Feature:** suíte completa verde — 301 passed, 1364 assertions. Novo: `CascaNavegacaoTest`
+  (guarda de todas as rotas logadas; cada rota renderiza a sua tela, não página genérica). Meta ≥80%/≥98%
+  medida no PR/CI.
+- **E2E (Dusk, browser real, mobile 390px):** `NavegacaoB2cTest` — 4 casos: atalho Histórico → extrato (1
+  toque, CA-1), atalho Prêmios → saque (1 toque, CA-2), retorno à home de coleta e de saque via barra
+  (CA-3), nenhuma rota logada com logo do Laravel (CA-4). Toda a suíte Dusk verde após o refactor da casca.
 
 ### Links de evidência
-- PR: <url> · Pipeline: <url> · Deploy de homologação: <url>
+- Commit(s) na `main` (desenvolvimento direto na main). Pipeline CI + Deploy homologação: <a preencher>.
+- Design: `design/screens/STORY-030-navegacao-b2c/` (spec + protótipo, validado 2026-07-05). DDR:
+  `decisions/ddr/DDR-007-casca-de-navegacao-da-area-logada.md` (accepted). IDR-011 atualizado.

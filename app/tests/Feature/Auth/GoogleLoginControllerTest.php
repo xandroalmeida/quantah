@@ -28,7 +28,7 @@ class GoogleLoginControllerTest extends TestCase
     public function test_callback_cria_conta_e_autentica(): void
     {
         $this->get('/auth/google/callback?email=nova@gmail.com&id=gid-1&name=Nova')
-            ->assertRedirect(route('dashboard'));
+            ->assertRedirect(route('inicio'));
 
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'nova@gmail.com', 'google_id' => 'gid-1']);
@@ -44,7 +44,7 @@ class GoogleLoginControllerTest extends TestCase
         ]);
 
         $this->get('/auth/google/callback?email=maria@gmail.com&id=gid-9')
-            ->assertRedirect(route('dashboard'));
+            ->assertRedirect(route('inicio'));
 
         $this->assertAuthenticatedAs($existente->fresh());
         $this->assertDatabaseCount('users', 1);

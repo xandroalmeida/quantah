@@ -92,6 +92,29 @@ conteúdo.
   vêm dos componentes DS. Em ≥360px os links rolam **dentro** da barra (o `nav.bar` nunca estoura a
   largura da página).
 
+## `pattern.app-shell` (casca da área logada)
+
+> Introduzido pelo **DDR-007** (accepted 2026-07-05). Vale para todas as telas da **área B2C autenticada**
+> (home-hub, coleta, carteira/extrato, saque, perfil). É o **par logado** do `pattern.public-shell`
+> (DDR-005). Materializado como `Layouts/AppLayout.jsx`; só compõe componentes do DS.
+
+- **Estrutura:** `nav.bottom` (barra inferior, **mobile**) / `nav.bar` (barra superior, **desktop**) +
+  `<main>` com o conteúdo da seção. Nenhum primitivo novo — compõe `nav.bottom`, `nav.bar`, `nav.link`,
+  `card.content`, `brand.mark`.
+- **Seções raiz (4):** `Início` (home-hub) · `Cupons` (coleta) · `Carteira` (extrato/saldo) · `Perfil`.
+  Item da seção atual **ativo** (indicador `primary` + `aria-current="page"`). Saque é sub-tela de
+  Carteira (item "Carteira" ativo). Máximo ~4–5 seções — a barra não infla.
+- **Retorno consistente:** "Início" volta à home-hub de **qualquer** tela logada — a barra é persistente,
+  então não há beco sem saída (inclui coleta e saque).
+- **Atalhos rápidos na home:** abaixo do saldo/CTA, `card.content` com ícone + rótulo para os
+  sub-destinos-chave — **Histórico** (→ extrato) e **Prêmios** (→ saque) — 1 toque cada.
+- **Sem scaffolding:** substitui o `AuthenticatedLayout`/`ApplicationLogo` do Breeze (logo do Laravel) em
+  todas as rotas logadas — a marca é o `brand.mark`/wordmark Quantah.
+- **Regra de ouro preservada:** o verde `primary` segue como único accent de CTA (o item ativo usa o verde
+  só como indicador de ícone, não como CTA). No máximo um `button.primary` por contexto.
+- **A11y:** `<nav aria-label="Seções">`, item ativo com `aria-current`, ícone **+ rótulo textual** (nunca
+  ícone sozinho), alvos ≥48px, foco visível — tudo já vem dos componentes DS.
+
 ## `pattern.surface-rhythm` (assinatura visual)
 
 O ritmo de superfície da marca: **página sage (`canvas-soft`) → cards brancos (`canvas`)**. O

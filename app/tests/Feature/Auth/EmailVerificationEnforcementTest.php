@@ -40,7 +40,7 @@ class EmailVerificationEnforcementTest extends TestCase
     {
         $user = User::factory()->unverified()->create();
 
-        $this->actingAs($user)->get('/dashboard')
+        $this->actingAs($user)->get('/inicio')
             ->assertRedirect(route('verification.notice'));
     }
 
@@ -49,7 +49,7 @@ class EmailVerificationEnforcementTest extends TestCase
     {
         $user = User::factory()->create(); // verificado por padrão na factory
 
-        $this->actingAs($user)->get('/dashboard')->assertOk();
+        $this->actingAs($user)->get('/inicio')->assertOk();
     }
 
     /** Conta criada via Google já vem verificada — não é barrada. */
@@ -66,6 +66,6 @@ class EmailVerificationEnforcementTest extends TestCase
 
         $user = app(UpsertGoogleUser::class)($google);
 
-        $this->actingAs($user)->get('/dashboard')->assertOk();
+        $this->actingAs($user)->get('/inicio')->assertOk();
     }
 }

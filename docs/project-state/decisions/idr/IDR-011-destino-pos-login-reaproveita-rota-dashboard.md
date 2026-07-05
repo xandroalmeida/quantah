@@ -9,6 +9,7 @@ owner_agent: claude-story029
 related_story: STORY-029
 related_adrs: [ADR-010]
 related_idrs: []
+related_ddrs: [DDR-007]
 supersedes: null
 superseded_by: null
 created_at: 2026-07-05
@@ -97,3 +98,8 @@ coleta), sem página genérica, preservando a verificação de e-mail do EPIC-00
 ## Histórico
 
 - 2026-07-05 — criada como `accepted` por programador (sessão claude-story029) durante a STORY-029.
+- 2026-07-05 — **STORY-030 renomeou** a rota e a URL de `dashboard`/`/dashboard` para **`inicio`/`/inicio`**
+  ao criar a casca de navegação (DDR-007), atualizando os 8 redirects de acesso e os
+  `waitForLocation('/dashboard')` dos Dusk num só passe. O destino pós-login segue o mesmo (a home-hub);
+  só o nome/URL ficou "de marca". A decisão original (reaproveitar a rota em vez de introduzir uma paralela
+  na STORY-029) permanece válida historicamente.

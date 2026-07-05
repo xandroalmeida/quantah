@@ -61,12 +61,12 @@ class HomeHubTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($user) {
             $browser->loginAs($user)
                 ->resize(390, 1400)
-                ->visit('/dashboard')
+                ->visit('/inicio')
                 ->waitFor('[data-testid=screen-home-saldo]', 10)
                 ->assertSeeIn('[data-testid=screen-home-greeting]', 'Olá, Ana')
                 ->assertSeeIn('[data-testid=screen-home-saldo]', 'R$ 12,47')
                 ->assertSee('Cada nota conta.')
-                ->assertVisible('[data-testid=screen-home-nav]')
+                ->assertVisible('[data-testid=app-nav]')
                 ->assertDontSee('Você está logado!')       // scaffolding do Breeze saiu
                 ->assertSourceMissing(self::LOGO_LARAVEL);  // logo do Laravel ausente
         });
@@ -81,7 +81,7 @@ class HomeHubTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($user) {
             $browser->loginAs($user)
                 ->resize(390, 1400)
-                ->visit('/dashboard')
+                ->visit('/inicio')
                 ->waitFor('[data-testid=screen-home-cta]', 10)
                 ->assertSeeIn('[data-testid=screen-home-cta]', 'Coletar cupom')
                 ->click('[data-testid=screen-home-cta]')
@@ -98,7 +98,7 @@ class HomeHubTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($user) {
             $browser->loginAs($user)
                 ->resize(390, 1400)
-                ->visit('/dashboard')
+                ->visit('/inicio')
                 ->waitFor('[data-testid=screen-home-welcome]', 10)
                 ->assertSeeIn('[data-testid=screen-home-saldo]', 'R$ 0,00')
                 ->assertSee('Comece a ganhar cashback')
@@ -113,7 +113,7 @@ class HomeHubTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->logout()
-                ->visit('/dashboard')
+                ->visit('/inicio')
                 ->waitForLocation('/login', 10)
                 ->assertPathIs('/login');
         });

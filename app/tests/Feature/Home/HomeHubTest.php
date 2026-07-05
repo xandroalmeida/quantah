@@ -24,7 +24,7 @@ class HomeHubTest extends TestCase
     /** CA-5 — visitante anônimo é barrado para o login. */
     public function test_home_hub_exige_autenticacao(): void
     {
-        $this->get(route('dashboard'))->assertRedirect('/login');
+        $this->get(route('inicio'))->assertRedirect('/login');
     }
 
     /** CA-1 — o destino pós-login renderiza a home-hub, e não o scaffolding genérico. */
@@ -32,7 +32,7 @@ class HomeHubTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user)->get(route('dashboard'))
+        $this->actingAs($user)->get(route('inicio'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->component('Home/Hub'));
     }
@@ -43,7 +43,7 @@ class HomeHubTest extends TestCase
         $user = User::factory()->create();
         Carteira::create(['user_id' => $user->id, 'saldo_centavos' => 1247]);
 
-        $this->actingAs($user)->get(route('dashboard'))
+        $this->actingAs($user)->get(route('inicio'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home/Hub')
@@ -56,7 +56,7 @@ class HomeHubTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user)->get(route('dashboard'))
+        $this->actingAs($user)->get(route('inicio'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home/Hub')

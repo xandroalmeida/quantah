@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protótipo — Navegação coesa da área B2C (STORY-030)</title>
+<!--
+  PROTÓTIPO DE VALIDAÇÃO — NÃO É CÓDIGO DE PRODUÇÃO.
+  Tokens reais do DS Quantah (design/system/tokens.md). Microcopy = screen-spec §5.
+  Padrão: casca de navegação da área logada (DDR-007) — nav.bottom (mobile) / nav.bar (desktop),
+  4 seções raiz (Início/Cupons/Carteira/Perfil) + atalhos da home (Histórico/Sacar).
+  Seção via ?sec=inicio|cupons|carteira|saque|perfil (clique na barra/atalhos). Viewport via ?vp=mobile|desktop.
+  Sem rede: conteúdo mockado inline. Foco: COMO se navega e volta — as telas de destino já existem.
+-->
+<style>
+  :root{
+    --primary:#9fe870; --on-primary:#0e0f0c; --primary-active:#cdffad; --primary-pale:#e2f6d5; --primary-neutral:#c5edab;
+    --canvas:#ffffff; --canvas-soft:#e8ebe6;
+    --ink:#0e0f0c; --ink-deep:#163300; --body:#454745; --mute:#868685;
+    --positive:#2ead4b; --positive-deep:#054d28;
+    --r-xl:24px; --r-lg:16px; --r-sm:8px; --r-pill:9999px;
+    --f:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:var(--canvas-soft);color:var(--ink);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:16px 12px 0;gap:12px}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:680px}
+  .bar a{font-size:13px;text-decoration:none;color:var(--body);background:var(--canvas);
+    border:1px solid var(--mute);border-radius:var(--r-pill);padding:4px 12px}
+  .bar a.on{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
+  .bar .sep{width:1px;height:20px;background:var(--mute);opacity:.5}
+  .bar .lbl{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+
+  .device{width:100%;background:var(--canvas-soft);border-radius:28px;border:1px solid #d5d9d2;
+    overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .device.mobile{max-width:412px;min-height:760px}
+  .device.desktop{max-width:900px;min-height:600px}
+
+  .navbar{display:flex;align-items:center;gap:24px;background:var(--canvas);border-bottom:1px solid var(--ink);padding:14px 24px}
+  .navbar .brand{font-weight:900;font-size:18px;margin-right:auto}
+  .navbar a{font-size:15px;font-weight:600;color:var(--body);text-decoration:none;padding:6px 2px;border-bottom:2px solid transparent}
+  .navbar a.cur{color:var(--ink);border-color:var(--primary)}
+
+  .scroll{flex:1;overflow-y:auto;padding:20px 16px 24px}
+  .desktop .scroll{padding:32px 24px}
+  .wrap{display:flex;flex-direction:column;gap:24px;width:100%;margin:0 auto}
+  .desktop .wrap{max-width:640px}
+
+  .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  h1.title{font-size:32px;line-height:1.05;font-weight:900}
+  h2.sec{font-size:16px;font-weight:600}
+  .mark{width:36px;height:36px;border-radius:8px;background:var(--primary);flex:none;display:flex;align-items:center;justify-content:center}
+  .mark svg{width:22px;height:22px;color:var(--on-primary)}
+
+  .saldo{background:var(--ink);color:var(--primary-neutral);border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:8px}
+  .saldo .lbl{font-size:14px;color:var(--primary-neutral)}
+  .saldo .val{font-size:52px;line-height:1;font-weight:900;color:var(--primary)}
+  .saldo .hint{font-size:14px;color:var(--canvas-soft);opacity:.85}
+
+  .btn{min-height:52px;border:none;border-radius:var(--r-xl);font-size:16px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;text-decoration:none;width:100%}
+  .btn.primary{background:var(--primary);color:var(--on-primary)}
+  .btn .ic{width:22px;height:22px;color:var(--on-primary)}
+
+  /* atalhos da home */
+  .atalhos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .atalho{background:var(--canvas);border-radius:var(--r-xl);padding:18px 16px;text-decoration:none;color:var(--ink);
+    display:flex;flex-direction:column;gap:10px;min-height:48px}
+  .atalho .ic{width:26px;height:26px;color:var(--ink-deep)}
+  .atalho .tt{font-size:16px;font-weight:600}
+
+  /* listas mock (carteira/coleta/perfil) */
+  ul.list{list-style:none;display:flex;flex-direction:column;gap:12px}
+  li.item{background:var(--canvas);border-radius:var(--r-xl);padding:16px 20px;display:flex;align-items:center;gap:16px}
+  li.item .ic{width:24px;height:24px;color:var(--ink-deep);flex:none}
+  li.item .txt{display:flex;flex-direction:column;gap:2px;flex:1}
+  li.item .ti{font-size:16px;font-weight:600}
+  li.item .dt{font-size:14px;color:var(--mute)}
+  .credito{background:var(--primary-pale);color:var(--positive-deep);border-radius:var(--r-pill);padding:4px 12px;font-size:14px;font-weight:600}
+  .card{background:var(--canvas);border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:12px}
+  .card p{font-size:15px;color:var(--body)}
+  .muted{font-size:14px;color:var(--mute)}
+
+  .bottomnav{display:flex;background:var(--canvas);border-top:1px solid var(--ink)}
+  .bottomnav a{flex:1;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    text-decoration:none;color:var(--body);font-size:11px;font-weight:600}
+  .bottomnav a.cur{color:var(--ink)}
+  .bottomnav a.cur .ic{color:var(--ink)}
+  .bottomnav a .ic{width:24px;height:24px;color:var(--body)}
+  svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+  <nav class="bar" id="bar"></nav>
+  <div id="app"></div>
+<script>
+  const HOME = `<svg class="ic" viewBox="0 0 24 24"><path d="M3 10 12 3l9 7"/><path d="M5 9v11h14V9"/></svg>`;
+  const RECEIPT = `<svg class="ic" viewBox="0 0 24 24"><path d="M5 2v20l2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>`;
+  const WALLET = `<svg class="ic" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 12h.01"/><path d="M3 9h13a2 2 0 0 1 0 4H3"/></svg>`;
+  const USER = `<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>`;
+  const PLUS = `<svg class="ic" viewBox="0 0 24 24" style="stroke-width:3"><path d="M12 5v14M5 12h14"/></svg>`;
+  const QR = `<svg class="ic" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>`;
+  const MARK = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18l2-1 2 1 2-1 2 1 2-1 2 1V3l-2 1-2-1-2 1-2-1-2 1z"/><path d="M9 8h6M9 12h6"/></svg>`;
+
+  // seções raiz + qual item da barra fica ativo (saque é sub-tela de Carteira)
+  const SECOES = [
+    { key:'inicio',   label:'Início',   icon:HOME,    tid:'app-nav-inicio' },
+    { key:'cupons',   label:'Cupons',   icon:RECEIPT, tid:'app-nav-cupons' },
+    { key:'carteira', label:'Carteira', icon:WALLET,  tid:'app-nav-carteira' },
+    { key:'perfil',   label:'Perfil',   icon:USER,    tid:'app-nav-perfil' },
+  ];
+  const ATIVO = { inicio:'inicio', cupons:'cupons', carteira:'carteira', saque:'carteira', perfil:'perfil' };
+
+  const bottomNav = (sec) => `
+    <nav class="bottomnav" data-testid="app-nav" aria-label="Seções">
+      ${SECOES.map(s=>`<a href="?sec=${s.key}&vp=mobile" data-testid="${s.tid}" ${ATIVO[sec]===s.key?'class="cur" aria-current="page"':''}>${s.icon}${s.label}</a>`).join('')}
+    </nav>`;
+
+  const topNav = (sec) => `
+    <nav class="navbar" data-testid="app-nav" aria-label="Seções">
+      <span class="brand">Quantah</span>
+      ${SECOES.map(s=>`<a href="?sec=${s.key}&vp=desktop" data-testid="${s.tid}" ${ATIVO[sec]===s.key?'class="cur" aria-current="page"':''}>${s.label}</a>`).join('')}
+    </nav>`;
+
+  const homeHub = () => `
+    <div class="head"><h1 class="title">Olá, Ana</h1><span class="mark" aria-hidden="true">${MARK}</span></div>
+    <section class="saldo"><span class="lbl">Seu saldo</span><span class="val">R$ 12,47</span><span class="hint">Cada nota conta.</span></section>
+    <a class="btn primary" href="?sec=cupons&vp=${vp()}"><span class="ic" aria-hidden="true">${PLUS}</span>Coletar cupom</a>
+    <div class="atalhos">
+      <a class="atalho" href="?sec=carteira&vp=${vp()}" data-testid="screen-home-atalho-historico">${RECEIPT}<span class="tt">Histórico</span></a>
+      <a class="atalho" href="?sec=saque&vp=${vp()}" data-testid="screen-home-atalho-premios">${WALLET}<span class="tt">Prêmios</span></a>
+    </div>`;
+
+  const coleta = () => `
+    <div class="head"><h1 class="title">Coletar cupom</h1></div>
+    <div class="card" style="align-items:center;text-align:center;gap:16px">
+      ${QR}
+      <p>Aponte a câmera para o QR Code da nota fiscal.</p>
+      <span class="muted">(tela de captura existente — STORY-009)</span>
+    </div>`;
+
+  const carteira = () => `
+    <div class="head"><h1 class="title">Carteira</h1>${WALLET}</div>
+    <section class="saldo"><span class="lbl">Seu saldo</span><span class="val">R$ 12,47</span><span class="hint">Cada nota conta.</span></section>
+    <h2 class="sec">Histórico</h2>
+    <ul class="list">
+      <li class="item">${RECEIPT}<span class="txt"><span class="ti">Cupom de R$ 4.890,00</span><span class="dt">15 jan 2026</span></span><span class="credito">+R$ 4,89</span></li>
+      <li class="item">${RECEIPT}<span class="txt"><span class="ti">Cupom de R$ 3.200,00</span><span class="dt">14 jan 2026</span></span><span class="credito">+R$ 3,20</span></li>
+    </ul>
+    <span class="muted">(tela de carteira existente — STORY-016)</span>`;
+
+  const saque = () => `
+    <div class="head"><h1 class="title">Sacar</h1></div>
+    <section class="saldo"><span class="lbl">Disponível</span><span class="val">R$ 12,47</span></section>
+    <div class="card"><p>Valor a sacar e chave PIX (CPF).</p><span class="muted">(tela de solicitar saque existente — STORY-017)</span></div>`;
+
+  const perfil = () => `
+    <div class="head"><h1 class="title">Perfil</h1><span class="mark" aria-hidden="true">${MARK}</span></div>
+    <div class="card"><p>Ana Coletadora</p><span class="muted">ana@exemplo.com</span></div>
+    <span class="muted">Sem logo do Laravel — casca Quantah (DDR-007).</span>`;
+
+  const BODY = { inicio:homeHub, cupons:coleta, carteira:carteira, saque:saque, perfil:perfil };
+
+  function params(){ return new URLSearchParams(location.search); }
+  function vp(){ return params().get('vp') || 'mobile'; }
+
+  function render(){
+    const p = params();
+    const sec = p.get('sec') || 'inicio';
+    const v = p.get('vp') || 'mobile';
+    const nav = v==='desktop' ? topNav(sec) : '';
+    const foot = v==='desktop' ? '' : bottomNav(sec);
+    document.getElementById('app').innerHTML = `
+      <div class="device ${v}">
+        ${nav}
+        <div class="scroll"><div class="wrap">${(BODY[sec]||homeHub)()}</div></div>
+        ${foot}
+      </div>`;
+    document.getElementById('bar').innerHTML =
+      `<span class="lbl">seção</span>` +
+      ['inicio','cupons','carteira','saque','perfil'].map(k=>`<a href="?sec=${k}&vp=${v}" class="${k===sec?'on':''}">${k}</a>`).join('') +
+      `<span class="sep"></span><span class="lbl">tela</span>` +
+      ['mobile','desktop'].map(x=>`<a href="?sec=${sec}&vp=${x}" class="${x===v?'on':''}">${x}</a>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

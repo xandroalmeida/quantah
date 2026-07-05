@@ -1,6 +1,7 @@
 import Button from '@/Components/Button';
 import Card from '@/Components/Card';
 import { WalletIcon } from '@/Components/icons';
+import AppLayout from '@/Layouts/AppLayout';
 import TextField from '@/Components/inputs/TextField';
 import { Head, router, useForm } from '@inertiajs/react';
 
@@ -31,13 +32,14 @@ export default function Solicitar({ saldo }) {
     }
 
     return (
-        <main
-            data-testid="screen-saque"
-            className="flex min-h-screen flex-col items-center bg-canvas-soft px-lg py-2xl"
-        >
+        <AppLayout active="carteira">
             <Head title="Sacar" />
 
-            <form onSubmit={submit} className="flex w-full max-w-md flex-col gap-lg">
+            <div
+                data-testid="screen-saque"
+                className="flex min-h-full flex-col items-center px-lg py-2xl"
+            >
+                <form onSubmit={submit} className="flex w-full max-w-md flex-col gap-lg">
                 <h1 className="flex items-center gap-sm text-display-sm text-ink">
                     {COPY.titulo}
                     <WalletIcon className="h-xl w-xl text-mute" />
@@ -92,7 +94,8 @@ export default function Solicitar({ saldo }) {
                 >
                     {COPY.cancelar}
                 </Button>
-            </form>
-        </main>
+                </form>
+            </div>
+        </AppLayout>
     );
 }

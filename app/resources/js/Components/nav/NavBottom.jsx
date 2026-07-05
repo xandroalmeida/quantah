@@ -13,6 +13,7 @@ export default function NavBottom({ items = [], itemProps, className = '', ...pr
                 <a
                     key={item.label}
                     href={item.href ?? '#'}
+                    data-testid={item.testid}
                     aria-current={item.active ? 'page' : undefined}
                     className={`flex min-h-3xl min-w-3xl flex-1 flex-col items-center justify-center gap-xxs px-xs py-xs text-caption font-semibold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ink ${
                         item.active ? 'text-ink' : 'text-body'
