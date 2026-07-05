@@ -758,8 +758,8 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "ready",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-story027",
       "sprint_id": null,
       "path": "epics/EPIC-005-portas-de-entrada/stories/STORY-027-lista-de-leads-no-backoffice.md",
       "blocked_by": [

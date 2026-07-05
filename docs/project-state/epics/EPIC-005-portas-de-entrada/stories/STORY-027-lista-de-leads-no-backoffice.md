@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: ready
-owner_agent: null
+status: done
+owner_agent: claude-story027
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: S
@@ -94,13 +94,24 @@ faltar decisão arquitetural sem ADR cobrindo, **pare e registre** em "Notas do 
 
 ## Definição de Pronto (DoD)
 
-- [ ] Todos os critérios de aceite passam.
-- [ ] Testes unitários escritos e passando, atingindo as coberturas exigidas (incl. ≥ 98% na guarda).
-- [ ] Teste E2E (CA-5) escrito e passando em homologação.
-- [ ] Pipeline de CI verde; deploy de homologação realizado e verificado.
-- [ ] IDR registrado se houve descoberta técnica relevante.
-- [ ] `index.json` atualizado: status = `done`.
-- [ ] "Notas do agente" preenchidas.
+- [x] Todos os critérios de aceite passam.
+- [x] Testes escritos e passando; **guarda/controller 100%** (≥98%); total 95,2% (≥80%).
+- [x] Teste E2E (CA-5) escrito e passando; lista viva em homologação (operador vê o lead; sem papel barrado).
+- [x] Pipeline de CI verde; deploy de homologação realizado e verificado (1ª mão).
+- [x] IDR registrado se houve descoberta técnica relevante — **não** (reuso da guarda ADR-009 e do padrão
+      visual do Backoffice; nenhuma decisão técnica durável nova).
+- [x] `index.json` atualizado: status = `done`.
+- [x] "Notas do agente" preenchidas.
+
+### Mapeamento CA → teste
+
+| CA | Teste(s) |
+|---|---|
+| CA-1 (lista com nome/e-mail/empresa/data, DS, pt-BR) | `Feature/Backoffice/LeadsTest::test_operador_ve_lista_de_leads_com_campos` |
+| CA-2 (operador vê os leads persistidos) | `Feature/Backoffice/LeadsTest::test_operador_ve_lista...`; `Browser/BackofficeLeadsTest::test_operador_ve_lead_na_lista` |
+| CA-3 (sem papel = barrado) | `Feature/Backoffice/LeadsTest` (coletador → 403; anônimo → redirect /login); `Browser/BackofficeLeadsTest::test_sem_papel_e_barrado` (403 branded pt-BR) |
+| CA-4 (estado vazio + ordenação determinística) | `Feature/Backoffice/LeadsTest::test_estado_vazio`, `::test_ordenacao_mais_recentes_primeiro` |
+| CA-5 (E2E: operador vê lead recém-capturado; sem papel barrado) | `Browser/BackofficeLeadsTest` (2 cenários) |
 
 ## Protocolo do agente (obrigatório)
 
@@ -109,20 +120,30 @@ Siga `docs/skills/po/references/agent-task-format.md`.
 ## Notas do agente (preenchido durante/após execução)
 
 ### Decisões tomadas
-- <data> — <decisão local>
+- 2026-07-05 — Rota `GET /backoffice/leads` dentro do grupo `middleware(['auth','can:operar-saques'])`
+  existente — reusa a guarda do Backoffice (ADR-009), sem novo gate. Lista só-leitura; ordenação
+  determinística `created_at desc, id desc`. Data em pt-BR via `Formato::dataHora` (America/Sao_Paulo).
+- 2026-07-05 — Página reusa o padrão visual do Backoffice de saques (tabela desktop + cards mobile,
+  `EmptyState`), sem tela de marca nova (`requires_design: false`).
 
 ### Descobertas
-- <data> — <gotcha / item para o PO saberem>
+- 2026-07-05 — Fechou o loop do épico ao vivo: o lead capturado na landing B2B (STORY-026) aparece na
+  lista do Backoffice sob o papel operacional, verificado de 1ª mão em homologação.
 
 ### Bloqueios encontrados
-- <data> — <bloqueio> — <resolução ou aberto>
+- <nenhum>
 
 ### IDRs criados
-- <nenhum até aqui>
+- <nenhum — reuso de padrões existentes>
 
 ### Cobertura final
-- Unitários: <%>
-- E2E: <cenários, evidência>
+- Guarda/controller (`Backoffice/LeadsController`): **100%** (≥98%). Total do projeto: **95,2%** (gate 80%).
+- E2E (Dusk): operador vê o lead recém-capturado; usuário sem papel é barrado (403 pt-BR). Suíte: 295
+  Feature/Unit + 73 Dusk verdes.
 
 ### Links de evidência
-- PR / Pipeline / Deploy de homologação: <urls>
+- Commits (main): `<red>` (vermelhos STORY-027), `cd1641c` (feat lista de leads).
+- CI/CD (run 28737093347): Testes+build, E2E (Dusk) e Deploy homologação — **verde**.
+- Homologação verificada (1ª mão): anônimo em `/backoffice/leads` → 302 `/login` (guarda); operador
+  (`test@example.com`) autenticado → 200 `Backoffice/Leads/Index` com o lead `verificacao-story026@quantah.test`
+  (capturado na STORY-026) visível na lista.
