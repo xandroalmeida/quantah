@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-029-home-hub-coletador   # rabisco em draft (design/screens/STORY-029-home-hub-coletador/)
-status: in_review
+status: done
 owner_agent: claude-story029
 created_at: 2026-07-05
 updated_at: 2026-07-05
@@ -161,6 +161,12 @@ frontmatter e no `index.json`. Ao terminar, preencha "Notas do agente", marque `
   `/coletar` (CA-3), 1º acesso (saldo zero + boas-vindas + CTA), anônimo → `/login` (CA-5).
 
 ### Links de evidência
-- PR: <a preencher ao abrir> · Pipeline: <a preencher> · Deploy de homologação: <a preencher/verificar>
+- **PR:** https://github.com/xandroalmeida/quantah/pull/2 (mergeado na `main`, commit `8115f30`).
+- **Pipeline CI:** run 28739879513 (Testes+build ✅, E2E Dusk ✅) no PR; run 28743801445 na `main`
+  (Testes+build ✅, E2E Dusk ✅, **Deploy homologação ✅**).
+- **Homologação verificada (2026-07-05):** `https://quantah-homolog.34.39.229.117.sslip.io` — `/up` 200;
+  `/dashboard` anônimo → 302 `/login` (home-hub deployado + guarda de acesso ao vivo, CA-5); `/login`
+  branded. Jornada autenticada ponta a ponta é coberta pelo E2E Dusk (CI verde) e será revalidada de 1ª
+  mão pelo Validador na STORY-032.
 - Spec/protótipo: `design/screens/STORY-029-home-hub-coletador/` (screen-spec.md + index.html, validado
   2026-07-05). IDR: `decisions/idr/IDR-011-destino-pos-login-reaproveita-rota-dashboard.md`.

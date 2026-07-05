@@ -2,7 +2,7 @@
 id: SCREEN-STORY-029-home-hub-coletador
 story: STORY-029
 epic: EPIC-006-jornada-b2c
-status: ready                # protótipo validado pelo humano (Alexandro) em 2026-07-05
+status: shipped              # implementada e mergeada na main (STORY-029, PR #2); protótipo validado 2026-07-05
 created_at: 2026-07-05
 updated_at: 2026-07-05
 owner_designer: claude-story029
@@ -281,3 +281,4 @@ decimal), fuso `America/Sao_Paulo`.
 |---|---|---|---|
 | 2026-07-05 | criação (spec + protótipo v1) | claude-story029 | rabisco → spec detalhado; estados zero/positivo/loading/erro; mobile+desktop |
 | 2026-07-05 | validação humana — **aprovado** | Alexandro | protótipo revisado no navegador; CTA "Coletar cupom" confirmado; sem ajustes → `ready` |
+| 2026-07-05 | implementada e mergeada (PR #2) | claude-story029 | UI de produção fiel ao spec; deploy homolog verificado → `shipped` |
