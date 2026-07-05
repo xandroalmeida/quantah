@@ -71,6 +71,36 @@ apenas `validation_report`; a transição EPIC-004 `in_review → done` é decis
 
 ## Notas do agente (preenchido durante/após execução)
 
+> Validação de 1ª mão sobre o sha `e1d97f0` (HEAD da `main` = sha deployado em homolog), 2026-07-05.
+> Checklist autorado em `validation/checklist.md`; relatório completo em `validation/report.md`.
+
 ### Veredito
+
+**APPROVED com pendências** (`approved_with_pending`). 0 fails bloqueantes; 1 fail não-bloqueante
+(F-NB-1: CI sem scanner de dependências/segredos). Contagem: 18 pass, 6 pass com ressalva, 1 fail
+não-bloqueante, 2 n/a. A transição de status do EPIC-004 é decisão do PO (não alterada aqui).
+
 ### Evidências
+
+- Suíte local (1ª mão): **277 unit+feature, 1100 asserções, 0 falhas; cobertura global 95,0%**; núcleo de
+  contas (`UpsertGoogleUser`) e de autorização (Gate `operar-saques`) a **100%**.
+- E2E browser real (Dusk): **69/69** na reexecução (1ª execução 68/69 por flake de ordenação; teste
+  isolado 5/5 — funcionalidade íntegra).
+- CI verde na `main`: run **`28727597678`** (sha `e1d97f0`) success.
+- Homolog 1ª mão (`quantah-homolog.34.39.229.117.sslip.io`): `/login` 200 (marca Quantah, pt-BR, sem logo
+  Laravel), `/intelligence` 200 (B2B reservado), `/backoffice/saques` sem login → 302 `/login` (barreira ativa).
+- Segredos: nenhum versionado; OAuth/SMTP via secrets injetados no deploy.
+- ADR-010/ADR-011/IDR-010/DDR-004 indexados; "Notas do agente" completas em STORY-019..023.
+
 ### Ressalvas / limitações
+
+- **F-NB-1 (não-bloqueante)**: `ci-cd.yml` sem análise de dependências vulneráveis nem detecção de segredos
+  (quality-standards §2.2/§4); nenhum segredo versionado/vuln crítica observado por verificação manual.
+- Ressalvas: cobertura de ramos de scaffolding Breeze fora do núcleo (<98%); flake de ordenação no Dusk;
+  observabilidade (só health `/up`); `down()` da migração não exercido em homolog; sem spec LGPD consolidada
+  para o perfil Google (introduzido sob ADR-010/PDR-003 aceitos pelo PO); promoção é push→homolog (não
+  tag-based §2.2).
+- Limitações: EPIC-004 estava `in_progress` (não `in_review`) — prossegui pois as 5 estórias de dependência
+  estão `done` e o PO pediu a execução; login Google/e-mail *ao vivo em homolog* foi verificado por Alexandro
+  (notas STORY-022), não reexecutado contra o Google real nesta sessão; sem acesso a dashboard de logs de
+  homolog para auditar PII em log de forma exaustiva.
