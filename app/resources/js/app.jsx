@@ -34,9 +34,13 @@ createInertiaApp({
             </>,
         );
 
-        // Auto-atualização: recarrega quando o servidor sobe um bundle novo (deploy),
-        // priorizando o retorno ao primeiro plano no PWA mobile.
-        startVersionWatcher(props.initialPage.props.assetVersion);
+        // Auto-atualização: recarrega quando o servidor sobe um deploy novo, priorizando o
+        // retorno ao primeiro plano no PWA mobile. Vigia a MESMA tag do deploy (`version`),
+        // com o hash do bundle (`assetVersion`) como rede de segurança.
+        startVersionWatcher({
+            version,
+            asset: props.initialPage.props.assetVersion,
+        });
     },
     progress: {
         color: '#4B5563',

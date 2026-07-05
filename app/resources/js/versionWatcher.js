@@ -23,11 +23,32 @@ function digitando() {
     return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
 }
 
-export function startVersionWatcher(bootAsset, { intervalMs = 60000 } = {}) {
+/**
+ * @param {{ asset?: string, version?: string }} boot  Assinatura com que o cliente subiu:
+ *   `asset` = hash do bundle; `version` = a tag do deploy (a MESMA que dispara o deploy).
+ *   Um deploy novo muda a tag (sempre) e o bundle — qualquer um dispara o reload.
+ */
+export function startVersionWatcher(boot, { intervalMs = 60000 } = {}) {
+    const bootAsset = boot && typeof boot === 'object' ? boot.asset : boot;
+    const bootVersion = boot && typeof boot === 'object' ? boot.version : undefined;
+
     // Sem build (dev sem manifest) ou boot desconhecido → nada a vigiar.
     if (!bootAsset || bootAsset === 'dev') {
         return () => {};
     }
+
+    // Servidor mudou? A tag do deploy é o sinal canônico; o hash do bundle é a rede de
+    // segurança (rebuild sem trocar tag). Qualquer divergência conta.
+    const mudou = (data) => {
+        if (!data) {
+            return false;
+        }
+        const tagMudou =
+            !!data.version && data.version !== 'dev' && !!bootVersion && data.version !== bootVersion;
+        const bundleMudou = !!data.asset && data.asset !== bootAsset;
+
+        return tagMudou || bundleMudou;
+    };
 
     let recarregando = false;
     let pendente = false;
@@ -64,7 +85,7 @@ export function startVersionWatcher(bootAsset, { intervalMs = 60000 } = {}) {
                 return;
             }
             const data = await res.json();
-            if (data && data.asset && data.asset !== bootAsset) {
+            if (mudou(data)) {
                 pendente = true;
                 aplicarSePendente(); // recarrega já, se for seguro
             }
