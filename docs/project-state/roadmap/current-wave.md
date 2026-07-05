@@ -26,8 +26,8 @@ real** com usuários e, com ele, o **primeiro baseline** da north-star.
 | # | Épico | Status | Outcome | Critério de pronto (observável) |
 |---|---|---|---|---|
 | 1 | **EPIC-004 Acesso e áreas** | ✅ done | Identidade de acesso do Coletador + 3 áreas segmentadas | Coletador entra por login de marca (Google ou e-mail/senha), em pt-BR, sem logo do Laravel; áreas B2C/B2B/Backoffice separadas por guardas — em homologação. Validado 2026-07-05 (`approved_with_pending`; F-NB-1 → WISH-004). |
-| 2 | **EPIC-005 Portas de entrada** | 🔜 ready | Landing B2C e landing B2B (Quantah Intelligence) | Visitante entende a proposta; CTA B2C leva ao login; lead B2B capturado e visível no backoffice — em homologação. |
-| 3 | **EPIC-006 Jornada do Coletador** | 📝 draft | Home-hub e fluxo completo pós-login (mobile) | Coletador logado chega à home-hub e percorre coletar → saldo → extrato → saque, sem página genérica — em homologação. |
+| 2 | **EPIC-005 Portas de entrada** | ✅ done | Landing B2C e landing B2B (Quantah Intelligence) | Visitante entende a proposta; CTA B2C leva ao login; lead B2B capturado e visível no backoffice — em homologação. Validado 2026-07-05 (`approved`; 4 ressalvas não-bloqueantes → WISH-005/006 e reforço a WISH-001). |
+| 3 | **EPIC-006 Jornada do Coletador** | 🔜 ready | Home-hub e fluxo completo pós-login (mobile) | Coletador logado chega à home-hub e percorre coletar → saldo → extrato → saque, sem página genérica — em homologação. Decomposto 2026-07-05 (STORY-029/030/031 + validação 032). |
 
 ## Justificativa da sequência
 
@@ -74,7 +74,10 @@ CI, observabilidade RED) que pode ou não entrar nesta onda.
 
 ## Próximo passo
 
-**EPIC-004 fechado** (`done`, validado 2026-07-05). Com o login de marca vivo, **EPIC-005 e EPIC-006
-destravam e podem correr em paralelo** (face pública × experiência logada). **Fluxo B em curso:** decompor
-o **EPIC-005** (landing B2C → landing B2B com captação de lead → lista de leads no backoffice → validação).
-EPIC-006 segue `draft` até ser decomposto na sequência.
+**EPIC-004 e EPIC-005 fechados** (`done`, validados 2026-07-05). **EPIC-006 decomposto** (Fluxo B,
+2026-07-05) e em `ready`: STORY-029 (home-hub) → STORY-030 (navegação coesa) → STORY-031 (jornada contínua
+ponta a ponta) → STORY-032 (validação). É o **último épico da onda** — fechá-lo completa a WAVE-2026-02 e
+habilita o piloto. STORY-029/030 são `requires_design` (brief em `EPIC-006/design-handoff.md`): Designer e
+Programador pegam juntas pelo modelo paralelo. Housekeeping das ressalvas do EPIC-005 registrado na wishlist
+(WISH-005 chaves i18n no payload, WISH-006 dashboard de observabilidade; R3 reforça WISH-001; WISH-004
+segue pendente). Commits de docs mantidos locais por decisão do PO (sem push).

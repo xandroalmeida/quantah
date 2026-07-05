@@ -206,12 +206,17 @@
       "slug": "jornada-b2c",
       "title": "Jornada do Coletador — home-hub e fluxo completo pós-login",
       "wave": "WAVE-2026-02",
-      "status": "draft",
+      "status": "ready",
       "path": "epics/EPIC-006-jornada-b2c/epic.md",
-      "story_ids": [],
+      "story_ids": [
+        "STORY-029",
+        "STORY-030",
+        "STORY-031",
+        "STORY-032"
+      ],
       "validation_report": null,
       "created_at": "2026-07-04",
-      "updated_at": "2026-07-04"
+      "updated_at": "2026-07-05"
     }
   ],
   "stories": [
@@ -792,6 +797,92 @@
         "STORY-025",
         "STORY-026",
         "STORY-027"
+      ],
+      "blocks": [],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-029",
+      "epic_id": "EPIC-006",
+      "title": "Home-hub do Coletador como destino pós-login (saldo + CTA de coleta)",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": "SCREEN-STORY-029-home-hub-coletador",
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-006-jornada-b2c/stories/STORY-029-home-hub-coletador.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-030",
+        "STORY-031",
+        "STORY-032"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-030",
+      "epic_id": "EPIC-006",
+      "title": "Navegação coesa da área B2C (home ↔ coleta ↔ carteira/extrato ↔ saque)",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": true,
+      "design_screen_id": "SCREEN-STORY-030-navegacao-b2c",
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-006-jornada-b2c/stories/STORY-030-navegacao-coesa-b2c.md",
+      "blocked_by": [
+        "STORY-029"
+      ],
+      "blocks": [
+        "STORY-031",
+        "STORY-032"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-031",
+      "epic_id": "EPIC-006",
+      "title": "Jornada contínua — saldo reflete a coleta e loop coletar → saldo → extrato → saque",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-006-jornada-b2c/stories/STORY-031-jornada-continua-ponta-a-ponta.md",
+      "blocked_by": [
+        "STORY-029",
+        "STORY-030"
+      ],
+      "blocks": [
+        "STORY-032"
+      ],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-032",
+      "epic_id": "EPIC-006",
+      "title": "Validação final do EPIC-006 (Jornada do Coletador)",
+      "type": "validation",
+      "target_role": "validador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "draft",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-006-jornada-b2c/stories/STORY-032-validacao-epic-006.md",
+      "blocked_by": [
+        "STORY-029",
+        "STORY-030",
+        "STORY-031"
       ],
       "blocks": [],
       "created_at": "2026-07-05",

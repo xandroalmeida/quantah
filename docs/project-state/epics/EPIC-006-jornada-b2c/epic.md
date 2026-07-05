@@ -3,10 +3,10 @@ epic_id: EPIC-006
 slug: jornada-b2c
 title: Jornada do Coletador — home-hub e fluxo completo pós-login
 wave: WAVE-2026-02
-status: draft
+status: ready
 owner_role: po
 created_at: 2026-07-04
-updated_at: 2026-07-04
+updated_at: 2026-07-05
 target_completion: 2026-08-15
 ---
 
@@ -67,11 +67,26 @@ carteira, sem passar por nenhuma página genérica.
 
 ## Estórias
 
-(Preenchido no Fluxo B. Estórias verticalmente fatiadas; última é a validação.)
+Decompostas no Fluxo B (2026-07-05). Estórias verticalmente fatiadas, mapeando os três entregáveis do
+épico; a última é a validação. Nenhum ADR novo previsto (composição de telas existentes); UI nova entra
+pelo modelo paralelo (`requires_design`, PDR-002) com o brief em `design-handoff.md`.
 
-- [ ] STORY-XXX — home-hub do Coletador (destino pós-login) com saldo + atalho de coleta, mobile
-- [ ] STORY-XXX — navegação coesa coleta ↔ carteira ↔ saque (remove a página genérica)
-- [ ] STORY-XXX (validação) — Validação final do épico
+- [ ] **STORY-029** — home-hub do Coletador como destino pós-login: saldo da carteira (EPIC-003) + CTA
+      destacado de coleta (EPIC-002), mobile-first, pt-BR (`requires_design`). Bloqueia 030, 031, 032.
+- [ ] **STORY-030** — navegação coesa da área B2C: atalhos da home para extrato/histórico e prêmios/saque
+      (EPIC-003) e coleta, retorno consistente, **≤ 2 toques**, sem página genérica (`requires_design`).
+      Bloqueada por 029. Bloqueia 031, 032.
+- [ ] **STORY-031** — jornada contínua ponta a ponta: saldo reflete a coleta recém-feita e loop
+      coletar → saldo → extrato → iniciar saque, com E2E mobile em browser real. Bloqueada por 029 e 030.
+      Bloqueia 032.
+- [ ] **STORY-032** (validação) — validação final do épico (`target_role: validador`). Bloqueada por
+      029–031. `draft` até as estórias de dependência avançarem.
+
+### Ordem sugerida e paralelismo
+
+STORY-029 primeiro (base da jornada). STORY-030 depende dela (navega a partir da home). STORY-031 costura o
+loop e só faz sentido com 029 e 030 prontas. STORY-032 fecha o épico. Designer e Programador pegam 029 e 030
+juntos (modelo paralelo); 031 não tem tela nova.
 
 ## Validação final
 
@@ -83,3 +98,8 @@ chega à home-hub e percorre coletar → saldo → extrato → saque em homologa
 ## Histórico
 
 - 2026-07-04 — criado por PO (Fluxo A, WAVE-2026-02). Status `draft` — decompor após EPIC-004.
+- 2026-07-05 — **decomposto (Fluxo B)** por PO, após EPIC-004 e EPIC-005 `done`. 4 estórias criadas:
+  STORY-029 (home-hub), STORY-030 (navegação coesa), STORY-031 (jornada contínua ponta a ponta),
+  STORY-032 (validação). Três estórias de implementação mapeando os três entregáveis do épico (a fatia da
+  jornada contínua ganhou estória própria por ser a prova da métrica primária) + a validação. Épico →
+  `ready`. Brief de design em `design-handoff.md` (STORY-029/030 são `requires_design`). Sem ADR novo.
