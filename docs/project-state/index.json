@@ -206,7 +206,9 @@
       "slug": "jornada-b2c",
       "title": "Jornada do Coletador — home-hub e fluxo completo pós-login",
       "wave": "WAVE-2026-02",
-      "status": "ready",
+      "status": "done",
+      "closed_by": "po (Alexandro / Claude)",
+      "closed_at": "2026-07-05",
       "path": "epics/EPIC-006-jornada-b2c/epic.md",
       "story_ids": [
         "STORY-029",
