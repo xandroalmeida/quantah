@@ -101,4 +101,43 @@ class CapturaScreenContractTest extends TestCase
         $this->assertStringContainsString("await import('@zxing/browser')", $src,
             'O decode do QR deve ser carregado por import dinâmico (lazy chunk).');
     }
+
+    /**
+     * (b) robustez para impressão térmica ruim: o scanner tenta o detector nativo antes
+     * do zxing, abre a câmera traseira com constraints próprias e oferece lanterna e foto.
+     * Motivo de campo: cupom térmico desbotado/brilhoso — reflexo e vídeo ao vivo falham.
+     */
+    public function test_scanner_e_robusto_para_impressao_ruim(): void
+    {
+        $src = $this->source('resources/js/Components/coleta/QrScanner.jsx');
+
+        // Detector nativo primeiro (Android decodifica QR sujo/torto melhor que JS puro).
+        $this->assertStringContainsString('BarcodeDetector', $src,
+            'Deveria tentar o BarcodeDetector nativo antes do zxing.');
+        // Abre o stream com constraints próprias para controlar câmera/foco/lanterna.
+        $this->assertStringContainsString('getUserMedia', $src,
+            'Deveria abrir a câmera com constraints próprias (não o default do zxing).');
+        $this->assertStringContainsString('facingMode', $src,
+            'Deveria pedir a câmera traseira (environment).');
+        // Lanterna: o reflexo no papel térmico brilhoso é a maior causa de falha de leitura.
+        $this->assertStringContainsString('torch', $src,
+            'Deveria oferecer a lanterna (torch) para matar o reflexo.');
+        // "Tirar foto": uma foto estática de alta resolução lê onde o vídeo ao vivo falha.
+        $this->assertMatchesRegularExpression('/capture=["\']environment["\']/', $src,
+            'Deveria ter o fallback de foto (input capture="environment").');
+    }
+
+    /** (b) identificadores estáveis dos controles de robustez, para ancorar o E2E. */
+    public function test_identificadores_dos_controles_de_camera(): void
+    {
+        $src = $this->source('resources/js/Components/coleta/QrScanner.jsx');
+
+        foreach ([
+            'screen-captura-torch-btn',
+            'screen-captura-photo-btn',
+            'screen-captura-photo-input',
+        ] as $id) {
+            $this->assertStringContainsString($id, $src, "data-testid ausente: $id.");
+        }
+    }
 }
