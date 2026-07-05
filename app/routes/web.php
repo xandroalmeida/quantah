@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backoffice\LeadsController;
 use App\Http\Controllers\Backoffice\SaquesController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\ColetaController;
@@ -110,6 +111,9 @@ Route::get('/dashboard', function () {
 // ---------------------------------------------------------------------------
 
 Route::middleware(['auth', 'can:operar-saques'])->prefix('backoffice')->name('backoffice.')->group(function () {
+    // Leads B2B capturados na landing (STORY-026) — visíveis à operação (STORY-027).
+    Route::get('/leads', [LeadsController::class, 'index'])->name('leads.index');
+
     Route::get('/saques', [SaquesController::class, 'index'])->name('saques.index');
     Route::get('/saques/{saque}', [SaquesController::class, 'show'])->name('saques.show');
     Route::post('/saques/{saque}/assumir', [SaquesController::class, 'assumir'])->name('saques.assumir');
