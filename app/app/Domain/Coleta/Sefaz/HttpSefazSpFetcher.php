@@ -143,11 +143,16 @@ final class HttpSefazSpFetcher implements SefazSpFetcher
         $semScript = preg_replace('/<script.*?<\/script>/is', '', $html) ?? $html;
         $dataEmissao = $this->capturar('/Emiss.{0,40}?(\d{2}\/\d{2}\/\d{4}(?:\s+\d{2}:\d{2}:\d{2})?)/is', $semScript);
 
+        // Nome do estabelecimento (STORY-034): razão social no topo do DANFE
+        // (`<div id="u20" class="txtTopo">NOME</div>`). Ausente → null (UI degrada).
+        $nomeEmitente = $this->texto($this->capturar('/class="txtTopo"[^>]*>(.*?)<\/div>/is', $html)) ?: null;
+
         return [
             'numero' => $chave->numero(),
             'serie' => $chave->serie(),
             'data_emissao' => $this->dataIso($dataEmissao),
             'valor_total' => $valorTotal !== '' ? $valorTotal : '0',
+            'nome_emitente' => $nomeEmitente,
             'itens' => $itens,
         ];
     }

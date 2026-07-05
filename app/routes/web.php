@@ -87,6 +87,9 @@ Route::middleware('auth')->group(function () {
     // Carteira do Colaborador (STORY-016): saldo em reais + histórico de cashback.
     Route::get('/carteira', [CarteiraController::class, 'index'])->name('carteira.index');
 
+    // Detalhe do cupom (STORY-034): cabeçalho + itens, aberto a partir do histórico.
+    Route::get('/carteira/cupom/{cupom}', [CarteiraController::class, 'cupom'])->name('carteira.cupom');
+
     // Solicitação de saque — PIX assistido (STORY-017, ADR-005).
     Route::get('/carteira/saque', [SaqueController::class, 'create'])->name('saque.create');
     Route::post('/carteira/saque', [SaqueController::class, 'store'])->name('saque.store');

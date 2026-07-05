@@ -23,7 +23,7 @@ class CupomDetalheTest extends TestCase
     {
         $cupom = Cupom::create(array_merge([
             'chave_acesso' => self::CHAVE,
-            'uf' => '35', 'ano_mes' => '2601', 'cnpj_emitente' => '43259548000283',
+            'uf' => '35', 'ano_mes' => '2601', 'cnpj_emitente' => '43259548002883',
             'modelo' => '65', 'valor_total' => '235.43', 'data_emissao' => '2026-07-01 16:43:54',
             'nome_emitente' => 'Supermercados Cavicchiolli Ltda',
             'status' => Cupom::STATUS_VALIDADO, 'origem' => 'scan',

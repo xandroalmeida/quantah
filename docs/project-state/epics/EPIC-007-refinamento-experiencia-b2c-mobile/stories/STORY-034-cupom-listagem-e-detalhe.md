@@ -7,9 +7,9 @@ sprint_id: null
 type: implementation
 target_role: programador
 requires_design: true
-design_screen_id: null
-status: draft
-owner_agent: null
+design_screen_id: SCREEN-STORY-034-cupom-detalhe
+status: done
+owner_agent: claude-programador
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: L
@@ -107,9 +107,47 @@ Siga `agent-task-format.md`. `requires_design: true` → alinhe cedo com o Desig
 
 ## Notas do agente (preenchido durante/após execução)
 
-> _(a preencher)_
+### Decisões tomadas (ver IDR-015)
 
-### Decisões tomadas
+- **`nome_emitente` (string nullable)** em `cupons` via migration; parse do topo do DANFE
+  (`<div class="txtTopo">`), propagado por `CupomExtraido.nomeEmitente` (opcional) → adapter → ingestão.
+  Sem backfill; ausência degrada com fallback "Estabelecimento não identificado" + CNPJ.
+- **Detalhe:** rota `GET /carteira/cupom/{cupom}` (guarda `auth` + posse via `CupomAtribuicao`;
+  não-dono → 404). Read-model `DetalheCupom` formata cabeçalho (estabelecimento, CNPJ, data pt-BR,
+  total, status→label+variante) + itens (qtd sem zeros à direita, moeda pt-BR). `Formato::cnpj()` novo.
+- **Listagem:** `ExtratoCarteira` expõe `estabelecimento` (com fallback) + `cupom_id`; o item vira
+  `<Link>` clicável para o detalhe, mostrando estabelecimento + data · valor.
+- **Design (modelo paralelo, PDR-002):** spec + protótipo HTML (`SCREEN-STORY-034`) **validados com o
+  Alexandro em 2026-07-05** ("Aprovar como está"). Sem novo padrão/exceção de DS → sem DDR.
+
 ### Descobertas
+
+- O payload padrão do fake e o de LGPD ganharam `nome_emitente`; dois E2E de carteira (que afirmavam o
+  antigo "Cupom de R$ X") foram atualizados para o novo item (estabelecimento + data · valor).
+- `nomeEmitente` fica **fora** da checagem estrutural do adapter (default null) — fontes sem o campo não
+  viram falha estrutural.
+
+### Mapeamento CA → teste (todos verdes)
+
+- **CA-1** → `Coleta/NomeEmitenteTest` (persiste / ausência→null); `Coleta/HttpSefazSpFetcherTest` (parse);
+  `Carteira/ExtratoCarteiraTest::test_extrato_usa_fallback...`; `Carteira/CupomDetalheTest::test_fallback...`.
+- **CA-2** → `Carteira/ExtratoCarteiraTest::test_extrato_expoe_estabelecimento_e_cupom_id`;
+  `Browser/CupomDetalheE2eTest` (estabelecimento + data na listagem).
+- **CA-3** → `Browser/CupomDetalheE2eTest` (1 toque → detalhe → retorno); `CupomDetalheTest`
+  (auth + `test_nao_dono_recebe_404`).
+- **CA-4** → `CupomDetalheTest::test_dono_ve_cabecalho_e_itens` e `test_cupom_pendente_sem_itens...`.
+- **CA-5** → `CupomDetalheTest::test_detalhe_nao_expoe_cpf`; `CupomDetalheE2eTest` (sem overflow horizontal).
+
 ### Bloqueios encontrados
+
+Nenhum.
+
 ### Links de evidência
+
+- Testes novos: `NomeEmitenteTest`, `CupomDetalheTest` (6), `CupomDetalheE2eTest`, `ExtratoCarteiraTest`
+  (+2), `HttpSefazSpFetcherTest` (+1). Suíte completa: **Pest 323/323**; **Dusk 90/90**.
+- Design: `design/screens/STORY-034-cupom-detalhe/` (`screen-spec.md` + `index.html`), aprovado 2026-07-05.
+- Decisão: `decisions/idr/IDR-015-captura-nome-emitente-sefaz.md`.
+- Migration: `2026_07_05_000002_add_nome_emitente_to_cupons_table.php`. Arquivos: `HttpSefazSpFetcher`,
+  `CupomExtraido`, `SpSefazAdapter`, `IngestaoCupomService`, `Cupom`, `ExtratoCarteira`, `DetalheCupom`
+  (novo), `CarteiraController`, `Formato`, `routes/web.php`, `Pages/Carteira/{Index,CupomDetalhe}.jsx`.

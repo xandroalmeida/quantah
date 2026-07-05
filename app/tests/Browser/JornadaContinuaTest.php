@@ -52,7 +52,8 @@ class JornadaContinuaTest extends DuskTestCase
     {
         $cupom = Cupom::create([
             'chave_acesso' => self::CHAVE, 'uf' => '35', 'ano_mes' => '2601',
-            'cnpj_emitente' => '12345678000195', 'modelo' => '65', 'valor_total' => $valorReais,
+            'cnpj_emitente' => '12345678000195', 'nome_emitente' => 'Mercado da Jornada',
+            'modelo' => '65', 'valor_total' => $valorReais,
             'data_emissao' => '2026-01-15 10:00:00', 'status' => Cupom::STATUS_VALIDADO, 'origem' => 'scan',
         ]);
         CupomAtribuicao::create(['cupom_id' => $cupom->id, 'user_id' => $user->id]);
@@ -88,7 +89,7 @@ class JornadaContinuaTest extends DuskTestCase
                 // Extrato em 1 toque; o crédito aparece no histórico (CA-2/CA-4).
                 ->click('[data-testid=screen-home-atalho-historico]')
                 ->waitForLocation('/carteira', 10)
-                ->assertSeeIn('[data-testid=screen-carteira-item]', 'Cupom de R$ 4.890,00')
+                ->assertSeeIn('[data-testid=screen-carteira-item]', 'Mercado da Jornada')
                 ->assertSeeIn('[data-testid=screen-carteira-item-credito]', '+R$ 4,89')
                 // Iniciar saque a partir da jornada (CA-3).
                 ->visit('/inicio')

@@ -19,6 +19,9 @@ use Illuminate\Support\Carbon;
  */
 final class ExtratoCarteira
 {
+    /** Fallback quando o cupom não tem nome do emitente (STORY-034). */
+    public const ESTABELECIMENTO_FALLBACK = 'Estabelecimento não identificado';
+
     private const MESES = [
         1 => 'jan', 2 => 'fev', 3 => 'mar', 4 => 'abr', 5 => 'mai', 6 => 'jun',
         7 => 'jul', 8 => 'ago', 9 => 'set', 10 => 'out', 11 => 'nov', 12 => 'dez',
@@ -61,11 +64,21 @@ final class ExtratoCarteira
 
             return [
                 'id' => $c->id,
+                'cupom_id' => $c->cupom_id,
+                'estabelecimento' => self::estabelecimento($cupom),
                 'cupom_valor' => $cupom?->valor_total !== null ? self::reaisDeDecimal((string) $cupom->valor_total) : '0,00',
                 'data' => self::dataCurta($cupom?->data_emissao),
                 'credito' => self::reais($c->valor_centavos),
             ];
         })->all();
+    }
+
+    /** Nome do estabelecimento, ou o fallback quando o cupom não o tem (STORY-034). */
+    private static function estabelecimento(?Cupom $cupom): string
+    {
+        $nome = $cupom?->nome_emitente;
+
+        return ($nome !== null && $nome !== '') ? $nome : self::ESTABELECIMENTO_FALLBACK;
     }
 
     /** Centavos inteiros → "1.234,56" (pt-BR), sem passar valor cru para a tela. */

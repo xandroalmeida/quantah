@@ -53,7 +53,8 @@ class CarteiraTest extends DuskTestCase
         $carteira = Carteira::create(['user_id' => $user->id, 'saldo_centavos' => 9]);
         $cupom = Cupom::create([
             'chave_acesso' => self::CHAVE, 'uf' => '35', 'ano_mes' => '2601',
-            'cnpj_emitente' => '12345678000195', 'modelo' => '65', 'valor_total' => '87.90',
+            'cnpj_emitente' => '12345678000195', 'nome_emitente' => 'Supermercado Bom Preço',
+            'modelo' => '65', 'valor_total' => '87.90',
             'data_emissao' => '2026-01-15 10:00:00', 'status' => Cupom::STATUS_VALIDADO, 'origem' => 'scan',
         ]);
         CarteiraTransacao::create([
@@ -75,7 +76,9 @@ class CarteiraTest extends DuskTestCase
                 ->assertSeeIn('[data-testid=screen-carteira-saldo]', 'R$ 0,09')
                 ->assertSee('Cada nota conta.')
                 ->assertPresent('[data-testid=screen-carteira-historico]')
-                ->assertSeeIn('[data-testid=screen-carteira-item]', 'Cupom de R$ 87,90')
+                // STORY-034: o item mostra estabelecimento + data/valor e é clicável.
+                ->assertSeeIn('[data-testid=screen-carteira-item]', 'Supermercado Bom Preço')
+                ->assertSeeIn('[data-testid=screen-carteira-item]', 'R$ 87,90')
                 ->assertSeeIn('[data-testid=screen-carteira-item-credito]', '+R$ 0,09')
                 ->assertVisible('[data-testid=app-nav]');
         });

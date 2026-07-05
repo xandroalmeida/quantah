@@ -35,6 +35,16 @@ final class Formato
         return $dt === null ? '' : self::emSaoPaulo($dt)->format('d/m/Y');
     }
 
+    /** CNPJ de 14 dígitos → "12.345.678/0001-95". Entrada fora do padrão volta como veio. */
+    public static function cnpj(?string $cnpj): string
+    {
+        if ($cnpj === null || ! preg_match('/^\d{14}$/', $cnpj)) {
+            return (string) $cnpj;
+        }
+
+        return preg_replace('/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/', '$1.$2.$3/$4-$5', $cnpj);
+    }
+
     /** Datetime (UTC na base) → "dd/mm/aaaa HH:MM" no fuso de São Paulo. Null → "". */
     public static function dataHora(?DateTimeInterface $dt): string
     {

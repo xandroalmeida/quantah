@@ -1,0 +1,241 @@
+<title>SCREEN-STORY-034 — Detalhe do cupom</title>
+<style>
+  :root{
+    /* Tokens do Design System Quantah (tokens.md / tailwind.config.js) */
+    --primary:#9fe870; --on-primary:#0e0f0c; --primary-pale:#e2f6d5; --primary-neutral:#c5edab;
+    --canvas:#ffffff; --canvas-soft:#e8ebe6; --ink:#0e0f0c; --ink-deep:#163300;
+    --body:#454745; --mute:#868685; --positive-deep:#054d28; --warning:#ffd11a; --warning-content:#4a3b1c;
+    /* Chrome da página (neutro com viés verde, escolhido — não default) */
+    --page-bg:#eef1ea; --page-fg:#1a1c18; --page-mute:#5a5f54; --card-line:#d7dccf; --chip-bg:#ffffff;
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --page-bg:#12140f; --page-fg:#eaeee3; --page-mute:#9aa08e; --card-line:#2b2e26; --chip-bg:#1b1e17; }
+  }
+  :root[data-theme="dark"]{ --page-bg:#12140f; --page-fg:#eaeee3; --page-mute:#9aa08e; --card-line:#2b2e26; --chip-bg:#1b1e17; }
+  :root[data-theme="light"]{ --page-bg:#eef1ea; --page-fg:#1a1c18; --page-mute:#5a5f54; --card-line:#d7dccf; --chip-bg:#ffffff; }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page-bg);color:var(--page-fg);font-family:var(--font);line-height:1.5;
+       -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto;padding:40px 20px 64px}
+  header.top{display:flex;flex-direction:column;gap:14px;margin-bottom:8px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--page-mute);font-weight:600}
+  h1.title{font-size:clamp(26px,4vw,40px);font-weight:900;letter-spacing:-.02em;margin:0;text-wrap:balance}
+  .lede{max-width:66ch;color:var(--page-mute);margin:0;font-size:16px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--chip-bg);
+        border:1px solid var(--card-line);color:var(--page-fg)}
+  .chip b{color:#2f7d22}
+  @media (prefers-color-scheme: dark){ .chip b{color:var(--primary)} }
+  :root[data-theme="dark"] .chip b{color:var(--primary)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;margin-top:34px}
+  figure.frame{margin:0;display:flex;flex-direction:column;gap:12px}
+  figcaption{font-size:13px;color:var(--page-mute)}
+  figcaption b{color:var(--page-fg);font-weight:700}
+
+  /* --- Aparelho: renderiza o app real (tema claro do produto) --- */
+  .phone{width:100%;max-width:360px;margin:0 auto;border-radius:34px;padding:10px;background:#0b0c0a;
+         box-shadow:0 18px 40px rgba(0,0,0,.28)}
+  .screen{background:var(--canvas-soft);border-radius:26px;overflow:hidden;height:640px;display:flex;flex-direction:column;
+          color:var(--ink)}
+  .screen .scroll{flex:1;overflow-y:auto;padding:18px 16px 12px;display:flex;flex-direction:column;gap:18px}
+  .back{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:15px;color:var(--ink);
+        background:none;border:none;padding:6px 2px;align-self:flex-start;cursor:default}
+  .card{background:var(--canvas);border-radius:22px;padding:18px}
+  .cab{display:flex;flex-direction:column;gap:12px}
+  .cab .row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .estab{font-size:22px;font-weight:900;letter-spacing:-.01em;margin:0;line-height:1.15}
+  .sub{font-size:13px;color:var(--mute)}
+  .badge{display:inline-flex;align-items:center;gap:5px;flex:none;font-size:13px;font-weight:600;
+         padding:3px 11px;border-radius:999px}
+  .badge.ok{background:var(--primary-pale);color:var(--positive-deep)}
+  .badge.info{background:var(--canvas-soft);color:var(--ink)}
+  .total{display:flex;align-items:baseline;justify-content:space-between;border-top:1px solid var(--canvas-soft);padding-top:12px}
+  .total .lbl{font-size:13px;color:var(--body)}
+  .total .val{font-size:30px;font-weight:900;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+  h2.sec{font-size:15px;font-weight:700;margin:0 0 2px}
+  .itens{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  .item{background:var(--canvas);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:6px}
+  .item .desc{font-size:15px;font-weight:600}
+  .item .line{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px;color:var(--body)}
+  .item .line .vt{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;flex:none}
+  .empty{background:var(--canvas);border-radius:22px;padding:34px 22px;display:flex;flex-direction:column;
+         align-items:center;text-align:center;gap:14px}
+  .empty .glyph{width:44px;height:44px;color:var(--mute)}
+  .empty h3{font-size:22px;font-weight:800;margin:0;color:var(--ink)}
+  .empty p{font-size:15px;color:var(--body);margin:0;max-width:24ch}
+  /* Listagem */
+  .h1c{display:flex;align-items:center;justify-content:space-between;font-size:26px;font-weight:900;margin:0}
+  .saldo{background:var(--ink);color:var(--primary);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:6px}
+  .saldo .k{font-size:13px;color:var(--primary-neutral)}
+  .saldo .v{font-size:40px;font-weight:900;letter-spacing:-.02em}
+  .saldo .h{font-size:13px;color:var(--canvas-soft)}
+  .li{background:var(--canvas);border-radius:22px;padding:14px;display:flex;align-items:center;gap:12px;
+      border:1px solid transparent}
+  .li:focus-within,.li.tap{border-color:var(--ink)}
+  .li .ic{width:22px;height:22px;color:var(--ink-deep);flex:none}
+  .li .mid{min-width:0;flex:1;display:flex;flex-direction:column}
+  .li .nm{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .li .mt{font-size:13px;color:var(--mute)}
+  .li .cr{flex:none;font-size:13px;font-weight:600;padding:3px 11px;border-radius:999px;background:var(--primary-pale);color:var(--positive-deep)}
+  /* Nav inferior */
+  .nav{display:flex;border-top:1px solid var(--ink);background:var(--canvas)}
+  .nav a{flex:1;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+         font-size:12px;font-weight:600;color:var(--body);text-decoration:none}
+  .nav a.on{color:var(--ink)}
+  .nav a.on .ni{color:var(--primary)}
+  .nav .ni{width:20px;height:20px;color:var(--body)}
+  svg{display:block}
+  footer.legend{margin-top:40px;border-top:1px solid var(--card-line);padding-top:18px;color:var(--page-mute);font-size:13px;max-width:66ch}
+  footer.legend b{color:var(--page-fg)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">SCREEN-STORY-034 · EPIC-007 · Protótipo fiel do app rodando</span>
+    <h1 class="title">Detalhe do cupom — cabeçalho + itens</h1>
+    <p class="lede">Ao tocar um cupom no histórico da Carteira, abre a tela que responde “que compra foi essa e o que
+      tinha nela”. Mobile-first sobre o Design System, verde só como accent, 100% pt-BR, a11y AA, retorno claro à listagem.</p>
+    <div class="chips">
+      <span class="chip">Tokens do <b>DS</b> (tokens.md)</span>
+      <span class="chip">card.content · badge · empty-state</span>
+      <span class="chip">dd/mm/aaaa · R$ 1.234,56</span>
+      <span class="chip">alvos <b>≥48px</b> · foco visível</span>
+      <span class="chip">sem PII (<b>ADR-006</b>)</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- 1. Listagem clicável -->
+    <figure class="frame">
+      <div class="phone"><div class="screen">
+        <div class="scroll">
+          <div class="h1c">Carteira
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#868685" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h.5"/></svg>
+          </div>
+          <div class="saldo"><span class="k">Seu saldo</span><span class="v">R$ 9,13</span><span class="h">Cada nota conta.</span></div>
+          <div><h2 class="sec">Histórico</h2>
+          <div class="itens" style="margin-top:10px">
+            <div class="li tap">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21 8 19.5 6 21z"/><path d="M9 8h6M9 12h6"/></svg>
+              <div class="mid"><span class="nm">Supermercados Cavicchiolli Ltda</span><span class="mt">1 jul 2026 · R$ 235,43</span></div>
+              <span class="cr">✓ +R$ 0,09</span>
+            </div>
+            <div class="li">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21 8 19.5 6 21z"/><path d="M9 8h6M9 12h6"/></svg>
+              <div class="mid"><span class="nm">Estabelecimento não identificado</span><span class="mt">3 jul 2026 · R$ 42,00</span></div>
+              <span class="cr">✓ +R$ 0,04</span>
+            </div>
+          </div></div>
+        </div>
+        <nav class="nav">
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</a>
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21 8 19.5 6 21z"/></svg>Escanear</a>
+          <a href="#" class="on" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h.5"/></svg>Carteira</a>
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</a>
+        </nav>
+      </div></div>
+      <figcaption><b>Listagem (ajuste).</b> Cada item mostra estabelecimento + data · valor e é clicável (1 toque → detalhe). Crédito segue em badge verde.</figcaption>
+    </figure>
+
+    <!-- 2. Detalhe cheio -->
+    <figure class="frame">
+      <div class="phone"><div class="screen">
+        <div class="scroll">
+          <button class="back">← Carteira</button>
+          <div class="card cab">
+            <div class="row">
+              <div><h1 class="estab">Supermercados Cavicchiolli Ltda</h1>
+                <div class="sub">CNPJ 43.259.548/0028-83</div><div class="sub">01/07/2026</div></div>
+              <span class="badge ok">✓ Validado</span>
+            </div>
+            <div class="total"><span class="lbl">Total</span><span class="val">R$ 235,43</span></div>
+          </div>
+          <div><h2 class="sec">Itens</h2>
+          <ul class="itens" style="margin-top:10px">
+            <li class="item"><span class="desc">SALSICHA HOT DOG SADIA 500G</span>
+              <span class="line"><span>1 UN × R$ 14,85</span><span class="vt">R$ 14,85</span></span></li>
+            <li class="item"><span class="desc">BANANA NANICA</span>
+              <span class="line"><span>0,506 KG × R$ 6,99</span><span class="vt">R$ 3,54</span></span></li>
+            <li class="item"><span class="desc">DETERGENTE LIQUIDO YPE NEUTRO 500ML</span>
+              <span class="line"><span>3 UN × R$ 2,49</span><span class="vt">R$ 7,47</span></span></li>
+          </ul></div>
+        </div>
+        <nav class="nav">
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</a>
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21 8 19.5 6 21z"/></svg>Escanear</a>
+          <a href="#" class="on" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h.5"/></svg>Carteira</a>
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</a>
+        </nav>
+      </div></div>
+      <figcaption><b>Detalhe — validado com itens (caso cheio).</b> Cabeçalho: estabelecimento, CNPJ, data, badge de status e total em destaque. Lista de itens legível em tela estreita.</figcaption>
+    </figure>
+
+    <!-- 3. Sem nome (fallback) -->
+    <figure class="frame">
+      <div class="phone"><div class="screen">
+        <div class="scroll">
+          <button class="back">← Carteira</button>
+          <div class="card cab">
+            <div class="row">
+              <div><h1 class="estab">Estabelecimento não identificado</h1>
+                <div class="sub">CNPJ 12.345.678/0001-95</div><div class="sub">03/07/2026</div></div>
+              <span class="badge ok">✓ Validado</span>
+            </div>
+            <div class="total"><span class="lbl">Total</span><span class="val">R$ 42,00</span></div>
+          </div>
+          <div><h2 class="sec">Itens</h2>
+          <ul class="itens" style="margin-top:10px">
+            <li class="item"><span class="desc">CAFE TORRADO 500G</span>
+              <span class="line"><span>2 UN × R$ 21,00</span><span class="vt">R$ 42,00</span></span></li>
+          </ul></div>
+        </div>
+        <nav class="nav">
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</a>
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21 8 19.5 6 21z"/></svg>Escanear</a>
+          <a href="#" class="on" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h.5"/></svg>Carteira</a>
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</a>
+        </nav>
+      </div></div>
+      <figcaption><b>Detalhe — sem nome do emitente (fallback).</b> Degrada com “Estabelecimento não identificado” e o CNPJ como identificador. UI não quebra.</figcaption>
+    </figure>
+
+    <!-- 4. Pendente / sem itens -->
+    <figure class="frame">
+      <div class="phone"><div class="screen">
+        <div class="scroll">
+          <button class="back">← Carteira</button>
+          <div class="card cab">
+            <div class="row">
+              <div><h1 class="estab">Estabelecimento não identificado</h1>
+                <div class="sub">CNPJ 12.345.678/0001-95</div></div>
+              <span class="badge info">ⓘ Processando</span>
+            </div>
+          </div>
+          <div class="empty">
+            <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21 8 19.5 6 21z"/><path d="M9 8h6M9 12h6"/></svg>
+            <h3>Estamos processando este cupom</h3>
+            <p>Os itens aparecem assim que a validação na SEFAZ terminar.</p>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</a>
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21 8 19.5 6 21z"/></svg>Escanear</a>
+          <a href="#" class="on" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h.5"/></svg>Carteira</a>
+          <a href="#" tabindex="-1"><svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</a>
+        </nav>
+      </div></div>
+      <figcaption><b>Detalhe — pendente / sem itens.</b> A extração é assíncrona: badge “Processando” + empty-state acolhedor, sem tela quebrada.</figcaption>
+    </figure>
+
+  </div>
+
+  <footer class="legend">
+    Protótipo fiel ao app real (viewport 390px) para a validação do modelo paralelo (PDR-002). Em produção a fonte é
+    <b>Inter</b> (900/600/400) e todo dado vem do read-model <b>DetalheCupom</b> — nada hardcoded. Verde (<b>primary</b>)
+    aparece só como accent (badge validado, saldo). Estados cobertos: cheio, sem nome (fallback), pendente/sem itens.
+  </footer>
+</div>

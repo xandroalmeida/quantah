@@ -950,9 +950,9 @@
       "type": "implementation",
       "target_role": "programador",
       "requires_design": true,
-      "design_screen_id": "SCREEN-STORY-034-detalhe-cupom",
-      "status": "draft",
-      "owner_agent": null,
+      "design_screen_id": "SCREEN-STORY-034-cupom-detalhe",
+      "status": "done",
+      "owner_agent": "claude-programador",
       "sprint_id": null,
       "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-034-cupom-listagem-e-detalhe.md",
       "blocked_by": [],
@@ -1442,6 +1442,20 @@
         "decided_by": "programador",
         "related_story": "STORY-036",
         "related_adrs": []
+      },
+      {
+        "id": "IDR-015",
+        "title": "Nome do estabelecimento — coluna nullable, parse do DANFE, fallback, sem backfill",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-015-captura-nome-emitente-sefaz.md",
+        "decided_at": "2026-07-05",
+        "decided_by": "programador",
+        "related_story": "STORY-034",
+        "related_adrs": [
+          "ADR-001",
+          "ADR-002",
+          "ADR-006"
+        ]
       }
     ],
     "ddr": [
@@ -1839,6 +1853,33 @@
           "brand.mark"
         ],
         "owner_designer": "claude-story030",
+        "created_at": "2026-07-05",
+        "updated_at": "2026-07-05"
+      },
+      {
+        "id": "SCREEN-STORY-034-cupom-detalhe",
+        "story": "STORY-034",
+        "epic": "EPIC-007",
+        "status": "shipped",
+        "path": "design/screens/STORY-034-cupom-detalhe/screen-spec.md",
+        "prototype_path": "design/screens/STORY-034-cupom-detalhe/index.html",
+        "prototype_last_validated_at": "2026-07-05",
+        "viewports": [
+          "mobile",
+          "desktop"
+        ],
+        "related_ddrs": [
+          "DDR-007"
+        ],
+        "ds_components_used": [
+          "card.content",
+          "badge.positive",
+          "badge.info",
+          "empty-state",
+          "nav.bottom",
+          "nav.bar"
+        ],
+        "owner_designer": "claude-programador",
         "created_at": "2026-07-05",
         "updated_at": "2026-07-05"
       }

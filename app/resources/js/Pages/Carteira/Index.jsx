@@ -5,7 +5,7 @@ import EmptyState from '@/Components/EmptyState';
 import { ReceiptIcon, WalletIcon } from '@/Components/icons';
 import AppLayout from '@/Layouts/AppLayout';
 import Snackbar from '@/Components/Snackbar';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 
 // Microcopy = screen-spec §5 (design/screens/STORY-016-carteira-saldo-historico/screen-spec.md).
 const COPY = {
@@ -18,26 +18,31 @@ const COPY = {
     vazioCta: 'Capturar cupom',
 };
 
-// Item do histórico: cupom válido + o crédito de cashback correspondente.
+// Item do histórico: cupom válido + o crédito. Clicável → abre o detalhe (STORY-034).
+// Mostra o estabelecimento e a data de emissão (contexto), além do valor/crédito.
 function ItemExtrato({ item }) {
     return (
         <li>
-            <Card
-                variant="content"
-                className="flex items-center gap-md"
+            <Link
+                href={`/carteira/cupom/${item.cupom_id}`}
                 data-testid="screen-carteira-item"
+                className="block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-ink"
             >
-                <ReceiptIcon className="h-xl w-xl shrink-0 text-ink-deep" />
-                <div className="flex min-w-0 flex-1 flex-col">
-                    <span className="text-body-md font-semibold text-ink">
-                        Cupom de R$ {item.cupom_valor}
-                    </span>
-                    <span className="text-body-sm text-mute">{item.data}</span>
-                </div>
-                <Badge variant="positive" data-testid="screen-carteira-item-credito">
-                    +R$ {item.credito}
-                </Badge>
-            </Card>
+                <Card variant="content" className="flex items-center gap-md">
+                    <ReceiptIcon className="h-xl w-xl shrink-0 text-ink-deep" />
+                    <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-body-md font-semibold text-ink">
+                            {item.estabelecimento}
+                        </span>
+                        <span className="text-body-sm text-mute">
+                            {item.data ? `${item.data} · ` : ''}R$ {item.cupom_valor}
+                        </span>
+                    </div>
+                    <Badge variant="positive" data-testid="screen-carteira-item-credito">
+                        +R$ {item.credito}
+                    </Badge>
+                </Card>
+            </Link>
         </li>
     );
 }

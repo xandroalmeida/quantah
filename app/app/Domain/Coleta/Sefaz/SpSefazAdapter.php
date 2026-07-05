@@ -71,6 +71,9 @@ final class SpSefazAdapter implements SefazAdapter
             numero: (int) $p['numero'],
             serie: (int) $p['serie'],
             itens: $itens,
+            // Nome do estabelecimento (STORY-034): opcional — fonte pode não trazer → null.
+            nomeEmitente: isset($p['nome_emitente']) && $p['nome_emitente'] !== ''
+                ? (string) $p['nome_emitente'] : null,
         );
     }
 }

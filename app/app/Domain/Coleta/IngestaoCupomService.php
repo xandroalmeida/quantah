@@ -258,6 +258,7 @@ final class IngestaoCupomService
                 'serie' => $extraido->serie,
                 'data_emissao' => $extraido->dataEmissao,
                 'valor_total' => $extraido->valorTotal,
+                'nome_emitente' => $extraido->nomeEmitente,
                 'status' => Cupom::STATUS_VALIDADO,
                 'motivo_falha' => null,
                 'extraido_em' => now(),

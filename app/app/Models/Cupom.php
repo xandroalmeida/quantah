@@ -33,6 +33,7 @@ class Cupom extends Model
         'uf',
         'ano_mes',
         'cnpj_emitente',
+        'nome_emitente',
         'modelo',
         'numero',
         'serie',
