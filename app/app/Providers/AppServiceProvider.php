@@ -12,6 +12,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Support\Auth\FakeGoogleProvider;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -47,6 +48,12 @@ class AppServiceProvider extends ServiceProvider
         // (App\Support\Formato). Data canônica continua ISO 8601.
         Carbon::setLocale('pt_BR');
         CarbonImmutable::setLocale('pt_BR');
+
+        // Destino do usuário JÁ autenticado que acessa uma rota `guest` (login/register): o app
+        // (`/inicio`). Sem isto, o `RedirectIfAuthenticated` procura as rotas `dashboard`/`home`
+        // (renomeadas para `inicio` — IDR-011) e cai no fallback `/` (landing) — o "Entrar" logado
+        // parecia não fazer nada (bounce para a landing).
+        RedirectIfAuthenticated::redirectUsing(fn () => route('inicio'));
 
         // Cupom válido-único-novo → crédito de cashback ao coletor (STORY-015). Registrado
         // explicitamente porque o listener vive fora de `app/Listeners` (auto-discovery não
