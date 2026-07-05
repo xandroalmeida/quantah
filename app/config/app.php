@@ -17,6 +17,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version (tag)
+    |--------------------------------------------------------------------------
+    |
+    | Rótulo humano da versão exibido no app e usado na auto-atualização. Fonte:
+    | APP_VERSION (o deploy pode injetar `git describe`) → arquivo `VERSION` na
+    | raiz (versionado, viaja no container/imagem) → 'dev'. Lido aqui (env() só é
+    | seguro em config) para funcionar mesmo com `config:cache`.
+    |
+    */
+
+    'version' => env('APP_VERSION')
+        ?: (is_file(base_path('VERSION'))
+            ? trim((string) file_get_contents(base_path('VERSION')))
+            : 'dev'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

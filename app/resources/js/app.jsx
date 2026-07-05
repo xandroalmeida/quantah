@@ -6,6 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import VersionStamp from './Components/VersionStamp';
 import { setTranslations } from './i18n';
+import { startVersionWatcher } from './versionWatcher';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Quantah';
 
@@ -32,6 +33,10 @@ createInertiaApp({
                 <VersionStamp version={version} />
             </>,
         );
+
+        // Auto-atualização: recarrega quando o servidor sobe um bundle novo (deploy),
+        // priorizando o retorno ao primeiro plano no PWA mobile.
+        startVersionWatcher(props.initialPage.props.assetVersion);
     },
     progress: {
         color: '#4B5563',

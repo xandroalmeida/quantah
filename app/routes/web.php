@@ -9,6 +9,7 @@ use App\Http\Controllers\Intelligence\LeadController;
 use App\Http\Controllers\Interno\MetricasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaqueController;
+use App\Support\AppVersion;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -34,6 +35,15 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('LandingB2C');
 })->name('home');
+
+// Versão para auto-atualização do cliente (PWA). JSON leve, público e sem cache: o app
+// consulta em intervalo/foreground e recarrega quando `asset` diverge do seu boot (deploy
+// novo → novo bundle). Não é Inertia — é um heartbeat de versão. (auto-update)
+Route::get('/version', function () {
+    return response()
+        ->json(['version' => AppVersion::label(), 'asset' => AppVersion::asset()])
+        ->header('Cache-Control', 'no-store, max-age=0');
+})->name('version');
 
 // Vitrine do Design System (EPIC-001). Pública para inspeção/E2E; virada à
 // kitchen sink completa na STORY-006.
