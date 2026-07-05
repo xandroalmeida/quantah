@@ -2,8 +2,12 @@ import Button from '@/Components/Button';
 import Card from '@/Components/Card';
 import { WalletIcon } from '@/Components/icons';
 import AppLayout from '@/Layouts/AppLayout';
-import TextField from '@/Components/inputs/TextField';
+import MaskedField from '@/Components/inputs/MaskedField';
+import MoneyField from '@/Components/inputs/MoneyField';
 import { Head, router, useForm } from '@inertiajs/react';
+
+// Máscara de CPF (chave PIX): 11 dígitos em 000.000.000-00. O valor guardado é só dígitos.
+const CPF_MASK = '000.000.000-00';
 
 // Microcopy = screen-spec §5 (STORY-017-solicitar-saque).
 const COPY = {
@@ -55,24 +59,23 @@ export default function Solicitar({ saldo }) {
                     </span>
                 </Card>
 
-                <TextField
+                <MoneyField
                     label={COPY.valorLabel}
                     placeholder={COPY.valorPlaceholder}
-                    inputMode="numeric"
                     value={data.valor}
-                    onChange={(e) => setData('valor', e.target.value)}
+                    onAccept={(valor) => setData('valor', valor)}
                     error={errors.valor}
                     errorTestId="screen-saque-erro-valor"
                     data-testid="screen-saque-valor"
                     autoFocus
                 />
 
-                <TextField
+                <MaskedField
                     label={COPY.cpfLabel}
+                    mask={CPF_MASK}
                     placeholder={COPY.cpfPlaceholder}
-                    inputMode="numeric"
                     value={data.cpf}
-                    onChange={(e) => setData('cpf', e.target.value)}
+                    onAccept={(cpf) => setData('cpf', cpf)}
                     error={errors.cpf}
                     errorTestId="screen-saque-erro-cpf"
                     data-testid="screen-saque-cpf"
