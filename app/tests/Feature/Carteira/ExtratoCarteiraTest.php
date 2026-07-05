@@ -91,6 +91,40 @@ class ExtratoCarteiraTest extends TestCase
         $this->assertSame('0,09', $extrato[0]['credito']);
     }
 
+    /** STORY-034 CA-2/CA-3 — o extrato expõe estabelecimento e o cupom_id (para abrir o detalhe). */
+    public function test_extrato_expoe_estabelecimento_e_cupom_id(): void
+    {
+        $user = User::factory()->create();
+        $carteira = Carteira::create(['user_id' => $user->id, 'saldo_centavos' => 9]);
+        $cupom = $this->cupom('87.90', '2026-01-15 10:00:00', self::CHAVE_A);
+        $cupom->update(['nome_emitente' => 'Supermercado Bom Preço']);
+        CarteiraTransacao::create([
+            'carteira_id' => $carteira->id, 'tipo' => CarteiraTransacao::TIPO_CREDITO_CASHBACK,
+            'valor_centavos' => 9, 'cupom_id' => $cupom->id,
+        ]);
+
+        $item = $this->extrato->para($user)['extrato'][0];
+
+        $this->assertSame('Supermercado Bom Preço', $item['estabelecimento']);
+        $this->assertSame($cupom->id, $item['cupom_id']);
+    }
+
+    /** STORY-034 CA-1 — sem nome do emitente, a listagem degrada com fallback (não quebra). */
+    public function test_extrato_usa_fallback_de_estabelecimento_sem_nome(): void
+    {
+        $user = User::factory()->create();
+        $carteira = Carteira::create(['user_id' => $user->id, 'saldo_centavos' => 9]);
+        $cupom = $this->cupom('50.00', '2026-01-15 10:00:00', self::CHAVE_A); // sem nome_emitente
+        CarteiraTransacao::create([
+            'carteira_id' => $carteira->id, 'tipo' => CarteiraTransacao::TIPO_CREDITO_CASHBACK,
+            'valor_centavos' => 9, 'cupom_id' => $cupom->id,
+        ]);
+
+        $item = $this->extrato->para($user)['extrato'][0];
+
+        $this->assertSame('Estabelecimento não identificado', $item['estabelecimento']);
+    }
+
     public function test_extrato_ordena_do_mais_recente_para_o_mais_antigo(): void
     {
         $user = User::factory()->create();

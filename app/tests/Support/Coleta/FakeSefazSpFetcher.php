@@ -58,6 +58,7 @@ final class FakeSefazSpFetcher implements SefazSpFetcher
             // Data recente (dentro da janela de validade — STORY-035) para o caminho feliz
             // seguir válido; testes de expiração passam uma data antiga via comPayload().
             'data_emissao' => now('America/Sao_Paulo')->subDay()->format('Y-m-d H:i:s'),
+            'nome_emitente' => 'Mercado Modelo Ltda',
             'valor_total' => '87.90',
             'numero' => 123456,
             'serie' => 1,
