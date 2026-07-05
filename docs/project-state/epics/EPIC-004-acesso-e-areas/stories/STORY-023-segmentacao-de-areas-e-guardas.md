@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: in_progress
+status: in_review
 owner_agent: claude-code/programador
 created_at: 2026-07-04
 updated_at: 2026-07-04
@@ -44,15 +44,15 @@ produto, e pré-condição para as landings (EPIC-005) e a jornada (EPIC-006).
 
 ## Critérios de aceite
 
-- [ ] **CA-1:** Existe separação clara de áreas no roteamento (B2C / B2B / Backoffice) conforme o ADR;
+- [x] **CA-1:** Existe separação clara de áreas no roteamento (B2C / B2B / Backoffice) conforme o ADR;
       cada área tem seu ponto de entrada.
-- [ ] **CA-2:** Dado um Coletador autenticado (B2C), quando tenta acessar uma rota de Backoffice, então é
+- [x] **CA-2:** Dado um Coletador autenticado (B2C), quando tenta acessar uma rota de Backoffice, então é
       barrado (403/redirect), reusando o RBAC do ADR-009 (`can:operar-saques` e afins).
-- [ ] **CA-3:** O Backoffice tem **entrada própria, não anunciada** (sem CTA/link público); um usuário sem
+- [x] **CA-3:** O Backoffice tem **entrada própria, não anunciada** (sem CTA/link público); um usuário sem
       papel operacional não a alcança.
-- [ ] **CA-4:** A área **B2B está reservada** (rota/namespace existe, sem login e sem features) — pronta
+- [x] **CA-4:** A área **B2B está reservada** (rota/namespace existe, sem login e sem features) — pronta
       para receber a captação de lead do EPIC-005 sem retrabalho estrutural.
-- [ ] **CA-5:** E2E em browser real cobre a **barreira entre áreas**: usuário de uma área é barrado da
+- [x] **CA-5:** E2E em browser real cobre a **barreira entre áreas**: usuário de uma área é barrado da
       outra (incl. o 403 do Backoffice para não-operador), com mensagens em pt-BR.
 
 ## Fora de escopo
@@ -83,10 +83,11 @@ ADR) nem os CAs. Se faltar decisão arquitetural, **pare e registre**.
 
 ## Definição de Pronto (DoD)
 
-- [ ] Todos os CAs passam; unitários + E2E verdes; coberturas exigidas.
-- [ ] Pipeline verde; deploy de homologação verificado (barreiras de área ativas).
-- [ ] IDR registrado se houve decisão técnica relevante.
-- [ ] `index.json` = `done`; "Notas do agente" preenchidas.
+- [x] Todos os CAs passam; unitários + E2E verdes; coberturas exigidas (277/277 feature+unit, 95% global;
+      69/69 Dusk; núcleo de autz 100%).
+- [ ] Pipeline verde; deploy de homologação verificado (barreiras de área ativas). ← **pendente push/deploy**
+- [x] IDR registrado se houve decisão técnica relevante (não houve — decisões locais, ver Notas).
+- [ ] `index.json` = `done`; "Notas do agente" preenchidas. ← Notas ok; `done` após homolog verificado.
 
 ## Protocolo do agente (obrigatório)
 
@@ -136,7 +137,55 @@ do EPIC-005; (3) fazer a barreira 403 do Backoffice renderizar em **pt-BR** (hoj
   Feature `test_pagina_403_esta_em_ptbr`.
 
 ### Decisões tomadas
+
+- **B2B `/intelligence` como página Inertia pública reservada** (`Intelligence/Reservado`), sem `auth` e sem
+  escrita (só `GET`). Reserva o namespace para o lead do EPIC-005 sem retrabalho (ADR-010 §3). Decisão local
+  do Programador; não reabre o ADR.
+- **403 branded em pt-BR via `resources/views/errors/403.blade.php`** (fora do Inertia, padrão de página de erro
+  do Laravel). Escolhido em vez de depender da string traduzida default (laravel-lang) porque a barreira entre
+  áreas merece mensagem intencional/ on-brand e determinística ("Acesso restrito"). Mudança local, não transversal.
+- **`web.php` reorganizado em 3 grupos de área** com guard explícito e entrada anotada por grupo; rotas B2C
+  consolidadas num único grupo `auth` (fail-secure: rota nova nasce dentro do grupo). Nenhum contrato público
+  mudou (nomes de rota preservados).
+
 ### Descobertas
+
+- O roteamento já isolava o Backoffice (`auth` + `can:operar-saques`, ADR-009) e a nav do Coletador já **não**
+  apontava para lá — CA-2/CA-3 estavam majoritariamente satisfeitos no roteamento; o delta real foi B2B + 403 pt-BR
+  + tornar a segmentação explícita.
+- A página 403 default do Laravel já sai com a **mensagem** em pt-BR ("Esta ação não é autorizada.") via laravel-lang,
+  mas sobre a página genérica do framework (`lang="en"`, sem marca). A view branded resolve isso de forma intencional.
+- Teste de feature que faz `get()` numa rota Inertia renderiza o blade raiz e **exige o chunk no manifest do Vite** —
+  foi preciso `npm run build` após criar `Intelligence/Reservado.jsx` para o teple ficar verde.
+
 ### IDRs criados
+
+- Nenhum. As decisões acima são locais (presentação/roteamento), cobertas por ADR-009/ADR-010; sem impacto
+  transversal que exija IDR.
+
 ### Cobertura final
+
+- **Unit + Feature:** 277 testes, 1100 asserções, **verde**. Cobertura global **95,0%** (piso 80%).
+  `Providers/AppServiceProvider` (Gate `operar-saques` — núcleo de autorização) **100%**.
+- **E2E (Dusk, browser real):** suíte completa **69/69 verde**; barreira entre áreas coberta por
+  `Browser/SegmentacaoAreasTest` (3 cenários) + `Browser/BackofficeSaquesTest::test_nao_operador_e_barrado`.
+- **Pint:** limpo. **Build Vite:** ok. (Não há linter de JS configurado no projeto.)
+
+**Mapeamento CA → teste (final):**
+
+| CA | Teste(s) que provam |
+|---|---|
+| CA-1 (segmentação/entradas + fail-secure) | `Feature/Acesso/SegmentacaoAreasTest::test_toda_rota_backoffice_esta_atras_do_guard`; grupos anotados em `routes/web.php` |
+| CA-2 (Coletador barrado no Backoffice) | `SegmentacaoAreasTest::test_coletador_autenticado_recebe_403_no_backoffice` + contraste `::test_operador_acessa_o_backoffice`; E2E `Browser/SegmentacaoAreasTest::test_coletador_logado_barrado_no_backoffice_ve_403_ptbr` |
+| CA-3 (entrada não anunciada, sem CTA) | `SegmentacaoAreasTest::test_guest_no_backoffice_redireciona_para_login`; E2E `Browser/SegmentacaoAreasTest::test_navegacao_do_coletador_nao_expoe_backoffice` |
+| CA-4 (B2B reservado) | `SegmentacaoAreasTest::test_area_b2b_intelligence_e_publica_sem_login`, `::test_area_b2b_acessivel_tambem_autenticado`, `::test_area_b2b_nao_tem_rota_autenticada_nem_feature`; E2E `Browser/SegmentacaoAreasTest::test_b2b_intelligence_acessivel_sem_login` |
+| CA-5 (E2E barreira em pt-BR) | os 3 cenários E2E de `Browser/SegmentacaoAreasTest` + `SegmentacaoAreasTest::test_pagina_403_esta_em_ptbr` (mensagem pt-BR, sem texto default em inglês) |
+
 ### Links de evidência
+
+- Commits (branch `main`): `test(STORY-023): barreiras…` (vermelho) → `feat(STORY-023): 3 áreas…` (verde) →
+  `test(STORY-023): E2E da barreira…`.
+- Arquivos: `app/routes/web.php`, `app/resources/js/Pages/Intelligence/Reservado.jsx`,
+  `app/resources/views/errors/403.blade.php`, `app/tests/Feature/Acesso/SegmentacaoAreasTest.php`,
+  `app/tests/Browser/SegmentacaoAreasTest.php`.
+- **Pendente:** push → deploy de homologação + smoke ao vivo da barreira (DoD).

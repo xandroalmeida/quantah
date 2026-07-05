@@ -667,7 +667,7 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "in_progress",
+      "status": "in_review",
       "owner_agent": null,
       "sprint_id": null,
       "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-023-segmentacao-de-areas-e-guardas.md",
