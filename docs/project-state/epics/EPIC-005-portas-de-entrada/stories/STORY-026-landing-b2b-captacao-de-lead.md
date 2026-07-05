@@ -8,7 +8,7 @@ type: implementation
 target_role: programador
 requires_design: true
 design_screen_id: SCREEN-STORY-026-landing-b2b-quantah-intelligence   # rabisco em draft (design/screens/STORY-026-landing-b2b-quantah-intelligence.md)
-status: in_progress
+status: done
 owner_agent: claude-story026
 created_at: 2026-07-05
 updated_at: 2026-07-05
@@ -100,14 +100,26 @@ registre** em "Notas do agente".
 
 ## Definição de Pronto (DoD)
 
-- [ ] Todos os critérios de aceite passam.
-- [ ] Testes unitários escritos e passando, atingindo as coberturas exigidas (incl. ≥ 98% na regra do lead).
-- [ ] Teste E2E (CA-6) escrito e passando em homologação.
-- [ ] Entrada em `design.screens[]` (`SCREEN-STORY-026-...`) existe antes de `in_review` (invariante v2 #9).
-- [ ] Pipeline de CI verde; deploy de homologação realizado e verificado.
-- [ ] IDR registrado se houve descoberta técnica relevante (ex.: modelo do lead).
-- [ ] `index.json` atualizado: status = `done`.
-- [ ] "Notas do agente" preenchidas.
+- [x] Todos os critérios de aceite passam.
+- [x] Testes escritos e passando; **núcleo do lead (CapturarLead) 100%** (≥98%); total 95,1% (≥80%).
+- [x] Teste E2E (CA-6) escrito e passando; captação viva em homologação (feliz/duplicado/inválido de 1ª mão).
+- [x] Entrada em `design.screens[]` (`SCREEN-STORY-026-...`) existe e está `ready`/`shipped`.
+- [x] Pipeline de CI verde; deploy de homologação realizado e verificado (smoke de 1ª mão).
+- [x] IDR registrado se houve descoberta técnica relevante — **não** (o modelo do lead usa padrões já
+      cobertos: FormRequest + ação de domínio + `firstOrCreate`; nenhuma decisão técnica durável nova).
+- [x] `index.json` atualizado: status = `done`.
+- [x] "Notas do agente" preenchidas.
+
+### Mapeamento CA → teste
+
+| CA | Teste(s) |
+|---|---|
+| CA-1 (rota pública B2B, DS, pt-BR, tom analítico) | `Feature/Landing/LandingB2BTest` (publica_via_inertia, acessivel_autenticado); `Feature/DesignSystem/NoRawColorInLandingTest`; `Feature/Acesso/SegmentacaoAreasTest` (B2B pública sem login) |
+| CA-2 (válido persiste + confirma) | `Feature/Landing/LandingB2BTest::test_captura_lead_valido_persiste_e_redireciona`; `Unit/Lead/CapturarLeadTest::test_captura_persiste_lead_novo`; `Browser/LandingB2BTest` (feliz → agradecimento) |
+| CA-3 (inválido bloqueia por campo, sem persistir) | `Feature/Landing/LandingB2BTest::test_captura_invalida_bloqueia_por_campo_sem_persistir`; `Browser/LandingB2BTest::test_email_invalido_bloqueia_por_campo` |
+| CA-4 (duplicado idempotente, sem vazar) | `Feature/Landing/LandingB2BTest::test_captura_duplicada_idempotente`; `Unit/Lead/CapturarLeadTest` (idempotente, ignora caixa/espaço, não sobrescreve) |
+| CA-5 (mobile-first + a11y AA) | `Browser/LandingB2BTest` (viewport 390×844; erro por campo `role=alert` textual, labels associados via `Field`) |
+| CA-6 (E2E browser real: feliz + desvio) | `Browser/LandingB2BTest` (feliz mobile → agradecimento; desvio e-mail inválido) |
 
 ## Protocolo do agente (obrigatório)
 
@@ -153,20 +165,37 @@ stack e ajustes acordados:
   UI (landing + form + agradecimento) → Dusk (feliz + desvio) → CI/homolog.
 
 ### Decisões tomadas
-- <data> — <decisão local, ex.: modelo do lead>
+- 2026-07-05 — Modelo do lead: tabela `leads` (nome, e-mail **único**, empresa, timestamps); id bigint
+  (contato de marketing, sem PII sensível de pagamento — não usa uuid). Dedup idempotente por e-mail
+  normalizado via `firstOrCreate` na ação de domínio `CapturarLead` (não regra `unique` de validação —
+  para não vazar existência de terceiro; LGPD/CA-4).
+- 2026-07-05 — `/intelligence` deixa de ser "reservada" (STORY-023) e passa a servir a landing B2B real;
+  `SegmentacaoAreasTest` (Feature+Browser) e o E2E B2C repontados. Invariante de segurança preservada:
+  nenhuma rota `/intelligence` exige `auth` (não há login B2B — PDR-003).
+- 2026-07-05 — Sucesso via **PRG** para rota dedicada `/intelligence/obrigado` (DDR-006). `/privacidade`
+  criada (conteúdo LGPD base, validado pelo PO) como destino do aviso.
 
 ### Descobertas
-- <data> — <gotcha / item para o PO/Designer saberem>
+- 2026-07-05 — Estado "erro de rede" do protótipo (snackbar) **não** foi implementado em runtime: nenhum
+  CA/E2E o dirige e simular falha de rede no Dusk é frágil — evita código não testado. Erros de validação
+  do servidor voltam por campo (Inertia). Registrado para o PO/Designer.
 
 ### Bloqueios encontrados
-- <data> — <bloqueio> — <resolução ou aberto>
+- <nenhum>
 
 ### IDRs criados
-- <nenhum até aqui>
+- <nenhum — padrões já cobertos>
 
 ### Cobertura final
-- Unitários: <%>
-- E2E: <cenários, evidência>
+- Núcleo do lead (`Domain/Lead/CapturarLead`, `LeadController`, `CapturarLeadRequest`, `Models/Lead`):
+  **100%** (≥98%). Total do projeto: **95,1%** (gate 80%).
+- E2E (Dusk): feliz mobile (preencher → enviar → agradecimento, lead persistido) + desvio (e-mail inválido
+  bloqueia por campo, sem persistir). Suíte: 290 Feature/Unit + 71 Dusk verdes.
 
 ### Links de evidência
-- PR / Pipeline / Deploy de homologação: <urls>
+- Commits (main): `f2e69a9` (docs/DDR-006/spec/protótipo/LGPD), `0e3f8fd` (vermelhos), `e0aebce` (feat +
+  E2E).
+- CI/CD (run 28730148697): Testes+build, E2E (Dusk) e Deploy homologação — **verde**, com migração + smoke.
+- Homologação verificada (1ª mão): `/intelligence` (LandingB2B), `/intelligence/obrigado` (LeadObrigado),
+  `/privacidade` (Privacidade) → 200. Captação ao vivo: POST válido → 302 `/intelligence/obrigado`;
+  **duplicado** → mesmo 302 (idempotente, sem vazar); **inválido** → 302 volta a `/intelligence` (bloqueado).

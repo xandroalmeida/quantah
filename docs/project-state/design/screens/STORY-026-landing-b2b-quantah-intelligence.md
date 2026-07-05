@@ -2,7 +2,7 @@
 id: SCREEN-STORY-026-landing-b2b-quantah-intelligence
 story: STORY-026-landing-b2b-captacao-de-lead
 epic: EPIC-005-portas-de-entrada
-status: ready
+status: shipped
 created_at: 2026-07-05
 updated_at: 2026-07-05
 owner_designer: designer
