@@ -16,12 +16,12 @@ import { CameraIcon, FlashIcon } from '@/Components/icons';
  *
  * A câmera é aberta com constraints próprias (traseira + alta resolução + foco
  * contínuo) para termos acesso ao track e oferecer **lanterna** (mata o reflexo do
- * papel térmico, a maior causa de falha) e **tirar foto** (uma foto estática de alta
- * resolução, com o autofoco/HDR da câmera nativa, lê onde o vídeo ao vivo falha).
- *
- * Importante: a câmera nativa da foto e o stream ao vivo disputam o mesmo hardware —
- * abrir a foto com o vídeo ativo faz a captura voltar vazia em muitos aparelhos. Por
- * isso liberamos o stream antes da foto e o retomamos se a foto não decodificar.
+ * papel térmico, a maior causa de falha) e **tirar foto** — que NÃO abre a câmera
+ * nativa (isso saía do app e disputava o hardware, voltando vazio). Em vez disso
+ * captura um quadro do próprio stream ao vivo: `ImageCapture.takePhoto()` puxa uma
+ * foto em alta resolução do mesmo track (Android/Chrome), com fallback para o frame
+ * atual do vídeo desenhado num canvas (iOS Safari). Congelar o quadro e decodificar
+ * com mais esforço lê onde o loop ao vivo não fecha.
  *
  * Falha de câmera vira `onError(kind)` para a página cair no caminho de colar (CA-2).
  *
@@ -31,7 +31,6 @@ import { CameraIcon, FlashIcon } from '@/Components/icons';
  */
 export default function QrScanner({ onDetected, onError }) {
     const videoRef = useRef(null);
-    const inputFotoRef = useRef(null);
     const streamRef = useRef(null);
     const zxingRef = useRef(null);
     const ativoRef = useRef(false);
@@ -195,53 +194,86 @@ export default function QrScanner({ onDetected, onError }) {
         }
     };
 
-    // Abre a câmera nativa para a foto. Libera antes o stream ao vivo — senão a câmera
-    // fica ocupada e a captura volta vazia (foi o que aconteceu em campo).
-    const abrirCaptura = () => {
-        setAvisoFoto(false);
-        pararCamera();
-        inputFotoRef.current?.click();
+    const desenharParaCanvas = (fonte, largura, altura) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = largura;
+        canvas.height = altura;
+        canvas.getContext('2d').drawImage(fonte, 0, 0, largura, altura);
+        return canvas;
     };
 
-    // Decodifica a foto estática (autofoco/HDR da câmera nativa) — lê onde o vídeo falha.
-    const decodificarFoto = async (arquivo) => {
-        if (emitidoRef.current) return;
-        // Foto cancelada (voltou sem arquivo): retoma o vídeo ao vivo.
-        if (!arquivo) {
-            iniciarCamera();
-            return;
+    // Captura um quadro do MESMO stream ao vivo (sem sair do app, sem disputar câmera).
+    // Android/Chrome: foto de alta resolução via ImageCapture; iOS: frame do vídeo.
+    const capturarQuadro = async () => {
+        const track = streamRef.current?.getVideoTracks?.()[0];
+        const video = videoRef.current;
+
+        if (track && typeof window.ImageCapture === 'function') {
+            try {
+                const captura = new window.ImageCapture(track);
+                let blob = null;
+                try {
+                    const caps = await captura.getPhotoCapabilities?.();
+                    const cfg = caps?.imageWidth?.max
+                        ? { imageWidth: caps.imageWidth.max, imageHeight: caps.imageHeight?.max }
+                        : undefined;
+                    blob = await captura.takePhoto(cfg); // alta resolução, com autofoco
+                } catch {
+                    /* takePhoto indisponível neste aparelho; usa o frame do preview. */
+                }
+                const bitmap = blob ? await createImageBitmap(blob) : await captura.grabFrame();
+                const canvas = desenharParaCanvas(bitmap, bitmap.width, bitmap.height);
+                bitmap.close?.();
+                return canvas;
+            } catch {
+                /* cai para o frame do vídeo. */
+            }
         }
 
+        if (video?.videoWidth) {
+            return desenharParaCanvas(video, video.videoWidth, video.videoHeight);
+        }
+        return null;
+    };
+
+    // Lê o QR num quadro congelado: detector nativo primeiro, zxing como 2ª tentativa.
+    const lerNoQuadro = async (canvas) => {
+        if (suportaDetectorNativo()) {
+            try {
+                const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+                const codigos = await detector.detect(canvas);
+                if (codigos?.length) return codigos[0].rawValue;
+            } catch {
+                /* tenta o zxing na mesma imagem. */
+            }
+        }
+        try {
+            const { BrowserQRCodeReader } = await import('@zxing/browser');
+            const leitor = new BrowserQRCodeReader();
+            const res = await leitor.decodeFromImageUrl(canvas.toDataURL('image/png'));
+            if (res) return res.getText();
+        } catch {
+            /* não decodificou. */
+        }
+        return null;
+    };
+
+    // "Tirar foto": congela o quadro atual do vídeo e tenta ler com mais esforço.
+    const capturarEDecodificar = async () => {
+        if (emitidoRef.current || decodificandoFoto) return;
         setAvisoFoto(false);
         setDecodificandoFoto(true);
-        const url = URL.createObjectURL(arquivo);
         try {
-            if (suportaDetectorNativo()) {
-                const bitmap = await createImageBitmap(arquivo);
-                const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
-                const codigos = await detector.detect(bitmap);
-                bitmap.close?.();
-                if (codigos?.length) {
-                    emitir(codigos[0].rawValue);
-                    return;
-                }
-            } else {
-                const { BrowserQRCodeReader } = await import('@zxing/browser');
-                const leitor = new BrowserQRCodeReader();
-                const res = await leitor.decodeFromImageUrl(url);
-                if (res) {
-                    emitir(res.getText());
-                    return;
-                }
+            const canvas = await capturarQuadro();
+            const texto = canvas ? await lerNoQuadro(canvas) : null;
+            if (texto) {
+                emitir(texto);
+                return;
             }
-            // Não achou o QR na foto: avisa e retoma o vídeo ao vivo.
             setAvisoFoto(true);
-            iniciarCamera();
         } catch {
             setAvisoFoto(true);
-            iniciarCamera();
         } finally {
-            URL.revokeObjectURL(url);
             setDecodificandoFoto(false);
         }
     };
@@ -279,7 +311,7 @@ export default function QrScanner({ onDetected, onError }) {
                 )}
                 <Button
                     variant="secondary"
-                    onClick={abrirCaptura}
+                    onClick={capturarEDecodificar}
                     loading={decodificandoFoto}
                     className="flex-1"
                     data-testid="screen-captura-photo-btn"
@@ -287,19 +319,6 @@ export default function QrScanner({ onDetected, onError }) {
                     <CameraIcon className="h-lg w-lg" />
                     Tirar foto
                 </Button>
-                <input
-                    ref={inputFotoRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    data-testid="screen-captura-photo-input"
-                    onChange={(e) => {
-                        const arquivo = e.target.files?.[0];
-                        e.target.value = ''; // permite tirar outra foto igual em seguida
-                        decodificarFoto(arquivo);
-                    }}
-                />
             </div>
 
             {avisoFoto ? (

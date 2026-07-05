@@ -122,9 +122,18 @@ class CapturaScreenContractTest extends TestCase
         // Lanterna: o reflexo no papel térmico brilhoso é a maior causa de falha de leitura.
         $this->assertStringContainsString('torch', $src,
             'Deveria oferecer a lanterna (torch) para matar o reflexo.');
-        // "Tirar foto": uma foto estática de alta resolução lê onde o vídeo ao vivo falha.
-        $this->assertMatchesRegularExpression('/capture=["\']environment["\']/', $src,
-            'Deveria ter o fallback de foto (input capture="environment").');
+        // "Tirar foto" captura um quadro do PRÓPRIO stream ao vivo (não abre a câmera
+        // nativa, que saía do app e disputava o hardware): ImageCapture em alta resolução...
+        $this->assertStringContainsString('ImageCapture', $src,
+            'A foto deveria capturar do stream ao vivo via ImageCapture (não input capture).');
+        $this->assertMatchesRegularExpression('/takePhoto|grabFrame/', $src,
+            'Deveria puxar o quadro do track (takePhoto/grabFrame).');
+        // ...com fallback de desenhar o frame do vídeo num canvas (iOS Safari).
+        $this->assertStringContainsString('drawImage', $src,
+            'Deveria ter fallback de canvas (drawImage) para quem não tem ImageCapture.');
+        // E não deve voltar a abrir a câmera nativa por input file.
+        $this->assertDoesNotMatchRegularExpression('/capture=["\']environment["\']/', $src,
+            'Não deveria abrir a câmera nativa (input capture) — captura do stream ao vivo.');
     }
 
     /** (b) identificadores estáveis dos controles de robustez, para ancorar o E2E. */
@@ -135,7 +144,6 @@ class CapturaScreenContractTest extends TestCase
         foreach ([
             'screen-captura-torch-btn',
             'screen-captura-photo-btn',
-            'screen-captura-photo-input',
         ] as $id) {
             $this->assertStringContainsString($id, $src, "data-testid ausente: $id.");
         }
