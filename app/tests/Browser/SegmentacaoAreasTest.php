@@ -37,16 +37,14 @@ class SegmentacaoAreasTest extends DuskTestCase
         User::where('email', self::COLETADOR)->delete();
     }
 
-    /** (i) feliz — a área B2B reservada abre sem login, com a marca e o "Em breve" em pt-BR. */
+    /** (i) feliz — a landing B2B (Quantah Intelligence) abre sem login, em pt-BR, sem CTA de entrada. */
     public function test_b2b_intelligence_acessivel_sem_login(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/intelligence')
-                ->waitFor('[data-testid=b2b-intelligence]', 10)
-                ->assertSee('Quantah')
-                ->assertSee('Inteligência de preços do varejo')
-                ->assertSeeIn('[data-testid=b2b-em-breve]', 'Em breve')
-                ->assertDontSee('Entrar')  // sem login B2B nesta onda
+                ->waitFor('[data-testid=landing-b2b-cta-enviar]', 10)
+                ->assertSee('Do cupom ao insight.')
+                ->assertDontSee('Entrar')  // face b2b: sem login B2B nesta onda
                 ->assertPathIs('/intelligence');
         });
     }

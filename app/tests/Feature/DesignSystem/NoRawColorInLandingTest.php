@@ -17,6 +17,9 @@ class NoRawColorInLandingTest extends TestCase
     {
         $paths = [
             'resources/js/Pages/LandingB2C.jsx',
+            'resources/js/Pages/Intelligence/LandingB2B.jsx',
+            'resources/js/Pages/Intelligence/LeadObrigado.jsx',
+            'resources/js/Pages/Privacidade.jsx',
             'resources/js/Layouts/PublicLayout.jsx',
             'resources/js/Components/Band.jsx',
             'resources/js/Components/CtaLink.jsx',

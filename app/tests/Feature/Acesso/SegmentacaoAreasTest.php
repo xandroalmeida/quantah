@@ -77,12 +77,12 @@ class SegmentacaoAreasTest extends TestCase
 
     // ---- CA-4 · área B2B reservada ---------------------------------------------------------------
 
-    /** (feliz) A área B2B `/intelligence` é pública e não exige login. */
+    /** (feliz) A área B2B `/intelligence` é pública (landing Quantah Intelligence) e não exige login. */
     public function test_area_b2b_intelligence_e_publica_sem_login(): void
     {
         $this->get('/intelligence')
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('Intelligence/Reservado'));
+            ->assertInertia(fn (Assert $page) => $page->component('Intelligence/LandingB2B'));
     }
 
     /** (borda) Usuário autenticado também alcança a área B2B — o acesso independe de sessão. */
@@ -91,20 +91,23 @@ class SegmentacaoAreasTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get('/intelligence')
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('Intelligence/Reservado'));
+            ->assertInertia(fn (Assert $page) => $page->component('Intelligence/LandingB2B'));
     }
 
-    /** (borda) A área B2B está reservada: nenhuma rota `/intelligence` exige `auth` nem expõe feature. */
-    public function test_area_b2b_nao_tem_rota_autenticada_nem_feature(): void
+    /**
+     * (borda) A área B2B é pública SEM login: nenhuma rota `/intelligence` exige `auth`.
+     * A STORY-026 introduz a captação de lead (POST /intelligence/leads) — a área deixa de ser
+     * apenas "reservada"/somente-leitura, mas segue sem barreira de autenticação (não há conta B2B).
+     */
+    public function test_area_b2b_nenhuma_rota_exige_login(): void
     {
         $rotasB2b = collect(Route::getRoutes()->getRoutes())
             ->filter(fn ($rota) => Str::startsWith($rota->uri(), 'intelligence'));
 
-        $this->assertTrue($rotasB2b->isNotEmpty(), 'Esperava o namespace /intelligence reservado.');
+        $this->assertTrue($rotasB2b->isNotEmpty(), 'Esperava o namespace /intelligence público.');
 
         $rotasB2b->each(function ($rota): void {
             $this->assertNotContains('auth', $rota->gatherMiddleware(), "Rota B2B {$rota->uri()} não pode exigir login.");
-            $this->assertSame(['GET', 'HEAD'], $rota->methods(), "Rota B2B {$rota->uri()} só deve responder GET (sem feature/escrita).");
         });
     }
 

@@ -43,9 +43,9 @@ class LandingB2CTest extends DuskTestCase
                 ->waitFor('[data-testid=landing-b2c-cta-b2b]', 10)
                 ->click('[data-testid=landing-b2c-cta-b2b]')
                 ->waitForLocation('/intelligence', 10)
-                ->waitFor('[data-testid=b2b-intelligence]', 10) // aguarda a página B2B hidratar
+                ->waitFor('[data-testid=landing-b2b-cta-enviar]', 10) // aguarda a landing B2B hidratar
                 ->assertPathIs('/intelligence')
-                ->assertSeeIn('[data-testid=b2b-intelligence]', 'Inteligência de preços do varejo');
+                ->assertSee('Do cupom ao insight.');
         });
     }
 }

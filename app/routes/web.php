@@ -3,6 +3,7 @@
 use App\Http\Controllers\Backoffice\SaquesController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\ColetaController;
+use App\Http\Controllers\Intelligence\LeadController;
 use App\Http\Controllers\Interno\MetricasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaqueController;
@@ -49,15 +50,23 @@ Route::get('/ds', function () {
 })->name('ds.showcase');
 
 // ---------------------------------------------------------------------------
-// Área B2B — Quantah Intelligence (RESERVADA · ADR-010 §3 / PDR-003)
-// Entrada: /intelligence. Pública, sem login e sem features nesta onda — apenas
-// reserva o namespace para a captação de lead do EPIC-005, sem retrabalho.
-// Não há login B2B; por isso nenhuma rota aqui carrega o middleware `auth`.
+// Área B2B — Quantah Intelligence (PÚBLICA · ADR-010 §3 / PDR-003)
+// Entrada: /intelligence. Pública, SEM login (não há conta B2B nesta onda). A
+// landing apresenta o produto e capta lead (STORY-026); a confirmação é uma tela
+// dedicada de agradecimento (DDR-006, PRG). Nenhuma rota aqui carrega `auth`.
 // ---------------------------------------------------------------------------
 
-Route::get('/intelligence', function () {
-    return Inertia::render('Intelligence/Reservado');
-})->name('intelligence.reservado');
+Route::get('/intelligence', [LeadController::class, 'landing'])->name('intelligence.landing');
+Route::post('/intelligence/leads', [LeadController::class, 'store'])
+    ->middleware('throttle:20,1')
+    ->name('intelligence.leads.store');
+Route::get('/intelligence/obrigado', [LeadController::class, 'obrigado'])->name('intelligence.obrigado');
+
+// Política de Privacidade (LGPD) — página pública de texto; destino do aviso de consentimento
+// do formulário de lead (STORY-026). Sem login.
+Route::get('/privacidade', function () {
+    return Inertia::render('Privacidade');
+})->name('privacidade');
 
 // ---------------------------------------------------------------------------
 // Área B2C — Coletador (AUTENTICADO · ADR-010 §3)
