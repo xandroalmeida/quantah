@@ -25,8 +25,8 @@ real** com usuários e, com ele, o **primeiro baseline** da north-star.
 
 | # | Épico | Status | Outcome | Critério de pronto (observável) |
 |---|---|---|---|---|
-| 1 | **EPIC-004 Acesso e áreas** | 🔜 ready | Identidade de acesso do Coletador + 3 áreas segmentadas | Coletador entra por login de marca (Google ou e-mail/senha), em pt-BR, sem logo do Laravel; áreas B2C/B2B/Backoffice separadas por guardas — em homologação. |
-| 2 | **EPIC-005 Portas de entrada** | 📝 draft | Landing B2C e landing B2B (Quantah Intelligence) | Visitante entende a proposta; CTA B2C leva ao login; lead B2B capturado e visível no backoffice — em homologação. |
+| 1 | **EPIC-004 Acesso e áreas** | ✅ done | Identidade de acesso do Coletador + 3 áreas segmentadas | Coletador entra por login de marca (Google ou e-mail/senha), em pt-BR, sem logo do Laravel; áreas B2C/B2B/Backoffice separadas por guardas — em homologação. Validado 2026-07-05 (`approved_with_pending`; F-NB-1 → WISH-004). |
+| 2 | **EPIC-005 Portas de entrada** | 🔜 ready | Landing B2C e landing B2B (Quantah Intelligence) | Visitante entende a proposta; CTA B2C leva ao login; lead B2B capturado e visível no backoffice — em homologação. |
 | 3 | **EPIC-006 Jornada do Coletador** | 📝 draft | Home-hub e fluxo completo pós-login (mobile) | Coletador logado chega à home-hub e percorre coletar → saldo → extrato → saque, sem página genérica — em homologação. |
 
 ## Justificativa da sequência
@@ -74,6 +74,7 @@ CI, observabilidade RED) que pode ou não entrar nesta onda.
 
 ## Próximo passo
 
-**Fluxo B:** decompor o **EPIC-004** em estórias, começando pelo **spike de arquitetura** (OAuth Google +
-contas + áreas + i18n), depois a tela de login de marca. EPIC-005 e EPIC-006 permanecem `draft` até o
-EPIC-004 avançar.
+**EPIC-004 fechado** (`done`, validado 2026-07-05). Com o login de marca vivo, **EPIC-005 e EPIC-006
+destravam e podem correr em paralelo** (face pública × experiência logada). **Fluxo B em curso:** decompor
+o **EPIC-005** (landing B2C → landing B2B com captação de lead → lista de leads no backoffice → validação).
+EPIC-006 segue `draft` até ser decomposto na sequência.

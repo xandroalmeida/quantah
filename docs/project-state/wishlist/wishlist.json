@@ -1,8 +1,19 @@
 {
   "version": 1,
   "generated_at": "2026-07-02T18:30:00Z",
-  "next_id": 4,
+  "next_id": 5,
   "items": [
+    {
+      "id": "WISH-004",
+      "slug": "scanner-deps-e-segredos-no-ci",
+      "title": "Análise de dependências vulneráveis e detecção de segredos no CI",
+      "status": "triaged",
+      "origin": "Validação EPIC-004 (relatório, F-NB-1 não-bloqueante) — 2026-07-05",
+      "tags": ["debito", "seguranca", "ci", "qualidade"],
+      "spec_link": null,
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
     {
       "id": "WISH-001",
       "slug": "make-up-clone-limpo",
