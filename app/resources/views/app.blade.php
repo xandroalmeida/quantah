@@ -14,6 +14,12 @@
         <meta name="apple-mobile-web-app-title" content="Quantah">
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
+        {{-- Versão CRAVADA no HTML pelo servidor (Blade) — não vem de fetch nem só do prop.
+             É a prova, por view-source, de que este HTML é o do deploy atual; como o mesmo
+             HTML referencia o bundle com hash (@vite), versão certa aqui ⇒ bundle certo. --}}
+        <meta name="app-version" content="{{ \App\Support\AppVersion::label() }}">
+        <meta name="app-asset" content="{{ \App\Support\AppVersion::asset() }}">
+
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts — Inter 400/600/900 (DDR-001: família única do DS) -->

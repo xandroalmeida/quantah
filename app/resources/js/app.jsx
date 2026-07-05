@@ -24,8 +24,13 @@ createInertiaApp({
 
         const root = createRoot(el);
 
-        // Versão global (constante na sessão) — lida uma vez do prop compartilhado.
-        const version = props.initialPage.props.version;
+        // Versão/asset CRAVADOS no HTML pelo servidor (meta tags do Blade) — fonte de
+        // verdade para o carimbo e o boot do watcher, garantindo que refletem o HTML que
+        // de fato carregou (não um prop que se possa duvidar). Cai para o prop do Inertia
+        // se o meta faltar (ex.: dev sem esse HTML).
+        const meta = (nome) => document.querySelector(`meta[name="${nome}"]`)?.content || undefined;
+        const version = meta('app-version') ?? props.initialPage.props.version;
+        const assetVersion = meta('app-asset') ?? props.initialPage.props.assetVersion;
 
         root.render(
             <>
@@ -37,10 +42,7 @@ createInertiaApp({
         // Auto-atualização: recarrega quando o servidor sobe um deploy novo, priorizando o
         // retorno ao primeiro plano no PWA mobile. Vigia a MESMA tag do deploy (`version`),
         // com o hash do bundle (`assetVersion`) como rede de segurança.
-        startVersionWatcher({
-            version,
-            asset: props.initialPage.props.assetVersion,
-        });
+        startVersionWatcher({ version, asset: assetVersion });
     },
     progress: {
         color: '#4B5563',
