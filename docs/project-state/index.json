@@ -667,7 +667,7 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "ready",
+      "status": "in_progress",
       "owner_agent": null,
       "sprint_id": null,
       "path": "epics/EPIC-004-acesso-e-areas/stories/STORY-023-segmentacao-de-areas-e-guardas.md",
@@ -676,7 +676,8 @@
       ],
       "blocks": [],
       "created_at": "2026-07-04",
-      "updated_at": "2026-07-04"
+      "updated_at": "2026-07-04",
+      "owner_agent": "claude-code/programador"
     },
     {
       "id": "STORY-024",
