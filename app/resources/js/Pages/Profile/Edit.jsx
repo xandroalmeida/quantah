@@ -1,7 +1,8 @@
+import Button from '@/Components/Button';
 import Card from '@/Components/Card';
 import AppLayout from '@/Layouts/AppLayout';
 import { t } from '@/i18n';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 
@@ -32,6 +33,17 @@ export default function Edit({ mustVerifyEmail, status }) {
                 <Card variant="content">
                     <UpdatePasswordForm className="max-w-xl" />
                 </Card>
+
+                {/* Encerrar sessão — última ação da tela, separada dos formulários. POST /logout. */}
+                <Button
+                    type="button"
+                    variant="tertiary"
+                    className="w-full"
+                    onClick={() => router.post(route('logout'))}
+                    data-testid="screen-perfil-sair"
+                >
+                    {t('Log Out')}
+                </Button>
             </div>
         </AppLayout>
     );
