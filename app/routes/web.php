@@ -10,6 +10,22 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+/*
+|--------------------------------------------------------------------------
+| Segmentação das 3 áreas (STORY-023 · ADR-010 §3, reusando o RBAC ADR-009)
+|--------------------------------------------------------------------------
+| O produto tem três públicos com portas distintas. Cada área é um grupo de
+| rota com guard explícito; rota nova nasce dentro de um grupo (fail-secure):
+|   • B2C — Coletador ......... `auth` (todo autenticado é Coletador)
+|   • Backoffice — Operação ... `auth` + `can:operar-saques` (sem CTA público)
+|   • B2B — Intelligence ...... pública e reservada (sem login, sem features)
+| A entrada de cada área está anotada no cabeçalho do respectivo grupo.
+*/
+
+// ---------------------------------------------------------------------------
+// Área pública — vitrine / home (sem segmentação de público)
+// ---------------------------------------------------------------------------
+
 Route::get('/', function () {
     return Inertia::render('Hello', [
         'appName' => config('app.name'),
@@ -35,45 +51,58 @@ Route::get('/ds', function () {
     return Inertia::render('DesignSystem/Showcase');
 })->name('ds.showcase');
 
-// Captura do cupom (STORY-009). Tela mobile de scan/colar o QR da NFC-e. Agora atrás de
-// `auth` (STORY-015): a coleta atribui o cupom ao Colaborador logado, que recebe o cashback
-// quando o cupom valida. O POST é limitado por throttle. Validação canônica é a STORY-010.
+// ---------------------------------------------------------------------------
+// Área B2B — Quantah Intelligence (RESERVADA · ADR-010 §3 / PDR-003)
+// Entrada: /intelligence. Pública, sem login e sem features nesta onda — apenas
+// reserva o namespace para a captação de lead do EPIC-005, sem retrabalho.
+// Não há login B2B; por isso nenhuma rota aqui carrega o middleware `auth`.
+// ---------------------------------------------------------------------------
+
+Route::get('/intelligence', function () {
+    return Inertia::render('Intelligence/Reservado');
+})->name('intelligence.reservado');
+
+// ---------------------------------------------------------------------------
+// Área B2C — Coletador (AUTENTICADO · ADR-010 §3)
+// Entrada: /login (STORY-021/022) → destino do Coletador logado. Todo usuário
+// autenticado sem papel administrativo é Coletador; o guard é a sessão `auth`.
+// ---------------------------------------------------------------------------
+
 Route::middleware('auth')->group(function () {
+    // Captura do cupom (STORY-009/015). A coleta atribui o cupom ao Colaborador
+    // logado, que recebe o cashback quando o cupom valida. POST limitado por throttle.
     Route::get('/coletar', [ColetaController::class, 'create'])->name('coleta.create');
     Route::post('/coletar', [ColetaController::class, 'store'])
         ->middleware('throttle:30,1')
         ->name('coleta.store');
-});
 
-// Carteira do Colaborador (STORY-016): saldo em reais + histórico de créditos de cashback.
-// Atrás de `auth` — é a carteira do usuário logado (dono do cashback, STORY-015).
-Route::get('/carteira', [CarteiraController::class, 'index'])
-    ->middleware('auth')
-    ->name('carteira.index');
+    // Carteira do Colaborador (STORY-016): saldo em reais + histórico de cashback.
+    Route::get('/carteira', [CarteiraController::class, 'index'])->name('carteira.index');
 
-// Solicitação de saque do Colaborador (STORY-017, ADR-005) — PIX assistido.
-Route::middleware('auth')->group(function () {
+    // Solicitação de saque — PIX assistido (STORY-017, ADR-005).
     Route::get('/carteira/saque', [SaqueController::class, 'create'])->name('saque.create');
     Route::post('/carteira/saque', [SaqueController::class, 'store'])->name('saque.store');
-});
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    // Painel interno da north-star (STORY-012): cupons válidos-únicos-novos por semana.
+    Route::get('/interno/metricas', [MetricasController::class, 'index'])->name('interno.metricas');
 
-// Painel interno da north-star (STORY-012). Atrás de `auth` — mostra a contagem de
-// cupons válidos-únicos-novos por semana e a taxa de sucesso de envio.
-Route::get('/interno/metricas', [MetricasController::class, 'index'])
-    ->middleware('auth')
-    ->name('interno.metricas');
-
-Route::middleware('auth')->group(function () {
+    // Perfil do Coletador (Breeze).
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Backoffice de saques (STORY-017) — atrás do papel `operador` (ADR-009 · Gate operar-saques).
+// Dashboard pós-login (Breeze) — exige e-mail verificado (STORY-022).
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+// ---------------------------------------------------------------------------
+// Área Backoffice — Operação interna (AUTENTICADO + RBAC · ADR-009/ADR-010 §3)
+// Entrada: /backoffice/* — URL direta, NÃO anunciada (sem CTA/link público). O
+// guard é por grupo (nunca `can:` solto por rota): não-operador recebe 403.
+// ---------------------------------------------------------------------------
+
 Route::middleware(['auth', 'can:operar-saques'])->prefix('backoffice')->name('backoffice.')->group(function () {
     Route::get('/saques', [SaquesController::class, 'index'])->name('saques.index');
     Route::get('/saques/{saque}', [SaquesController::class, 'show'])->name('saques.show');
