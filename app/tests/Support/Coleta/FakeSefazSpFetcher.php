@@ -55,7 +55,9 @@ final class FakeSefazSpFetcher implements SefazSpFetcher
     public static function payloadPadrao(): array
     {
         return [
-            'data_emissao' => '2026-01-15 14:32:00',
+            // Data recente (dentro da janela de validade — STORY-035) para o caminho feliz
+            // seguir válido; testes de expiração passam uma data antiga via comPayload().
+            'data_emissao' => now('America/Sao_Paulo')->subDay()->format('Y-m-d H:i:s'),
             'valor_total' => '87.90',
             'numero' => 123456,
             'serie' => 1,

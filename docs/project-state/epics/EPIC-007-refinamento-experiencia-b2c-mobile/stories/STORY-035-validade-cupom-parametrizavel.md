@@ -8,8 +8,8 @@ type: implementation
 target_role: programador
 requires_design: false
 design_screen_id: null
-status: draft
-owner_agent: null
+status: done
+owner_agent: claude-programador
 created_at: 2026-07-05
 updated_at: 2026-07-05
 estimated_session_size: S
@@ -94,9 +94,44 @@ Siga `agent-task-format.md`. Sem tela nova. Decisão de semântica da regra → 
 
 ## Notas do agente (preenchido durante/após execução)
 
-> _(a preencher)_
+### Decisões tomadas (ver IDR-013)
 
-### Decisões tomadas
+- Janela aferida em `IngestaoCupomService::processarExtracao()` — único ponto onde `data_emissao`
+  existe (extração assíncrona, ADR-002). Semântica **inclusiva** (≤ N dias vale; estritamente mais
+  velho expira), comparada em **America/Sao_Paulo**. Motivo próprio `cupom_expirado` (status
+  `rejeitado`, sem cashback, sem itens persistidos).
+- Limite em `config/coleta.php` › `janela_dias` (default 7, env `COLETA_JANELA_DIAS`) — sem número
+  mágico.
+- Microcopy pt-BR centralizada em `ColetaController::microcopyRejeicao()`, com o N da config, pelo
+  **mesmo** mecanismo de rejeição ancorada no campo das demais (não banner global).
+
 ### Descobertas
+
+- O payload padrão do fake e um teste de LGPD usavam data fixa `2026-01-15` — sob a janela de 7 dias
+  em 2026-07-05 isso expiraria e quebraria o caminho feliz. Troquei por data recente dinâmica
+  (`now(SP)->subDay()`), mais robusta que hardcoded.
+- **Surfacing assíncrono:** a confirmação de captura mostra "capturado" e a expiração é determinada
+  depois (fila). A microcopy está pronta/ancorada, mas exibir o desfecho assíncrono na tela (status)
+  não estava no escopo S → **ressalva/wishlist** para a STORY-037.
+
+### Mapeamento CA → teste (todos verdes)
+
+`tests/Feature/Coleta/ValidadeCupomTest.php`:
+- **CA-1** → `test_janela_default_e_sete_dias_via_config`, `test_janela_configuravel_muda_o_desfecho`.
+- **CA-2** → `test_cupom_fora_da_janela_e_rejeitado_com_motivo_proprio`, `test_motivo_expirado_e_distinto_de_outras_rejeicoes`.
+- **CA-3** → `test_cupom_dentro_da_janela_e_validado`.
+- **CA-4** → `ColetaControllerTest::test_microcopy_de_cupom_expirado_e_ptbr_com_o_prazo_da_config`.
+- **CA-5** → `test_limite_exatamente_na_janela_ainda_e_valido`, `test_um_segundo_alem_da_janela_e_rejeitado`,
+  `test_fuso_sao_paulo_respeitado_na_fronteira`, `test_sem_data_emissao_nao_rejeita_por_prazo`.
+
 ### Bloqueios encontrados
+
+Nenhum.
+
 ### Links de evidência
+
+- Testes novos: `ValidadeCupomTest` (9) + `ColetaControllerTest` (+1 microcopy) — verdes.
+- Suíte completa sem regressão: **Pest 313/313**; **Dusk 87/87**.
+- Decisão: `decisions/idr/IDR-013-janela-validade-cupom-semantica.md`.
+- Arquivos: `config/coleta.php` (novo), `app/Domain/Coleta/IngestaoCupomService.php`,
+  `app/Http/Controllers/ColetaController.php`, fixtures de teste ajustadas.

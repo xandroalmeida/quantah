@@ -10,6 +10,7 @@ use App\Jobs\ExtrairCupomJob;
 use App\Models\ColetaEvento;
 use App\Models\Cupom;
 use App\Models\CupomAtribuicao;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -130,9 +131,37 @@ final class IngestaoCupomService
             return ResultadoIngestao::falhaExtracao($cupom, $e->tipo);
         }
 
+        // Janela de validade (STORY-035): `data_emissao` só é conhecida aqui (pós-extração),
+        // então é o ponto onde o prazo é aferido. Cupom velho não vira dado nem cashback.
+        if ($this->foraDaJanela($extraido->dataEmissao)) {
+            $cupom->update(['status' => Cupom::STATUS_REJEITADO, 'motivo_falha' => 'cupom_expirado']);
+
+            return ResultadoIngestao::rejeitado('cupom_expirado', $cupom);
+        }
+
         $this->normalizarEpersistir($cupom, $extraido);
 
         return ResultadoIngestao::aceito($cupom->fresh('itens'));
+    }
+
+    /**
+     * Cupom está fora do prazo de validade? (STORY-035 · IDR-013)
+     *
+     * Limite de `config('coleta.janela_dias')` (default 7), comparado em America/Sao_Paulo:
+     * válido se a idade for ≤ N dias (limite inclusivo); estritamente mais velho → expirado.
+     * Sem `data_emissao` não há como aferir o prazo → não rejeita por validade.
+     */
+    private function foraDaJanela(?string $dataEmissao): bool
+    {
+        if ($dataEmissao === null || $dataEmissao === '') {
+            return false;
+        }
+
+        $janelaDias = (int) config('coleta.janela_dias', 7);
+        $emissao = Carbon::parse($dataEmissao, 'America/Sao_Paulo');
+        $limite = Carbon::now('America/Sao_Paulo')->subDays($janelaDias);
+
+        return $emissao->lt($limite);
     }
 
     /**

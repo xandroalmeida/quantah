@@ -970,8 +970,8 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "draft",
-      "owner_agent": null,
+      "status": "done",
+      "owner_agent": "claude-programador",
       "sprint_id": null,
       "path": "epics/EPIC-007-refinamento-experiencia-b2c-mobile/stories/STORY-035-validade-cupom-parametrizavel.md",
       "blocked_by": [],
@@ -1419,6 +1419,19 @@
         "decided_by": "programador",
         "related_story": "STORY-033",
         "related_adrs": []
+      },
+      {
+        "id": "IDR-013",
+        "title": "Semântica da janela de validade do cupom — checada na extração, inclusiva em N dias, fuso SP",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-013-janela-validade-cupom-semantica.md",
+        "decided_at": "2026-07-05",
+        "decided_by": "programador",
+        "related_story": "STORY-035",
+        "related_adrs": [
+          "ADR-001",
+          "ADR-002"
+        ]
       }
     ],
     "ddr": [

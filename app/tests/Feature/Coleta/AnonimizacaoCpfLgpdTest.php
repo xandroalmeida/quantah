@@ -59,7 +59,9 @@ class AnonimizacaoCpfLgpdTest extends TestCase
     private function payloadComCpf(): array
     {
         return [
-            'data_emissao' => '2026-01-15 14:32:00',
+            // Data recente (dentro da janela — STORY-035) para o cupom validar e persistir os
+            // itens, que é o que este teste de anonimização precisa exercitar.
+            'data_emissao' => now('America/Sao_Paulo')->subDay()->format('Y-m-d H:i:s'),
             'valor_total' => '87.90',
             'numero' => 123456,
             'serie' => 1,

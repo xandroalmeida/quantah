@@ -151,4 +151,20 @@ class ColetaControllerTest extends TestCase
     {
         $this->post('/coletar', [])->assertSessionHasErrors(['entrada']);
     }
+
+    /** STORY-035 CA-4 — microcopy pt-BR do prazo, com o N da config, pelo mesmo mecanismo de campo. */
+    public function test_microcopy_de_cupom_expirado_e_ptbr_com_o_prazo_da_config(): void
+    {
+        config(['coleta.janela_dias' => 7]);
+        $msg = \App\Http\Controllers\ColetaController::microcopyRejeicao('cupom_expirado');
+
+        $this->assertStringContainsString('prazo', $msg);
+        $this->assertStringContainsString('7 dias', $msg);
+        // Não é banner global genérico nem o fallback.
+        $this->assertNotSame('Não foi possível ler esse cupom.', $msg);
+
+        // O N acompanha a config (sem número mágico).
+        config(['coleta.janela_dias' => 15]);
+        $this->assertStringContainsString('15 dias', \App\Http\Controllers\ColetaController::microcopyRejeicao('cupom_expirado'));
+    }
 }
