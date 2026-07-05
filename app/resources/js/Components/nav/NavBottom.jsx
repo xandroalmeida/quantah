@@ -3,13 +3,15 @@
  * mobile; item **ativo** com indicador `primary` (ícone verde). Alvos ≥48px
  * (`min-h-3xl`/`min-w-3xl`). Recebe `items: [{ label, icon, active, href }]`.
  *
- * `pb-[env(safe-area-inset-bottom)]`: em aparelhos com notch/barra de gestos, a barra ganha folga
- * abaixo dos alvos (que seguem ≥48px), sem ficar sob a área de sistema. (STORY-033)
+ * `pb-[max(env(safe-area-inset-bottom),0.5rem)]`: em aparelhos com notch/barra de gestos a barra
+ * ganha folga abaixo dos alvos (≥48px) sem ficar sob a área de sistema; o piso de 0.5rem garante
+ * respiro mesmo quando o iOS reporta o inset como 0 (PWA standalone). Sombra sutil para cima
+ * (shadow-elev) faz a barra fixa "flutuar" sobre o conteúdo que rola por baixo. (STORY-033)
  */
 export default function NavBottom({ items = [], itemProps, className = '', ...props }) {
     return (
         <nav
-            className={`flex items-stretch justify-around border-t border-ink bg-canvas pb-[env(safe-area-inset-bottom)] text-ink ${className}`}
+            className={`flex items-stretch justify-around border-t border-ink bg-canvas pb-[max(env(safe-area-inset-bottom),0.5rem)] text-ink shadow-[0_-2px_12px_rgba(14,15,12,0.06)] ${className}`}
             {...props}
         >
             {items.map((item) => (

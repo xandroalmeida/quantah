@@ -34,12 +34,15 @@ export default function AppLayout({ active, children }) {
     }));
 
     return (
-        // h-[100dvh] (viewport dinâmico) sobrepõe o fallback h-screen (100vh): no Safari iOS o
-        // 100vh conta a área atrás da barra do navegador e empurrava o nav.bottom para fora do
-        // viewport (some em Carteira/Perfil). Com dvh a casca mede só o que está visível, então o
-        // nav.bottom (shrink-0) fica sempre colado ao fundo visível e o conteúdo rola por baixo. (STORY-033)
-        <div className="flex h-screen h-[100dvh] flex-col bg-canvas-soft">
-            <NavBar className="hidden lg:flex">
+        // Casca app-like. O documento rola (body scroll) e o nav.bottom é FIXO ao fundo do
+        // viewport visível — não é irmão `shrink-0` de um `flex-1` como antes. No PWA standalone
+        // do iOS, o layout antigo (`h-[100dvh]` + flex) empurrava o nav para fora quando o conteúdo
+        // era mais alto (min-height:auto do flex) ou quando o iOS caía no fallback 100vh: os rótulos
+        // ficavam cortados atrás da barra de gestos. Fixo + `safe-area-inset-bottom` é o padrão PWA
+        // que nunca é cortado por altura de conteúdo nem por suporte a `dvh`. (STORY-033 · EPIC-007)
+        // `pt-[safe-area-inset-top]` é 0 com status bar opaca (default), mas protege notch/landscape.
+        <div className="min-h-screen min-h-[100dvh] bg-canvas-soft pt-[env(safe-area-inset-top)]">
+            <NavBar className="sticky top-0 z-40 hidden lg:flex">
                 <span className="mr-auto font-display text-body-lg font-black text-ink">
                     Quantah
                 </span>
@@ -50,9 +53,17 @@ export default function AppLayout({ active, children }) {
                 ))}
             </NavBar>
 
-            <main className="flex-1 overflow-y-auto">{children}</main>
+            {/* Folga inferior no mobile = altura do nav.bottom (~4.5rem) + safe-area, para o
+                conteúdo nunca ficar encoberto pela barra fixa. No desktop o nav é no topo → sem folga. */}
+            <main className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+                {children}
+            </main>
 
-            <NavBottom className="shrink-0 lg:hidden" items={itens} data-testid="app-nav" />
+            <NavBottom
+                className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
+                items={itens}
+                data-testid="app-nav"
+            />
         </div>
     );
 }
