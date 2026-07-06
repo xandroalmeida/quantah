@@ -31,9 +31,7 @@ export default function UpdateProfileInformation({
                 </h2>
 
                 <p className="mt-xs text-body-sm text-body">
-                    {t(
-                        "Update your account's profile information and email address.",
-                    )}
+                    {t("Update your account's profile information.")}
                 </p>
             </header>
 
@@ -53,10 +51,9 @@ export default function UpdateProfileInformation({
                     type="email"
                     label={t('Email')}
                     value={data.email}
-                    onChange={(e) => setData('email', e.target.value)}
-                    required
+                    disabled
                     autoComplete="username"
-                    error={errors.email}
+                    hint={t('Your email address cannot be changed.')}
                 />
 
                 {mustVerifyEmail && user.email_verified_at === null && (
