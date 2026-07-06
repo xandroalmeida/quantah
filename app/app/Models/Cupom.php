@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -62,6 +63,18 @@ class Cupom extends Model
     public function itens(): HasMany
     {
         return $this->hasMany(CupomItem::class);
+    }
+
+    /**
+     * Emitente enriquecido do cupom. Vínculo **lógico por CNPJ** (ADR-014) — não há FK;
+     * cupons do mesmo CNPJ apontam para o mesmo registro. Pode ser null enquanto a fila
+     * não processou o enriquecimento (EPIC-009).
+     *
+     * @return BelongsTo<Emitente, $this>
+     */
+    public function emitente(): BelongsTo
+    {
+        return $this->belongsTo(Emitente::class, 'cnpj_emitente', 'cnpj');
     }
 
     public function validado(): bool

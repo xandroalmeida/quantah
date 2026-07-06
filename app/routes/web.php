@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backoffice\CuponsController;
 use App\Http\Controllers\Backoffice\LeadsController;
 use App\Http\Controllers\Backoffice\SaquesController;
 use App\Http\Controllers\CarteiraController;
@@ -137,6 +138,10 @@ Route::get('/inicio', [HomeController::class, 'index'])
 Route::middleware(['auth', 'can:operar-saques'])->prefix('backoffice')->name('backoffice.')->group(function () {
     // Leads B2B capturados na landing (STORY-026) — visíveis à operação (STORY-027).
     Route::get('/leads', [LeadsController::class, 'index'])->name('leads.index');
+
+    // Cupons processados + emitente enriquecido (STORY-041 · EPIC-009).
+    Route::get('/cupons', [CuponsController::class, 'index'])->name('cupons.index');
+    Route::get('/cupons/{cupom}', [CuponsController::class, 'show'])->name('cupons.show');
 
     Route::get('/saques', [SaquesController::class, 'index'])->name('saques.index');
     Route::get('/saques/{saque}', [SaquesController::class, 'show'])->name('saques.show');
