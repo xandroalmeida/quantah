@@ -1184,8 +1184,8 @@
       "target_role": "programador",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "ready",
-      "owner_agent": null,
+      "status": "in_review",
+      "owner_agent": "claude-programador-story041",
       "sprint_id": null,
       "path": "epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-041-emitente-no-pipeline-e-backoffice.md",
       "blocked_by": [

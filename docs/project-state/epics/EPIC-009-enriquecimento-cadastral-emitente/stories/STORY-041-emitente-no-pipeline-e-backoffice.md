@@ -7,8 +7,8 @@ sprint_id: null
 type: implementation
 target_role: programador
 requires_design: false
-status: ready
-owner_agent: null
+status: in_review
+owner_agent: claude-programador-story041
 created_at: 2026-07-06
 updated_at: 2026-07-06
 estimated_session_size: M
@@ -93,20 +93,61 @@ Siga `docs/skills/po/references/agent-task-format.md`.
 
 ## Notas do agente (preenchido durante/após execução)
 
-### Decisões tomadas
--
+> Sessão `claude-programador-story041` — skill `programador` + sub-skill `stacks/laravel`.
+
+### Decisões tomadas (locais, dentro dos ADRs)
+- **Pipeline (CA-1/CA-2):** listener enfileirado `EnriquecerEmitenteAoValidar` reage a `CupomValidado`
+  (padrão IDR-008) e delega a `EnriquecimentoService::solicitar($cupom->cnpj_emitente)` — cache-first, roda
+  fora do request. Registrado no `AppServiceProvider` ao lado do listener de cashback.
+- **Vínculo cupom↔emitente por CNPJ (ADR-014):** `Cupom::emitente()` = `belongsTo(Emitente, 'cnpj_emitente',
+  'cnpj')` — relação **lógica**, sem FK nem `emitente_id`. Cupons do mesmo CNPJ compartilham o registro (CA-5).
+- **Read-model `ApresentacaoEmitente`** (presenter puro): traduz o registro (ou a ausência dele) num
+  view-model com **estado + rótulo + variante de badge** — `pendente` (sem registro), `enriquecido`,
+  `sem_cnae`, `nao_encontrado`, `indisponivel`. Garante o CA-4 (nunca campo vazio mudo). CNAE formatado
+  `XXXX-X/XX — descrição`.
+- **Backoffice:** rotas `backoffice.cupons.index/show` dentro do grupo `auth + can:operar-saques` (RBAC
+  ADR-009, guard por grupo). Páginas Inertia com a casca hand-rolled do Backoffice (sem layout dedicado,
+  como Saques) e componentes do DS (`Badge`, `Card`, helper `Linha`).
+- **Sem reprocessamento de cupons antigos** (fora de escopo): `emitentes` popula na demanda.
 
 ### Descobertas
--
+- A **lista** do Backoffice mostra todos os cupons `validado` (inclusive dados de dev). No E2E Dusk, isso
+  torna "clicar no primeiro item" não-determinístico; provei "listado com o estado" na lista e abri o
+  detalhe **por id** (determinístico). Nos testes de feature (RefreshDatabase) a lista é isolada.
+- **Fila no Dusk não é `sync`** (`.env.dusk.local` usa `database`), então o E2E semeia o **estado final**
+  do emitente diretamente (convenção Dusk do projeto) em vez de esperar a fila.
+- Testes de feature Inertia usam `withoutVite()` (idioma do projeto) — evita depender do manifest.
+- O `nome_emitente` do cupom (snapshot do DANFE, IDR-015) e a `razao_social` do emitente (RFB) convivem: o
+  detalhe mostra os dois (a nota e o cadastro oficial), que podem diferir (fantasia × razão social).
 
 ### Bloqueios encontrados
--
+- Nenhum. Todos os CAs cobertos pelos ADRs da STORY-039/040.
 
 ### IDRs criados
--
+- Nenhum. Decisões locais dentro dos ADR-012/013/014; nenhuma introduz padrão transversal novo.
 
 ### Cobertura final
--
+- **100%** nos arquivos novos/tocados: `ApresentacaoEmitente`, `Listeners/EnriquecerEmitenteAoValidar`,
+  `Backoffice/CuponsController`, `Models/Cupom`. Suíte completa: **390 verdes**; total do projeto **96,2%**
+  (gate `--min=80` ✅). Dusk (E2E): **3 verdes**. Pint limpo.
+
+### Mapa CA → teste (final)
+- **CA-1** (disparo automático via fila): `EnriquecerEmitenteAoValidarTest::test_handle_solicita_enriquecimento_do_cnpj_do_cupom`,
+  `..._test_pipeline_real_enriquece_o_emitente_ao_validar` (capturar → validado → listener → job → persiste).
+- **CA-2** (cache, sem chamada externa): `EnriquecerEmitenteAoValidarTest::test_emitente_ja_em_cache_nao_redispara`.
+- **CA-3** (detalhe mostra razão/CNAE/município/UF/situação): `CuponsBackofficeTest::test_detalhe_mostra_emitente_enriquecido`,
+  `ApresentacaoEmitenteTest::test_enriquecido_mostra_todos_os_campos`.
+- **CA-4** (estados pendente/indisponível claros): `ApresentacaoEmitenteTest` (todos os estados),
+  `CuponsBackofficeTest::test_detalhe_sem_emitente_mostra_pendente`.
+- **CA-5** (mesmo CNPJ = um emitente): `CuponsBackofficeTest::test_cupons_do_mesmo_cnpj_compartilham_emitente`,
+  `EnriquecerEmitenteAoValidarTest::test_dois_cupons_do_mesmo_cnpj_compartilham_um_emitente`.
+- **CA-6** (E2E enviar→listado→detalhe): `BackofficeCuponsTest::test_operador_ve_cupom_e_emitente_enriquecido`,
+  `..._test_cupom_sem_enriquecimento_mostra_pendente`, `..._test_nao_operador_e_barrado`.
 
 ### Links de evidência
--
+- Commits: `test(STORY-041)` (vermelho) → `feat(STORY-041)` (verde) na `main` (listener + Backoffice + E2E).
+- Dusk: `BackofficeCuponsTest` (3 cenários) rodou em Chrome real (container `quantah-selenium`).
+
+### Pendências de DoD (fora da minha alçada nesta sessão)
+- **CI verde + deploy homolog verificado:** commits na `main` **local**; aguarda o **push** (dispara CI/CD +
+  deploy homolog) para fechar como `done`.
