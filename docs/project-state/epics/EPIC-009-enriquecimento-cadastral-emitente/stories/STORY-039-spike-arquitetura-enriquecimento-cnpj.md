@@ -7,8 +7,8 @@ sprint_id: null
 type: spike
 target_role: arquiteto
 requires_design: false
-status: ready
-owner_agent: null
+status: in_review
+owner_agent: claude-arquiteto-story039
 created_at: 2026-07-06
 updated_at: 2026-07-06
 estimated_session_size: M
@@ -104,14 +104,68 @@ Siga `docs/skills/po/references/agent-task-format.md`: frontmatter `in_progress`
 
 ## Notas do agente (preenchido durante/após execução)
 
-### Decisões tomadas
--
+> Sessão `claude-arquiteto-story039` — skill `arquiteto`. 4 ADRs em `status: proposed` (o Arquiteto
+> propõe; o `accepted` depende de aprovação humana do Alexandro — ver "Aprovação humana" em cada ADR).
+
+### Decisões tomadas (resumo — detalhe nos ADRs)
+- **ADR-012 — Fonte CNPJ:** **BrasilAPI** primária (`GET /api/cnpj/v1/{cnpj}`) + **Minha Receita** de
+  fallback, atrás da ACL `EnriquecedorCnpj` → DTO canônico `EmitenteEnriquecido`. Falha tipada
+  (transitória/negócio/estrutural); **cupom nunca trava** (CA-4). Self-host da Minha Receita mapeado
+  como evolução com gatilho.
+- **ADR-013 — Filas:** reusa a fila `database` (Postgres) e o padrão evento+listener enfileirado
+  (IDR-008). Cadeia: `CupomValidado → EnriquecerEmitenteAoValidar → EmitentePronto → PontuarCupom`.
+  Enriquecimento **sempre** emite `EmitentePronto` (enriquecido ou não) ⇒ pontuação nunca fica refém da
+  API. Sem broker.
+- **ADR-014 — Cache:** tabela **`emitentes`** (CNPJ = chave natural) é **cache + registro canônico**
+  (datastore-first). Leitura cache-first; **TTL parametrizável** (`ttl_dias`, default 30, config
+  semeada; exposto na tela do EPIC-012). Vencimento = **stale-while-revalidate** (nunca bloqueia).
+- **ADR-015 — Motor + ledger:** motor **strategy/pipeline** de `RegraPontuacao` (CNAE, itens únicos,
+  valor, bônus) — regra nova = classe nova; **memória de cálculo** estruturada (`jsonb`, contrato do
+  extrato — CA-3); **ledger `pontos_transacoes`** append-only e idempotente (espelha
+  `carteira_transacoes`); **config versionada prospectiva** (`configuracoes_pontuacao`, append-only) —
+  consumida pelo EPIC-012; **resgate** debita pontos + credita R$ numa transação (taxa vigente, mínimo).
 
 ### Descobertas
--
+- **Base de homologação nascente:** existem **2 emitentes reais distintos** em cupons de homologação
+  (Supermercados Cavicchiolli — CNPJ 43.259.548/0028-83; e o emitente da STORY-000 — CNPJ
+  45.543.915/0982-11, que a RFB identifica como Carrefour). Coerente com PDR-005 (baseline da
+  north-star ainda não medido).
+- **BrasilAPI** entrega todos os campos exigidos + `cnaes_secundarios` (útil ao motor), latência
+  ~0,1–0,5s, e **aguentou rajada de 8 chamadas sem throttle**. **ReceitaWS free** retorna **429 em
+  3/min** — inviável como primária; só fallback esporádico. Minha Receita e CNPJá open também 200.
+- **Débito de modelagem** (IDR-015): dados do emitente vivem como colunas repetidas em `cupons`. O CNAE
+  é dado **por CNPJ** — a ADR-014 corrige isso introduzindo `emitentes`; o `nome_emitente` do DANFE
+  permanece no cupom como snapshot da nota.
+- Padrões reaproveitados do código atual: fila `database`, `ExtrairCupomJob` (tries=3, backoff
+  [10,60,300], falha tipada), evento `CupomValidado` + listener enfileirado (IDR-008), ledger
+  `carteira_transacoes` (append-only, índice único parcial idempotente), `CreditarCashbackService`
+  (DB::transaction + lockForUpdate, inteiro de centavos/bcmath).
 
 ### Bloqueios encontrados
--
+- **CA-2 (nota de honestidade, não-bloqueante):** a estória pede "≥3 CNPJs de emitentes reais **dos
+  cupons de homologação**", mas a homologação tem **2 emitentes reais distintos** até hoje. Provei a
+  API nos **2 reais de homologação** (Cavicchiolli, Carrefour) + **1 CNPJ real adicional** (Cia.
+  Brasileira de Distribuição / Pão de Açúcar — emissor NFC-e real de SP, **não** é cupom de
+  homologação) para fechar ≥3 consultas reais e observar outro CNAE/rate limit. Isso é **limitação de
+  dado, não de arquitetura** — a decisão de fonte está plenamente provada. **Se o PO exigir 3 emitentes
+  estritamente de homologação**, é preciso coletar mais 1 cupom real em homolog; não bloqueia os ADRs.
 
-### ADRs criados
--
+### ADRs criados (todos `proposed` — aguardando aprovação humana)
+- **ADR-012** — Fonte de dados CNPJ (API pública RFB): `decisions/adr/ADR-012-fonte-dados-cnpj-api-publica-rfb.md`
+- **ADR-013** — Filas e processamento assíncrono: `decisions/adr/ADR-013-filas-enriquecimento-e-pontuacao-assincronos.md`
+- **ADR-014** — Cache de CNPJ (TTL parametrizável): `decisions/adr/ADR-014-cache-cnpj-tabela-emitentes-ttl-parametrizavel.md`
+- **ADR-015** — Motor de pontos e ledger: `decisions/adr/ADR-015-motor-de-pontos-e-ledger.md`
+- **Evidência CA-2** (prova ao vivo): `../spike-evidencia/prova-api-cnpj.md`
+
+### Checklist de aceite
+- [x] **CA-1:** 4 ADRs em `decisions/adr/` (ADR-012 a ADR-015), com opções comparadas e justificativa.
+      Status `proposed` (não `accepted`): a skill do Arquiteto exige aprovação humana explícita para
+      `accepted` — pendente do Alexandro.
+- [~] **CA-2:** API provada com **3 consultas reais** (2 emitentes reais de homologação + 1 CNPJ real
+      de SP), campos/latência/rate limit registrados na evidência. Ressalva de honestidade acima
+      (homologação tem 2 emitentes reais distintos hoje).
+- [x] **CA-3:** ADR-015 define o contrato da **memória de cálculo** (o que o extrato mostra por regra) e
+      o contrato do **emitente enriquecido** (`EmitenteEnriquecido`) que o motor consome.
+- [x] **CA-4:** fallback explícito para API fora, CNPJ sem CNAE e rate limit — nenhum trava o cupom nem
+      o deixa sem pontuação definitiva (ADR-012 §fallback + ADR-013 cadeia `EmitentePronto` sempre).
+- [x] **CA-5:** `index.json` atualizado com os 4 ADRs (`decisions.adr[]`, status `proposed`).
