@@ -11,6 +11,7 @@ use App\Domain\Coleta\Sefaz\SpSefazAdapter;
 use App\Domain\Enriquecimento\BrasilApiEnriquecedor;
 use App\Domain\Enriquecimento\EnriquecedorCnpj;
 use App\Domain\Enriquecimento\FallbackEnriquecedor;
+use App\Domain\Enriquecimento\Listeners\EnriquecerEmitenteAoValidar;
 use App\Domain\Enriquecimento\MinhaReceitaEnriquecedor;
 use App\Models\Role;
 use App\Models\User;
@@ -70,6 +71,11 @@ class AppServiceProvider extends ServiceProvider
         // explicitamente porque o listener vive fora de `app/Listeners` (auto-discovery não
         // o alcança). Listener enfileirado, idempotente — ver CreditarCashbackAoValidar.
         Event::listen(CupomValidado::class, CreditarCashbackAoValidar::class);
+
+        // Cupom validado → enriquece o emitente (CNPJ→CNAE) de forma assíncrona (EPIC-009,
+        // ADR-013). Listener enfileirado, cache-first; mesmo registro explícito (vive em
+        // app/Domain/Enriquecimento/Listeners) — ver EnriquecerEmitenteAoValidar.
+        Event::listen(CupomValidado::class, EnriquecerEmitenteAoValidar::class);
 
         // Acesso ao backoffice de saque (ADR-009 · RBAC): concedido a quem tem o papel
         // `operador`. Rotas administrativas ficam atrás de `can:operar-saques`.
