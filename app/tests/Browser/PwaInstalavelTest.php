@@ -67,15 +67,18 @@ class PwaInstalavelTest extends DuskTestCase
         );
     }
 
-    /** O convite só aparece depois de o browser sinalizar instalabilidade. */
-    public function test_convite_so_aparece_apos_beforeinstallprompt(): void
+    /**
+     * Sinalizada a instalabilidade (beforeinstallprompt), o convite aparece com o botão de
+     * instalar. Não afirmamos que ele está ausente ANTES: em contexto seguro (localhost/HTTPS,
+     * como no CI) o próprio Chrome pode disparar o beforeinstallprompt real — o que só confirma
+     * que a PWA ficou instalável. O que importa é o convite oferecer a instalação.
+     */
+    public function test_convite_aparece_com_botao_instalar(): void
     {
         $user = $this->usuario();
 
         $this->browse(function (Browser $browser) use ($user) {
             $this->abrirHome($browser, $user);
-            $browser->assertMissing('[data-testid=pwa-install-prompt]');
-
             $this->dispararConvite($browser);
             $browser->waitFor('[data-testid=pwa-install-prompt]', 5)
                 ->assertSeeIn('[data-testid=pwa-install-btn]', 'Instalar');
