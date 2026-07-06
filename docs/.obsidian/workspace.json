@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "project-state/decisions/adr/ADR-015-motor-de-pontos-e-ledger.md",
+                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "ADR-015-motor-de-pontos-e-ledger"
+              "title": "STORY-040-consulta-assincrona-cnpj-cache"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "project-state/decisions/adr/ADR-015-motor-de-pontos-e-ledger.md",
+                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Links inversos para ADR-015-motor-de-pontos-e-ledger"
+              "title": "Links inversos para STORY-040-consulta-assincrona-cnpj-cache"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "project-state/decisions/adr/ADR-015-motor-de-pontos-e-ledger.md",
+                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Links de saída para ADR-015-motor-de-pontos-e-ledger"
+              "title": "Links de saída para STORY-040-consulta-assincrona-cnpj-cache"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "project-state/decisions/adr/ADR-015-motor-de-pontos-e-ledger.md",
+                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de ADR-015-motor-de-pontos-e-ledger"
+              "title": "Sumário de STORY-040-consulta-assincrona-cnpj-cache"
             }
           }
         ]
@@ -185,6 +185,7 @@
   },
   "active": "d6594ab1b29076e5",
   "lastOpenFiles": [
+    "project-state/decisions/adr/ADR-015-motor-de-pontos-e-ledger.md",
     "project-state/decisions/adr/ADR-014-cache-cnpj-tabela-emitentes-ttl-parametrizavel.md",
     "project-state/decisions/adr/ADR-013-filas-enriquecimento-e-pontuacao-assincronos.md",
     "project-state/decisions/adr/ADR-012-fonte-dados-cnpj-api-publica-rfb.md"

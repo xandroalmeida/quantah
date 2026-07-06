@@ -7,8 +7,8 @@ sprint_id: null
 type: implementation
 target_role: programador
 requires_design: false
-status: ready
-owner_agent: null
+status: in_review
+owner_agent: claude-programador-story040
 created_at: 2026-07-06
 updated_at: 2026-07-06
 estimated_session_size: M
@@ -103,20 +103,102 @@ Siga `docs/skills/po/references/agent-task-format.md` (frontmatter/status/índic
 
 ## Notas do agente (preenchido durante/após execução)
 
-### Decisões tomadas
--
+> Sessão `claude-programador-story040` — skill `programador` + sub-skill `stacks/laravel`.
+
+### Plano (antes de codar)
+**Documentos lidos:** STORY-040 inteira; ADR-012 (fonte/ACL), ADR-013 (fila), ADR-014 (cache/emitentes);
+PDR-004 regra 2; código atual (`SefazExtracaoException`, `HttpSefazSpFetcher`, `ExtrairCupomJob`,
+`Cupom` model, `config/coleta.php`).
+
+**Entendimento:** implementar o **serviço de enriquecimento cadastral** — dado um CNPJ, obter os dados
+da RFB via API pública **em fila**, persistir/cachear na tabela `emitentes` (ADR-014, cache = registro
+canônico), com TTL parametrizável (default 30d). Fora de escopo: disparo pelo pipeline do cupom e
+Backoffice (STORY-041), pontos (EPIC-010), tela de TTL (EPIC-012). **Backend puro — sem FE → sem E2E.**
+
+**Arquitetura (dentro dos ADRs):**
+- `App\Domain\Enriquecimento`: DTO `EmitenteEnriquecido`, porta `EnriquecedorCnpj`, `EnriquecimentoException`
+  (transitória/estrutural — "negócio" volta como *status* no DTO), `RfbOpenDataEnriquecedor` (base do
+  shape RFB) → `BrasilApiEnriquecedor` (primária) + `MinhaReceitaEnriquecedor` (fallback),
+  `FallbackEnriquecedor` (decorator), `EnriquecimentoService` (cache-first: `solicitar` + `enriquecer`).
+- `App\Models\Emitente` (tabela `emitentes`, cnpj = chave natural), migration, `config/enriquecimento.php`
+  (`ttl_dias`), `App\Jobs\EnriquecerEmitenteJob` (ShouldQueue, tries=3, backoff [30,120,300]),
+  comando `enriquecimento:cnpj {cnpj}` (exercício em homolog), bind da porta no `AppServiceProvider`.
+
+**Mapa CA → testes (escritos ANTES do código):**
+- **CA-1** consulta assíncrona + persistência: `EnriquecimentoServiceTest::test_cnpj_novo_consulta_e_persiste`,
+  `EnriquecerEmitenteJobTest::test_job_enriquece_e_persiste`, `..._solicitar_despacha_job_em_cache_miss`.
+- **CA-2** cache-hit sem chamada externa: `..._cnpj_fresco_nao_chama_externo` (contador do fake = 0),
+  `..._solicitar_nao_despacha_em_cache_fresco`.
+- **CA-3** TTL vencido re-consulta e renova: `..._cnpj_vencido_reconsulta_e_renova_cache`.
+- **CA-4** TTL por config: `..._ttl_lido_da_config` (config 1 dia → registro de 2 dias vence).
+- **CA-5** falha externa não perde/erro ao usuário: `BrasilApiEnriquecedorTest` (timeout/5xx/429→transitória),
+  `EnriquecerEmitenteJobTest::test_transitoria_reprocessa` + `test_failed_marca_nao_enriquecido`.
+- **CA-6** não encontrado / sem CNAE → estado distinto: `BrasilApiEnriquecedorTest::test_404_nao_encontrado`,
+  `..._200_sem_cnae`, `EnriquecimentoServiceTest::test_persiste_status_distinto`.
+- Mapeamento RFB→DTO e classificação: `BrasilApiEnriquecedorTest` (feliz, 404, sem-cnae, 5xx, 429,
+  timeout, contrato inesperado→estrutural); `FallbackEnriquecedorTest` (primária transitória→secundária;
+  ambas falham→propaga; primária ok→secundária não chamada).
+
+### Decisões tomadas (locais, dentro dos ADRs)
+- **Contexto `App\Domain\Enriquecimento`** com porta `EnriquecedorCnpj` (ACL) → DTO `EmitenteEnriquecido`.
+  Falha **transitória/estrutural** vira `EnriquecimentoException`; **negócio** (não encontrado / sem CNAE)
+  volta como **status no DTO** (não é exceção) — simplifica o serviço e o mapeamento.
+- **Base `RfbOpenDataEnriquecedor`** compartilhada entre BrasilAPI e Minha Receita: as duas servem o mesmo
+  shape do dump aberto da RFB, então o mapeamento response→DTO e a classificação de falha vivem num lugar
+  só (evita duplicação real de intenção; cada fonte concreta só informa URL + nome).
+- **`emitentes` como cache + registro canônico** (ADR-014): `estaFresco()` = tem `enriquecido_em` dentro do
+  TTL. Respostas **definitivas** (enriquecido/sem_cnae/não_encontrado) gravam `enriquecido_em` (cacheáveis);
+  **`nao_enriquecido`** (falha transitória esgotada / estrutural) fica com `enriquecido_em = null` → **não
+  vira cache**, é reconsultável na próxima solicitação. `registrarNaoEnriquecido` **não rebaixa** um
+  registro já fresco.
+- **TTL por `config('enriquecimento.ttl_dias')`** (default 30, env `ENRIQUECIMENTO_TTL_DIAS`) — parametrizável
+  sem deploy (CA-4); tela fica para o EPIC-012.
+- **Job** `EnriquecerEmitenteJob` (fila `database`, `tries=3`, backoff `[30,120,300]`): transitória relança
+  (retry/backoff), estrutural alerta+`nao_enriquecido` sem retry, `failed()` marca `nao_enriquecido`.
+- **Binding** da porta no `AppServiceProvider` = `FallbackEnriquecedor(BrasilApi, MinhaReceita)`; testes
+  trocam por um fake via container.
+- **CNPJ normalizado** (só dígitos) na fronteira do serviço — máscara é UX.
 
 ### Descobertas
--
+- Smoke ao vivo contra a **BrasilAPI real** (CNPJ 43.259.548/0028-83 — emitente de homologação): 1ª chamada
+  enriqueceu e persistiu (razão, CNAE 4711302, ITU/SP, 5 CNAEs secundários); 2ª chamada (CNPJ **mascarado**)
+  veio do **cache** (1 linha, sem duplicar, `enriquecido_em` intacto). Prova cache-hit + normalização.
+- Convenção do projeto: os models de domínio usam só `HasUuids` (sem override para uuid7) — segui o padrão
+  do `Cupom` para consistência (a sub-skill sugere uuid7, mas o código vigente não o faz).
 
 ### Bloqueios encontrados
--
+- Nenhum. Todos os CAs cobertos pelos ADRs da STORY-039.
 
 ### IDRs criados
--
+- Nenhum. As decisões locais ficam dentro dos ADR-012/013/014; nenhuma introduz padrão transversal novo
+  (a base `RfbOpenDataEnriquecedor` é organização interna do contexto).
 
 ### Cobertura final
--
+- **100%** em todos os arquivos novos (`Domain/Enriquecimento/*`, `Models/Emitente`, `Jobs/EnriquecerEmitenteJob`,
+  `Console/Commands/EnriquecerCnpjCommand`). Suíte completa: **373 testes verdes**. Total do projeto: **95,9%**
+  (gate `--min=80` verde). Pint limpo.
+
+### Mapa CA → teste (final)
+- **CA-1** `EnriquecimentoServiceTest::test_cnpj_novo_consulta_e_persiste`, `..._solicitar_despacha_job_em_cache_miss`,
+  `EnriquecerEmitenteJobTest::test_job_enriquece_e_persiste`, `EnriquecerCnpjCommandTest::test_enriquece_e_persiste_com_sucesso`.
+- **CA-2** `..._cnpj_fresco_nao_chama_externo` (contador do fake = 0), `..._solicitar_nao_despacha_em_cache_fresco`.
+- **CA-3** `..._cnpj_vencido_reconsulta_e_renova_cache`.
+- **CA-4** `..._ttl_lido_da_config`.
+- **CA-5** `BrasilApiEnriquecedorTest` (timeout/5xx/429/4xx→transitória), `EnriquecerEmitenteJobTest`
+  (`test_transitoria_reprocessa`, `test_estrutural_nao_reprocessa_e_marca_nao_enriquecido`,
+  `test_failed_marca_nao_enriquecido`, `test_falha_nunca_toca_o_cupom_nem_lanca_ao_usuario`),
+  `EnriquecimentoServiceTest::test_registrar_nao_enriquecido_fica_reconsultavel`.
+- **CA-6** `BrasilApiEnriquecedorTest::test_404_vira_status_nao_encontrado`, `..._200_sem_cnae_vira_status_sem_cnae`,
+  `EnriquecimentoServiceTest::test_persiste_status_nao_encontrado`.
+- Mapeamento/fonte/fallback: `BrasilApiEnriquecedorTest` (feliz + bordas cnaes_secundarios),
+  `MinhaReceitaEnriquecedorTest`, `FallbackEnriquecedorTest`.
 
 ### Links de evidência
--
+- Commits: `test(STORY-040)` (vermelho) → `feat(STORY-040)` (verde) na `main`.
+- Smoke ao vivo: `php artisan enriquecimento:cnpj 43259548002883` (saída no histórico da sessão).
+- **Sem E2E:** estória é backend puro, não toca FE web (o Backoffice é STORY-041) → gate de E2E não se aplica.
+
+### Pendências de DoD (fora da minha alçada nesta sessão)
+- **CI verde + deploy homolog verificado:** os commits estão na `main` **local**; o push (que dispara o
+  CI/CD e o deploy para homologação) segue a regra "só commitar/push quando o usuário pedir" — aguardo o
+  push para fechar como `done`.
