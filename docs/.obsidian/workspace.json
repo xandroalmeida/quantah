@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
+                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-042-validacao-epic-009.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "STORY-040-consulta-assincrona-cnpj-cache"
+              "title": "STORY-042-validacao-epic-009"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
+                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-042-validacao-epic-009.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Links inversos para STORY-040-consulta-assincrona-cnpj-cache"
+              "title": "Links inversos para STORY-042-validacao-epic-009"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
+                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-042-validacao-epic-009.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Links de saída para STORY-040-consulta-assincrona-cnpj-cache"
+              "title": "Links de saída para STORY-042-validacao-epic-009"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
+                "file": "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-042-validacao-epic-009.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de STORY-040-consulta-assincrona-cnpj-cache"
+              "title": "Sumário de STORY-042-validacao-epic-009"
             }
           }
         ]
@@ -185,6 +185,10 @@
   },
   "active": "d6594ab1b29076e5",
   "lastOpenFiles": [
+    "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/validation/report.md",
+    "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-041-emitente-no-pipeline-e-backoffice.md",
+    "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
+    "project-state/epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-039-spike-arquitetura-enriquecimento-cnpj.md",
     "project-state/decisions/adr/ADR-015-motor-de-pontos-e-ledger.md",
     "project-state/decisions/adr/ADR-014-cache-cnpj-tabela-emitentes-ttl-parametrizavel.md",
     "project-state/decisions/adr/ADR-013-filas-enriquecimento-e-pontuacao-assincronos.md",
