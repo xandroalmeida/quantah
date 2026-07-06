@@ -70,7 +70,7 @@ bloquear ou atrasar o fluxo de envio do cupom para o Colaborador.
 
 ## Estórias
 
-- [ ] STORY-039 (spike, arquiteto) — Arquitetura do enriquecimento CNPJ: API pública RFB, filas, cache e fallback
+- [x] STORY-039 (spike, arquiteto) — Arquitetura do enriquecimento CNPJ: API pública RFB, filas, cache e fallback (done — ADR-012 a ADR-015 accepted)
 - [ ] STORY-040 — Consulta assíncrona ao CNPJ com cache parametrizável
 - [ ] STORY-041 — Emitente enriquecido no pipeline do cupom e visível no Backoffice
 - [ ] STORY-042 (validação) — Validação final do épico

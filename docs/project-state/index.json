@@ -1143,7 +1143,7 @@
       "target_role": "arquiteto",
       "requires_design": false,
       "design_screen_id": null,
-      "status": "in_review",
+      "status": "done",
       "owner_agent": "claude-arquiteto-story039",
       "sprint_id": null,
       "path": "epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-039-spike-arquitetura-enriquecimento-cnpj.md",
@@ -1490,11 +1490,11 @@
       {
         "id": "ADR-012",
         "title": "Fonte de dados CNPJ — BrasilAPI (RFB) primária, fallback e ACL de enriquecimento",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-012-fonte-dados-cnpj-api-publica-rfb.md",
-        "decided_at": null,
+        "decided_at": "2026-07-06",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-004",
           "PDR-005"
@@ -1507,11 +1507,11 @@
       {
         "id": "ADR-013",
         "title": "Filas e processamento assíncrono — enriquecimento CNPJ e cálculo de pontos na fila Postgres",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-013-filas-enriquecimento-e-pontuacao-assincronos.md",
-        "decided_at": null,
+        "decided_at": "2026-07-06",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-004",
           "PDR-005"
@@ -1524,11 +1524,11 @@
       {
         "id": "ADR-014",
         "title": "Cache de CNPJ — tabela emitentes no Postgres (cache + registro canônico), TTL parametrizável",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-014-cache-cnpj-tabela-emitentes-ttl-parametrizavel.md",
-        "decided_at": null,
+        "decided_at": "2026-07-06",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-004",
           "PDR-005"
@@ -1541,11 +1541,11 @@
       {
         "id": "ADR-015",
         "title": "Motor de pontos extensível, memória de cálculo, ledger imutável e config versionada prospectiva",
-        "status": "proposed",
+        "status": "accepted",
         "path": "decisions/adr/ADR-015-motor-de-pontos-e-ledger.md",
-        "decided_at": null,
+        "decided_at": "2026-07-06",
         "decided_by": "arquiteto",
-        "approved_by": null,
+        "approved_by": "Alexandro",
         "related_pdrs": [
           "PDR-004",
           "PDR-005"

@@ -2,10 +2,10 @@
 adr_id: ADR-012
 slug: fonte-dados-cnpj-api-publica-rfb
 title: Fonte de dados CNPJ — BrasilAPI (RFB) primária, fallback e ACL de enriquecimento
-status: proposed  # proposed | accepted | superseded | rejected | deferred
-decided_at: null
+status: accepted  # proposed | accepted | superseded | rejected | deferred
+decided_at: 2026-07-06
 decided_by: arquiteto
-approved_by: null
+approved_by: Alexandro
 supersedes: null
 superseded_by: null
 related_adrs: [ADR-001, ADR-002, ADR-006, ADR-013, ADR-014, ADR-015]
@@ -237,14 +237,15 @@ flowchart LR
 
 ## Aprovação humana
 
-- **Status final:** ⬜ pendente | ✅ aceita | ❌ rejeitada | 🔄 superseded
-- **Aprovado por:** <Alexandro>
-- **Data:** —
-- **Forma do aceite:** —
-- **Condicionantes do aceite:** —
+- **Status final:** ✅ aceita
+- **Aprovado por:** Alexandro
+- **Data:** 2026-07-06
+- **Forma do aceite:** aprovação explícita em sessão de Cowork (papel Arquiteto), lote STORY-039 ("ADRs aprovadas").
+- **Condicionantes do aceite:** nenhuma.
 
 ---
 
 ## Histórico
 
 - 2026-07-06 — criada como `proposed` por Arquiteto (spike STORY-039 do EPIC-009), com prova ao vivo (CA-2).
+- 2026-07-06 — **aceita** por Alexandro → `accepted`.

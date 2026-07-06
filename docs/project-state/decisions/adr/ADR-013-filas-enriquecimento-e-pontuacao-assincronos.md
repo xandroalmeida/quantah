@@ -2,10 +2,10 @@
 adr_id: ADR-013
 slug: filas-enriquecimento-e-pontuacao-assincronos
 title: Filas e processamento assíncrono — enriquecimento CNPJ e cálculo de pontos na fila Postgres
-status: proposed  # proposed | accepted | superseded | rejected | deferred
-decided_at: null
+status: accepted  # proposed | accepted | superseded | rejected | deferred
+decided_at: 2026-07-06
 decided_by: arquiteto
-approved_by: null
+approved_by: Alexandro
 supersedes: null
 superseded_by: null
 related_adrs: [ADR-002, ADR-012, ADR-014, ADR-015]
@@ -206,14 +206,15 @@ o síncrono (D) quebra a fricção mínima. O trade-off aceito — um salto a ma
 
 ## Aprovação humana
 
-- **Status final:** ⬜ pendente | ✅ aceita | ❌ rejeitada | 🔄 superseded
-- **Aprovado por:** <Alexandro>
-- **Data:** —
-- **Forma do aceite:** —
-- **Condicionantes do aceite:** —
+- **Status final:** ✅ aceita
+- **Aprovado por:** Alexandro
+- **Data:** 2026-07-06
+- **Forma do aceite:** aprovação explícita em sessão de Cowork (papel Arquiteto), lote STORY-039 ("ADRs aprovadas").
+- **Condicionantes do aceite:** nenhuma.
 
 ---
 
 ## Histórico
 
 - 2026-07-06 — criada como `proposed` por Arquiteto (spike STORY-039 do EPIC-009).
+- 2026-07-06 — **aceita** por Alexandro → `accepted`.

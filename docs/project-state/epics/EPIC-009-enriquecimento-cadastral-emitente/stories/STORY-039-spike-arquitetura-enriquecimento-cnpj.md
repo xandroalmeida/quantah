@@ -7,7 +7,7 @@ sprint_id: null
 type: spike
 target_role: arquiteto
 requires_design: false
-status: in_review
+status: done
 owner_agent: claude-arquiteto-story039
 created_at: 2026-07-06
 updated_at: 2026-07-06
@@ -159,8 +159,7 @@ Siga `docs/skills/po/references/agent-task-format.md`: frontmatter `in_progress`
 
 ### Checklist de aceite
 - [x] **CA-1:** 4 ADRs em `decisions/adr/` (ADR-012 a ADR-015), com opções comparadas e justificativa.
-      Status `proposed` (não `accepted`): a skill do Arquiteto exige aprovação humana explícita para
-      `accepted` — pendente do Alexandro.
+      **Status `accepted`** — aprovados por Alexandro em 2026-07-06 ("ADRs aprovadas").
 - [~] **CA-2:** API provada com **3 consultas reais** (2 emitentes reais de homologação + 1 CNPJ real
       de SP), campos/latência/rate limit registrados na evidência. Ressalva de honestidade acima
       (homologação tem 2 emitentes reais distintos hoje).
