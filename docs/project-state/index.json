@@ -1,9 +1,9 @@
 {
   "version": 2,
-  "generated_at": "2026-07-05",
+  "generated_at": "2026-07-06",
   "project": {
     "name": "Quantah",
-    "current_wave": "WAVE-2026-02",
+    "current_wave": "WAVE-2026-03",
     "current_sprint": null
   },
   "product": {
@@ -31,7 +31,7 @@
     {
       "id": "WAVE-2026-02",
       "title": "De POC a produto — porta de entrada, identidade e jornada B2C",
-      "status": "active",
+      "status": "closed",
       "goal": "Transformar o mecanismo provado (loop cupom → saldo) em produto apresentável: landing pages B2C e B2B, identidade/acesso do Coletador (login Google + e-mail/senha) no padrão visual, segmentação das 3 áreas (B2C/B2B/Backoffice) e jornada B2C completa pós-login (home-hub, mobile), tudo em pt-BR — habilitando o piloto",
       "start_date": "2026-07-04",
       "scope_pdr": "PDR-003",
@@ -41,6 +41,23 @@
         "EPIC-006",
         "EPIC-007",
         "EPIC-008"
+      ],
+      "end_date": "2026-07-06",
+      "closed_by": "po (Alexandro / Claude)",
+      "outcome": "Objetivo atingido: produto apresentável com landings B2C/B2B, identidade/acesso do Coletador, 3 áreas segmentadas, jornada B2C mobile pt-BR e PWA instalável. 5/5 épicos done (EPIC-004 approved_with_pending; 005/006/007 approved; EPIC-008 com gate manual de device pendente com o PO — IDR-016, não bloqueante)."
+    },
+    {
+      "id": "WAVE-2026-03",
+      "title": "Remuneração por pontos gamificados",
+      "status": "active",
+      "goal": "Substituir o rate fixo de cashback pelo modelo de pontos ponta a ponta: enriquecimento CNPJ (API pública RFB, fila, cache parametrizável), motor de pontos configurável (CNAE, itens únicos, valor, itens com bônus), conversão N pontos = X reais com resgate manual e mínimo, migração do saldo legado e configuração no Backoffice — em homologação",
+      "start_date": "2026-07-06",
+      "scope_pdr": "PDR-005",
+      "epic_ids": [
+        "EPIC-009",
+        "EPIC-010",
+        "EPIC-011",
+        "EPIC-012"
       ]
     }
   ],
@@ -279,6 +296,59 @@
       },
       "created_at": "2026-07-05",
       "updated_at": "2026-07-05"
+    },
+    {
+      "id": "EPIC-009",
+      "slug": "enriquecimento-cadastral-emitente",
+      "title": "Enriquecimento cadastral do emitente — CNPJ via API pública da RFB, fila e cache",
+      "wave": "WAVE-2026-03",
+      "status": "ready",
+      "path": "epics/EPIC-009-enriquecimento-cadastral-emitente/epic.md",
+      "story_ids": [
+        "STORY-039",
+        "STORY-040",
+        "STORY-041",
+        "STORY-042"
+      ],
+      "validation_report": null,
+      "created_at": "2026-07-06",
+      "updated_at": "2026-07-06"
+    },
+    {
+      "id": "EPIC-010",
+      "slug": "motor-de-pontos",
+      "title": "Motor de pontos — cupom válido gera pontos por regras compostas, em fila",
+      "wave": "WAVE-2026-03",
+      "status": "draft",
+      "path": "epics/EPIC-010-motor-de-pontos/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-06",
+      "updated_at": "2026-07-06"
+    },
+    {
+      "id": "EPIC-011",
+      "slug": "conversao-resgate-migracao",
+      "title": "Conversão e resgate — N pontos valem X reais, com migração do saldo legado",
+      "wave": "WAVE-2026-03",
+      "status": "draft",
+      "path": "epics/EPIC-011-conversao-resgate-migracao/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-06",
+      "updated_at": "2026-07-06"
+    },
+    {
+      "id": "EPIC-012",
+      "slug": "configuracao-mecanismo-backoffice",
+      "title": "Configuração do mecanismo de pontos no Backoffice — parâmetros com vigência e auditoria",
+      "wave": "WAVE-2026-03",
+      "status": "draft",
+      "path": "epics/EPIC-012-configuracao-mecanismo-backoffice/epic.md",
+      "story_ids": [],
+      "validation_report": null,
+      "created_at": "2026-07-06",
+      "updated_at": "2026-07-06"
     }
   ],
   "stories": [
@@ -1064,6 +1134,87 @@
       "blocks": [],
       "created_at": "2026-07-05",
       "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-039",
+      "epic_id": "EPIC-009",
+      "title": "Spike: arquitetura do enriquecimento CNPJ — API pública RFB, filas, cache e motor de pontos",
+      "type": "spike",
+      "target_role": "arquiteto",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-039-spike-arquitetura-enriquecimento-cnpj.md",
+      "blocked_by": [],
+      "blocks": [
+        "STORY-040",
+        "STORY-041"
+      ],
+      "created_at": "2026-07-06",
+      "updated_at": "2026-07-06"
+    },
+    {
+      "id": "STORY-040",
+      "epic_id": "EPIC-009",
+      "title": "Consulta assíncrona ao CNPJ do emitente com cache parametrizável",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-040-consulta-assincrona-cnpj-cache.md",
+      "blocked_by": [
+        "STORY-039"
+      ],
+      "blocks": [
+        "STORY-041"
+      ],
+      "created_at": "2026-07-06",
+      "updated_at": "2026-07-06"
+    },
+    {
+      "id": "STORY-041",
+      "epic_id": "EPIC-009",
+      "title": "Emitente enriquecido no pipeline do cupom e visível no Backoffice",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-041-emitente-no-pipeline-e-backoffice.md",
+      "blocked_by": [
+        "STORY-040"
+      ],
+      "blocks": [
+        "STORY-042"
+      ],
+      "created_at": "2026-07-06",
+      "updated_at": "2026-07-06"
+    },
+    {
+      "id": "STORY-042",
+      "epic_id": "EPIC-009",
+      "title": "Validação final do EPIC-009 — enriquecimento cadastral do emitente",
+      "type": "validation",
+      "target_role": "validador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "ready",
+      "owner_agent": null,
+      "sprint_id": null,
+      "path": "epics/EPIC-009-enriquecimento-cadastral-emitente/stories/STORY-042-validacao-epic-009.md",
+      "blocked_by": [
+        "STORY-041"
+      ],
+      "blocks": [],
+      "created_at": "2026-07-06",
+      "updated_at": "2026-07-06"
     }
   ],
   "sprints": [
@@ -1123,6 +1274,36 @@
           "EPIC-004",
           "EPIC-005",
           "EPIC-006"
+        ],
+        "related_adrs": []
+      },
+      {
+        "id": "PDR-004",
+        "title": "Pontuação gamificada substitui o rate fixo de cashback",
+        "status": "accepted",
+        "path": "decisions/pdr/PDR-004-pontuacao-gamificada-substitui-rate-fixo.md",
+        "decided_at": "2026-07-06",
+        "decided_by": "PO (Alexandro / Claude)",
+        "related_epics": [
+          "EPIC-009",
+          "EPIC-010",
+          "EPIC-011",
+          "EPIC-012"
+        ],
+        "related_adrs": []
+      },
+      {
+        "id": "PDR-005",
+        "title": "Escopo da Onda 3 — remuneração por pontos gamificados ponta a ponta",
+        "status": "accepted",
+        "path": "decisions/pdr/PDR-005-escopo-onda-3-pontos-gamificados.md",
+        "decided_at": "2026-07-06",
+        "decided_by": "PO (Alexandro / Claude)",
+        "related_epics": [
+          "EPIC-009",
+          "EPIC-010",
+          "EPIC-011",
+          "EPIC-012"
         ],
         "related_adrs": []
       }
@@ -1995,6 +2176,13 @@
       "path": "reports/status-2026-07-04-wave-2026-02-open.md",
       "date": "2026-07-04",
       "type": "wave-open"
+    },
+    {
+      "id": "status-2026-07-06-wave-2026-02-close-wave-2026-03-open",
+      "title": "Fechamento da WAVE-2026-02 e abertura da WAVE-2026-03 (pontos gamificados)",
+      "path": "reports/status-2026-07-06-wave-2026-02-close-wave-2026-03-open.md",
+      "date": "2026-07-06",
+      "type": "wave-close-open"
     }
   ]
 }

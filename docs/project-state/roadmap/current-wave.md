@@ -1,90 +1,53 @@
-# Onda em execução — WAVE-2026-02: De POC a produto (porta de entrada, identidade e jornada B2C)
+# Onda em execução — WAVE-2026-03: Remuneração por pontos gamificados
 
 - **Status:** active
-- **Início:** 2026-07-04
-- **Escopo decidido em:** PDR-003
+- **Início:** 2026-07-06
+- **Escopo decidido em:** PDR-005 (modelo de pontos em PDR-004)
 - **North-star:** cupons NFC-e válidos, únicos e novos por semana (`../product/north-star.md`)
-- **Onda anterior:** WAVE-2026-01 (closed) — retrospectiva em
-  `../reports/status-2026-07-04-wave-2026-01-close.md`
+- **Onda anterior:** WAVE-2026-02 (closed) — fechamento em
+  `../reports/status-2026-07-06-wave-2026-02-close-wave-2026-03-open.md`
 
 ## Objetivo de negócio
 
-Transformar o **mecanismo provado na Onda 1** (loop cupom → saldo) em um **produto apresentável**: uma
-porta de entrada pública (landing pages), identidade e acesso próprios do Coletador, segmentação dos três
-públicos e uma **jornada B2C completa pós-login** — tudo em pt-BR. É a camada que viabiliza um **piloto
-real** com usuários e, com ele, o **primeiro baseline** da north-star.
+Substituir o rate fixo de cashback (R$ 1/R$ 1.000) pelo **modelo de pontos gamificado** ponta a ponta:
+cada cupom válido gera pontos por um motor de regras configurável (CNAE do emitente, itens únicos,
+valor, itens com bônus); pontos convertem em R$ por resgate manual com mínimo, pela taxa vigente; o
+saldo legado é migrado para pontos; e todos os parâmetros são administráveis no Backoffice. Tudo em
+homologação, pronto para o piloto nascer com o incentivo definitivo.
 
 ## Hipótese que estamos validando
 
-> Com uma porta de entrada clara (landing), cadastro/login de baixa fricção (Google **e** e-mail/senha) e
-> uma jornada mobile coesa pós-login, convertemos visitantes em **Coletadores ativos** e sustentamos a
-> coleta — condição para a north-star sair de zero. O lado B2B, nesta fase, só precisa de vitrine e
-> **lista de interessados**.
+> Um incentivo paramétrico por pontos — que remunera mais o dado que vale mais (categoria, diversidade,
+> produtos estratégicos) e transforma o acúmulo em mecânica de jogo — sustenta a recorrência do
+> Colaborador com custo de aquisição do dado controlável, sem quebrar a tese de remuneração por serviço
+> (PDR-004, premissa regulatória).
 
 ## Épicos da onda (em ordem)
 
 | # | Épico | Status | Outcome | Critério de pronto (observável) |
 |---|---|---|---|---|
-| 1 | **EPIC-004 Acesso e áreas** | ✅ done | Identidade de acesso do Coletador + 3 áreas segmentadas | Coletador entra por login de marca (Google ou e-mail/senha), em pt-BR, sem logo do Laravel; áreas B2C/B2B/Backoffice separadas por guardas — em homologação. Validado 2026-07-05 (`approved_with_pending`; F-NB-1 → WISH-004). |
-| 2 | **EPIC-005 Portas de entrada** | ✅ done | Landing B2C e landing B2B (Quantah Intelligence) | Visitante entende a proposta; CTA B2C leva ao login; lead B2B capturado e visível no backoffice — em homologação. Validado 2026-07-05 (`approved`; 4 ressalvas não-bloqueantes → WISH-005/006 e reforço a WISH-001). |
-| 3 | **EPIC-006 Jornada do Coletador** | ✅ done | Home-hub e fluxo completo pós-login (mobile) | Coletador logado chega à home-hub e percorre coletar → saldo → extrato → saque, sem página genérica — em homologação. Validado 2026-07-05 (`approved`; 6 ressalvas não-bloqueantes R1–R6). |
-| 4 | **EPIC-007 Refinamento B2C mobile** | 🔜 ready | Casca app-like + cupom detalhado + ajustes de jornada | No celular: `nav.bottom` fixo em todas as telas, detalhe do cupom com itens em 1 toque, cupom fora da janela rejeitado, sem excluir conta, menu de escanear renomeado — em homologação. Decomposto 2026-07-05 (STORY-033/034/035/036 + validação 037). |
+| 1 | **EPIC-009 Enriquecimento cadastral do emitente** | ready | CNPJ do emitente consultado na RFB (API pública, fila, cache ≥30d parametrizável) | No Backoffice, um cupom processado exibe razão social e CNAE do emitente; consulta repetida no prazo do cache não bate na API — em homologação. |
+| 2 | **EPIC-010 Motor de pontos** | draft | Cupom válido gera pontos em fila, por regras compostas | Colaborador envia cupom e vê pontos creditados no extrato, com memória de cálculo por regra — em homologação. |
+| 3 | **EPIC-011 Conversão, resgate e migração** | draft | N pontos = X R$; resgate manual com mínimo; saldo legado migrado | Colaborador resgata pontos acima do mínimo e vê saldo em R$ na carteira; saldo antigo aparece convertido no extrato — em homologação. |
+| 4 | **EPIC-012 Configuração do mecanismo (Backoffice)** | draft | Parâmetros dos dois mecanismos administráveis, com auditoria | Backoffice altera regra/taxa/mínimo/TTL e a mudança vale só dali pra frente, com histórico de quem mudou — em homologação. |
 
 ## Justificativa da sequência
 
-**EPIC-004 primeiro** porque tudo se liga a ele: as landings (EPIC-005) precisam de um login real para o
-CTA, e a jornada (EPIC-006) exige o Coletador autenticado e as áreas segmentadas. Estabelecer aqui também
-o **mecanismo de i18n** e varrer as superfícies existentes para pt-BR paga a dívida de idioma cedo. Depois
-que o EPIC-004 fecha, **EPIC-005 e EPIC-006 podem correr em paralelo** (uma é a face pública, a outra a
-experiência logada), reusando coleta/carteira/saque da Onda 1.
+**EPIC-009 primeiro** porque o CNAE é insumo do motor de pontos e é a peça de maior risco externo (API
+de terceiros) — o spike do Arquiteto abre a onda. **EPIC-010 em seguida**, consumindo o CNAE; enquanto
+não há tela de configuração, os parâmetros nascem versionados como configuração semeada (a tela do
+EPIC-012 os expõe depois). **EPIC-011 depois do motor**, porque resgate e migração pressupõem pontos
+existindo. **EPIC-012 por último**: administra parâmetros que os três anteriores estabeleceram —
+antecipá-lo seria configurar o que ainda não existe.
 
-## Requisito transversal desta onda
+## O que esta onda NÃO inclui
 
-- **Localização pt-BR** — todo texto visível em português do Brasil, sem resíduo de scaffolding em inglês
-  nem logo do Laravel; formatos brasileiros (R$, dd/mm/aaaa, America/Sao_Paulo). Registrado em
-  `../../skills/po/references/quality-standards.md` §5.1 e cobrado no DoD de cada épico.
-- Padrões de PDR-001 seguem valendo: telas sobre o DS (só tokens do sistema), verde como único accent de
-  CTA, mobile-first, a11y AA.
+- Piloto/baseline da north-star, endurecimento transversal (WISH-004/005/006), B2B autenticado e
+  promoção a produção — candidatos em `next-wave.md`.
+- Badges, níveis e ranking (gamificação sem valor material) — onda futura.
+- Sorteio (gate regulatório da visão §8.3) — segue desligado.
 
-## Decisões de produto que acompanham o escopo (PDR-003)
+## Pendências herdadas da Onda 2
 
-- **Login B2C:** Google **e** e-mail/senha.
-- **B2B nesta onda:** captação de lead/waitlist (sem login/conta B2B).
-- **Jornada B2C:** home-hub pós-login (mobile-first).
-- **Marca:** Quantah (app B2C) + Quantah Intelligence (B2B), conforme visão §11.3.
-
-## Decisões arquiteturais que a onda vai demandar (via spike)
-
-Um **spike no início do EPIC-004** (`target_role: arquiteto`) produz o(s) ADR(s) para: **login social
-Google (OAuth)** + modelo de contas/verificação, **segmentação de áreas e guardas** das 3 faces, e
-**mecanismo de i18n (pt-BR)**. EPIC-005 e EPIC-006 não preveem novos ADRs (reusam o que existe).
-
-## Metas / medição
-
-Esta onda é sobre **habilitar o piloto**, não sobre bater número de north-star ainda. Marcos:
-
-- Funil B2C ponta a ponta vivo em homologação (visitante → cadastro → home-hub → coleta → saldo → saque).
-- Lista de leads B2B começando a existir.
-- Ao fim da onda, condições dadas para rodar o **piloto** e coletar o **primeiro baseline** da north-star.
-
-## Riscos da onda (ver status report de abertura)
-
-Escopo largo (auth + marca + várias telas); dependência externa do OAuth Google (mitigação: spike cedo,
-e-mail/senha como caminho paralelo); dívida transversal carregada da Onda 1 (scanner de segredos/deps no
-CI, observabilidade RED) que pode ou não entrar nesta onda.
-
-## Próximo passo
-
-**EPIC-004, EPIC-005 e EPIC-006 fechados** (`done`, validados 2026-07-05). **EPIC-007 adicionado à onda e
-decomposto** (Fluxos A+B, 2026-07-05) e em `ready`: refinamento da experiência B2C mobile a partir de 9
-ajustes do teste no celular (Alexandro), **consolidados em 4 frentes** + validação — STORY-033 (casca mobile
-app-like) · STORY-034 (cupom: estabelecimento/data na listagem + tela de detalhe com itens) · STORY-035
-(validade parametrizável na coleta) · STORY-036 (remover excluir conta + renomear menu de escanear) →
-STORY-037 (validação). É o **último épico da onda** — fechá-lo completa a WAVE-2026-02 e habilita o piloto
-com menos atrito. STORY-034 é `requires_design` (brief em `EPIC-007/design-handoff.md`): Designer e
-Programador pegam juntas pelo modelo paralelo. Ordem sugerida: 033 e 035 primeiro (baixo risco, isoladas),
-034 em paralelo (maior, tem dado novo + tela), 036 rápida; 037 fecha. Possíveis IDRs em 034 (captura do
-nome do emitente na extração SEFAZ + coluna `nome_emitente`) e 035 (semântica da janela de validade).
-Housekeeping das ressalvas do EPIC-005 registrado na wishlist (WISH-005 chaves i18n no payload, WISH-006
-dashboard de observabilidade; R3 reforça WISH-001; WISH-004 segue pendente). Commits de docs mantidos locais
-por decisão do PO (sem push).
+- **EPIC-008 gate manual de device** (install Android/iOS, SW ativo, Lighthouse) — pendente com o
+  Alexandro; não bloqueia esta onda (IDR-016).

@@ -1,38 +1,40 @@
-# Próxima onda (rascunho) — depois da WAVE-2026-02
+# Próxima onda (rascunho) — depois da WAVE-2026-03
 
-> **Status: rascunho.** Esboço da onda seguinte à Onda 2 (de POC a produto). Épicos aqui são
+> **Status: rascunho.** Esboço da onda seguinte à Onda 3 (remuneração por pontos). Épicos aqui são
 > **candidatos com outcome**, não detalhados em estórias. O detalhamento só acontece quando a onda for
-> aberta em `current-wave.md` (Fluxo A), após fechar a WAVE-2026-02 e ler o aprendizado do piloto.
+> aberta em `current-wave.md` (Fluxo A), após fechar a WAVE-2026-03.
 
 ## Tese provável da onda
 
-Com a plataforma apresentável e o funil B2C vivo (Onda 2), o foco vira **rodar o piloto, medir a
-north-star e sustentar recorrência** — e endurecer o que ficou como dívida consciente.
+Com o incentivo definitivo (pontos) vivo, o foco volta ao plano adiado pelo PDR-005: **rodar o piloto,
+medir a north-star com o modelo novo e endurecer o que ficou como dívida**.
 
-## Épicos candidatos (ordem a definir com o baseline em mãos)
+## Épicos candidatos (ordem a definir com o aprendizado da Onda 3)
 
 1. **Piloto e baseline da north-star**
-   - *Outcome:* piloto fechado (equipe + grupo convidado) rodando; primeira leitura de **cupons válidos,
-     únicos e novos/semana**, com guarda-corpos (frescor, cobertura, custo/cupom).
+   - *Outcome:* piloto fechado (equipe + grupo convidado) rodando **sobre o modelo de pontos**; primeira
+     leitura de cupons válidos, únicos e novos/semana, com guarda-corpos (frescor, cobertura,
+     custo/cupom — agora derivado dos parâmetros de pontuação).
 
-2. **Recorrência / engajamento B2C (gancho de valor)**
-   - *Outcome:* gamificação básica (pontos/níveis/ranking simples) e/ou "você pagou mais caro/barato que
-     a média" — as alavancas de recorrência da visão §8.2 e §5.
+2. **Gamificação sem valor material (camada de jogo)**
+   - *Outcome:* badges, níveis e/ou ranking sobre os pontos (visão §8.2 — livre de autorização),
+     mantida a separação conceitual pontos-remuneração × jogo (PDR-004, premissa regulatória).
 
-3. **Endurecimento transversal (dívida da Onda 1)**
-   - *Outcome:* scanner de segredos/dependências no CI (gitleaks/audit) e **observabilidade RED**
-     (latência p50/p95/p99, taxa de erro) verificável — fechando as ressalvas das validações.
+3. **Endurecimento transversal (dívidas das Ondas 1–2)**
+   - *Outcome:* scanner de segredos/dependências no CI (WISH-004), observabilidade (WISH-006), chaves
+     i18n (WISH-005) — fechando ressalvas das validações.
 
 4. **B2B autenticado (quando houver demanda quente)**
-   - *Outcome:* área Quantah Intelligence logada com a primeira entrega de valor de dado (a definir),
-     partindo dos leads capturados na Onda 2.
+   - *Outcome:* área Quantah Intelligence logada com a primeira entrega de valor de dado — agora com o
+     CNAE do enriquecimento (EPIC-009) como dimensão de segmentação.
 
 5. **Caminho de produção com gate humano**
-   - *Outcome:* promoção homologação → produção com aprovação de 1 clique (cruza com dívida do CI/CD).
+   - *Outcome:* promoção homologação → produção com aprovação de 1 clique.
 
 ## Dependências / sequência
 
-- Depende do **fechamento da WAVE-2026-02** e do **aprendizado do piloto** para priorizar entre
-  recorrência, endurecimento e B2B.
-- Ao abrir a onda: fixar metas numéricas da north-star com o baseline real, escrever `current-wave.md`,
-  registrar o PDR de escopo e gerar o status report de abertura.
+- Depende do **fechamento da WAVE-2026-03** — em particular da calibragem inicial dos parâmetros de
+  pontuação (custo/cupom simulado antes do piloto).
+- Gate manual de device do EPIC-008 (PWA) idealmente resolvido antes do piloto.
+- Ao abrir a onda: fixar metas numéricas da north-star, escrever `current-wave.md`, registrar PDR de
+  escopo e gerar status report de abertura.
