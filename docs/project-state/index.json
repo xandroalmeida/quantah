@@ -39,7 +39,8 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-006",
-        "EPIC-007"
+        "EPIC-007",
+        "EPIC-008"
       ]
     }
   ],
@@ -255,6 +256,26 @@
         "verdict": "approved",
         "validated_by": "claude-validador",
         "validated_at": "2026-07-05"
+      },
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
+    },
+    {
+      "id": "EPIC-008",
+      "slug": "pwa-instalavel",
+      "title": "PWA instalável — service worker mínimo e convite de instalação (Opção A)",
+      "wave": "WAVE-2026-02",
+      "status": "done",
+      "path": "epics/EPIC-008-pwa-instalavel/epic.md",
+      "story_ids": [
+        "STORY-038"
+      ],
+      "validation_report": {
+        "path": null,
+        "verdict": "pending_device",
+        "validated_by": "claude-programador",
+        "validated_at": "2026-07-05",
+        "note": "Automação verde (feature 340/340; Dusk Home/Casca/PWA 11/11). Gate manual de device/Lighthouse (install Android/iOS, SW ativo) pendente com o PO — não reproduzível em headless/http. Ver IDR-016."
       },
       "created_at": "2026-07-05",
       "updated_at": "2026-07-05"
@@ -1026,6 +1047,23 @@
       "blocks": [],
       "created_at": "2026-07-05",
       "updated_at": "2026-07-05"
+    },
+    {
+      "id": "STORY-038",
+      "epic_id": "EPIC-008",
+      "title": "PWA instalável — service worker mínimo e convite de instalação",
+      "type": "implementation",
+      "target_role": "programador",
+      "requires_design": false,
+      "design_screen_id": null,
+      "status": "done",
+      "owner_agent": "claude-programador",
+      "sprint_id": null,
+      "path": "epics/EPIC-008-pwa-instalavel/stories/STORY-038-pwa-instalavel.md",
+      "blocked_by": [],
+      "blocks": [],
+      "created_at": "2026-07-05",
+      "updated_at": "2026-07-05"
     }
   ],
   "sprints": [
@@ -1460,6 +1498,19 @@
           "ADR-001",
           "ADR-002",
           "ADR-006"
+        ]
+      },
+      {
+        "id": "IDR-016",
+        "title": "Service worker mínimo (sem cache) para PWA instalável — captura do beforeinstallprompt, versionWatcher segue como atualizador",
+        "status": "accepted",
+        "path": "decisions/idr/IDR-016-service-worker-minimo-pwa-instalavel.md",
+        "decided_at": "2026-07-05",
+        "decided_by": "programador",
+        "related_story": "STORY-038",
+        "related_adrs": [],
+        "related_idrs": [
+          "IDR-012"
         ]
       }
     ],

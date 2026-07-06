@@ -7,6 +7,8 @@ import { createRoot } from 'react-dom/client';
 import VersionStamp from './Components/VersionStamp';
 import { setTranslations } from './i18n';
 import { startVersionWatcher } from './versionWatcher';
+import { initInstallCapture } from './pwa/installPrompt';
+import { registerServiceWorker } from './pwa/registerServiceWorker';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Quantah';
 
@@ -18,6 +20,10 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.jsx'),
         ),
     setup({ el, App, props }) {
+        // Captura do convite de instalação da PWA (beforeinstallprompt) — iniciada ANTES do
+        // primeiro render para não perder o evento se o browser disparar cedo (STORY-038).
+        initInstallCapture();
+
         // Registra o dicionário do locale ativo antes do primeiro render (ADR-011). Monolíngue:
         // o mapa é o mesmo em toda navegação, então basta uma vez a partir da página inicial.
         setTranslations(props.initialPage.props.translations);
@@ -43,6 +49,10 @@ createInertiaApp({
         // retorno ao primeiro plano no PWA mobile. Vigia a MESMA tag do deploy (`version`),
         // com o hash do bundle (`assetVersion`) como rede de segurança.
         startVersionWatcher({ version, asset: assetVersion });
+
+        // Registra o service worker mínimo (public/sw.js) — habilita a PWA instalável sem
+        // cache; o versionWatcher acima segue como único mecanismo de atualização (IDR-016).
+        registerServiceWorker();
     },
     progress: {
         color: '#4B5563',

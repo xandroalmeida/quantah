@@ -2,6 +2,7 @@ import Button from '@/Components/Button';
 import BrandMark from '@/Components/brand/BrandMark';
 import Card from '@/Components/Card';
 import EmptyState from '@/Components/EmptyState';
+import InstallPrompt from '@/Components/pwa/InstallPrompt';
 import { PlusIcon, ReceiptIcon, WalletIcon } from '@/Components/icons';
 import AppLayout from '@/Layouts/AppLayout';
 import { t } from '@/i18n';
@@ -81,6 +82,9 @@ export default function Hub({ saldo }) {
                         {t('Every receipt counts.')}
                     </span>
                 </Card>
+
+                {/* Convite para instalar a PWA (STORY-038) — some quando já instalado/dispensado. */}
+                <InstallPrompt />
 
                 {temSaldo ? (
                     <>

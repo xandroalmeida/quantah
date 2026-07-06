@@ -132,3 +132,21 @@ export function CameraIcon(props) {
         </Svg>
     );
 }
+
+export function DownloadIcon(props) {
+    return (
+        <Svg {...props}>
+            <path d="M12 3v12M7 10l5 5 5-5" />
+            <path d="M5 21h14" />
+        </Svg>
+    );
+}
+
+export function ShareIcon(props) {
+    return (
+        <Svg {...props}>
+            <path d="M12 15V4M8.5 7.5 12 4l3.5 3.5" />
+            <path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" />
+        </Svg>
+    );
+}
