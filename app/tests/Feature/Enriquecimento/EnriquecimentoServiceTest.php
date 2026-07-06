@@ -106,6 +106,15 @@ class EnriquecimentoServiceTest extends TestCase
         $this->assertSame(1, $fake->chamadas);
     }
 
+    public function test_registrar_nao_enriquecido_nao_rebaixa_registro_fresco(): void // CA-5 (borda)
+    {
+        Emitente::factory()->enriquecido()->create(['cnpj' => self::CNPJ, 'enriquecido_em' => now()->subDay()]);
+
+        (new EnriquecimentoService(new FakeEnriquecedor))->registrarNaoEnriquecido(self::CNPJ);
+
+        $this->assertSame(Emitente::STATUS_ENRIQUECIDO, Emitente::firstWhere('cnpj', self::CNPJ)->status_enriquecimento);
+    }
+
     public function test_solicitar_despacha_job_em_cache_miss(): void // CA-1
     {
         Queue::fake();

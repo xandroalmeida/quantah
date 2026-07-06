@@ -104,6 +104,35 @@ class BrasilApiEnriquecedorTest extends TestCase
         $this->esperarExcecao(EnriquecimentoException::ESTRUTURAL);
     }
 
+    public function test_4xx_generico_e_transitoria(): void
+    {
+        Http::fake(['brasilapi.com.br/*' => Http::response('', 400)]);
+
+        $this->esperarExcecao(EnriquecimentoException::TRANSITORIA);
+    }
+
+    public function test_cnaes_secundarios_malformado_e_ignorado(): void
+    {
+        // Item sem `codigo` é descartado; campo não-array vira lista vazia — nunca falha.
+        Http::fake(['brasilapi.com.br/*' => Http::response($this->corpoOk([
+            'cnaes_secundarios' => [['descricao' => 'sem codigo'], ['codigo' => 4729699, 'descricao' => 'ok']],
+        ]), 200)]);
+
+        $dto = $this->enriquecedor()->consultar(self::CNPJ);
+
+        $this->assertCount(1, $dto->cnaesSecundarios);
+        $this->assertSame('4729699', $dto->cnaesSecundarios[0]['codigo']);
+    }
+
+    public function test_cnaes_secundarios_nao_array_vira_vazio(): void
+    {
+        Http::fake(['brasilapi.com.br/*' => Http::response($this->corpoOk(['cnaes_secundarios' => 'nao-e-lista']), 200)]);
+
+        $dto = $this->enriquecedor()->consultar(self::CNPJ);
+
+        $this->assertSame([], $dto->cnaesSecundarios);
+    }
+
     private function esperarExcecao(string $tipo): void
     {
         try {

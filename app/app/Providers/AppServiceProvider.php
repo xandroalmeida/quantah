@@ -8,6 +8,10 @@ use App\Domain\Coleta\IngestaoCupomService;
 use App\Domain\Coleta\Sefaz\HttpSefazSpFetcher;
 use App\Domain\Coleta\Sefaz\SefazSpFetcher;
 use App\Domain\Coleta\Sefaz\SpSefazAdapter;
+use App\Domain\Enriquecimento\BrasilApiEnriquecedor;
+use App\Domain\Enriquecimento\EnriquecedorCnpj;
+use App\Domain\Enriquecimento\FallbackEnriquecedor;
+use App\Domain\Enriquecimento\MinhaReceitaEnriquecedor;
 use App\Models\Role;
 use App\Models\User;
 use App\Support\Auth\FakeGoogleProvider;
@@ -33,6 +37,13 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(IngestaoCupomService::class, fn ($app) => new IngestaoCupomService(
             $app->make(SpSefazAdapter::class),
+        ));
+
+        // Enriquecimento de CNPJ (ADR-012): BrasilAPI primária + Minha Receita de fallback,
+        // atrás da porta EnriquecedorCnpj. Testes trocam por um fake no container.
+        $this->app->bind(EnriquecedorCnpj::class, fn () => new FallbackEnriquecedor(
+            new BrasilApiEnriquecedor((int) config('enriquecimento.timeout_segundos', 15)),
+            new MinhaReceitaEnriquecedor((int) config('enriquecimento.timeout_segundos', 15)),
         ));
     }
 

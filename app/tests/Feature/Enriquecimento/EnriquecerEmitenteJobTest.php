@@ -4,6 +4,7 @@ namespace Tests\Feature\Enriquecimento;
 
 use App\Domain\Enriquecimento\EnriquecedorCnpj;
 use App\Domain\Enriquecimento\EnriquecimentoException;
+use App\Domain\Enriquecimento\EnriquecimentoService;
 use App\Jobs\EnriquecerEmitenteJob;
 use App\Models\Emitente;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,7 +42,7 @@ class EnriquecerEmitenteJobTest extends TestCase
         $fake = new FakeEnriquecedor;
         $this->comEnriquecedor($fake);
 
-        (new EnriquecerEmitenteJob(self::CNPJ))->handle(app(\App\Domain\Enriquecimento\EnriquecimentoService::class));
+        (new EnriquecerEmitenteJob(self::CNPJ))->handle(app(EnriquecimentoService::class));
 
         $this->assertSame(1, $fake->chamadas);
         $this->assertDatabaseHas('emitentes', ['cnpj' => self::CNPJ, 'status_enriquecimento' => Emitente::STATUS_ENRIQUECIDO]);
@@ -54,7 +55,7 @@ class EnriquecerEmitenteJobTest extends TestCase
 
         $this->expectException(EnriquecimentoException::class);
 
-        (new EnriquecerEmitenteJob(self::CNPJ))->handle(app(\App\Domain\Enriquecimento\EnriquecimentoService::class));
+        (new EnriquecerEmitenteJob(self::CNPJ))->handle(app(EnriquecimentoService::class));
     }
 
     public function test_estrutural_nao_reprocessa_e_marca_nao_enriquecido(): void // CA-5
@@ -63,7 +64,7 @@ class EnriquecerEmitenteJobTest extends TestCase
         $this->comEnriquecedor($fake);
 
         // Não relança: estrutural alerta e degrada (não trava).
-        (new EnriquecerEmitenteJob(self::CNPJ))->handle(app(\App\Domain\Enriquecimento\EnriquecimentoService::class));
+        (new EnriquecerEmitenteJob(self::CNPJ))->handle(app(EnriquecimentoService::class));
 
         $this->assertDatabaseHas('emitentes', ['cnpj' => self::CNPJ, 'status_enriquecimento' => Emitente::STATUS_NAO_ENRIQUECIDO]);
     }
@@ -82,7 +83,7 @@ class EnriquecerEmitenteJobTest extends TestCase
         $fake = (new FakeEnriquecedor)->programarExcecao(EnriquecimentoException::estrutural('x'));
         $this->comEnriquecedor($fake);
 
-        (new EnriquecerEmitenteJob(self::CNPJ))->handle(app(\App\Domain\Enriquecimento\EnriquecimentoService::class));
+        (new EnriquecerEmitenteJob(self::CNPJ))->handle(app(EnriquecimentoService::class));
 
         $this->assertTrue(true); // não lançou ao chamador
     }
