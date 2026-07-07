@@ -19,4 +19,18 @@ return [
 
     'janela_dias' => (int) env('COLETA_JANELA_DIAS', 7),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Janela de reprocessamento da extração (SEFAZ instável)
+    |--------------------------------------------------------------------------
+    |
+    | Por quantas horas o ExtrairCupomJob reenfileira (com backoff) diante de
+    | falha TRANSITÓRIA da SEFAZ-SP (timeout/5xx/429), antes de desistir e marcar
+    | o cupom `falha`. A SEFAZ tem apagões de minutos/horas; o cupom fica "em
+    | processamento" e valida sozinho quando o portal volta. Ajustável por env.
+    |
+    */
+
+    'extracao_retry_horas' => (int) env('COLETA_EXTRACAO_RETRY_HORAS', 24),
+
 ];

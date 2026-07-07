@@ -6,6 +6,7 @@ import { ReceiptIcon, WalletIcon } from '@/Components/icons';
 import AppLayout from '@/Layouts/AppLayout';
 import Snackbar from '@/Components/Snackbar';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 // Microcopy = screen-spec §5 (design/screens/STORY-016-carteira-saldo-historico/screen-spec.md).
 const COPY = {
@@ -13,10 +14,35 @@ const COPY = {
     saldoLabel: 'Seu saldo',
     saldoHint: 'Cada nota conta.',
     historico: 'Histórico',
+    emAndamento: 'Cupons recentes',
     vazioTitulo: 'Seu saldo vai aparecer aqui',
     vazioInstrucao: 'Envie cupons válidos e ganhe 0,1% de cada um em cashback.',
     vazioCta: 'Capturar cupom',
 };
+
+// Cupom recebido ainda não creditado: em processamento (validando na Sefaz) ou não aceito.
+// Dá ao usuário a prova de que o scan funcionou — some daqui quando vira crédito no histórico.
+function ItemCupom({ cupom }) {
+    const processando = cupom.status === 'processando';
+
+    return (
+        <li>
+            <Card variant="content" className="flex items-center gap-md" data-testid="screen-carteira-cupom">
+                <ReceiptIcon className="h-xl w-xl shrink-0 text-ink-deep" />
+                <div className="flex min-w-0 flex-1 flex-col">
+                    <span className="truncate text-body-md font-semibold text-ink">{cupom.titulo}</span>
+                    <span className="text-body-sm text-mute">{cupom.detalhe}</span>
+                </div>
+                <Badge
+                    variant={processando ? 'info' : 'negative'}
+                    data-testid={`screen-carteira-cupom-${cupom.status}`}
+                >
+                    {processando ? 'Em processamento' : 'Não aceito'}
+                </Badge>
+            </Card>
+        </li>
+    );
+}
 
 // Item do histórico: cupom válido + o crédito. Clicável → abre o detalhe (STORY-034).
 // Mostra o estabelecimento e a data de emissão (contexto), além do valor/crédito.
@@ -55,10 +81,25 @@ function ItemExtrato({ item }) {
  * Navegação e retorno vêm da casca `AppLayout` (pattern.app-shell, DDR-007) — seção "Carteira" ativa.
  * Estados: **preenchido** (saldo>0 + histórico) e **vazio** (saldo R$0,00 + CTA).
  */
-export default function Index({ saldo, extrato }) {
+export default function Index({ saldo, extrato, cupons = [] }) {
     const temExtrato = extrato.length > 0;
+    const temCupons = cupons.length > 0;
     const podeSacar = saldo.centavos > 0;
     const saqueFlash = usePage().props.flash?.saque ?? null;
+
+    // Enquanto houver cupom "em processamento", atualiza sozinho para virar crédito quando a
+    // Sefaz validar — sem o usuário precisar recarregar. Para quando nada mais está processando.
+    const processando = cupons.some((c) => c.status === 'processando');
+    useEffect(() => {
+        if (!processando) {
+            return undefined;
+        }
+        const id = setInterval(() => {
+            router.reload({ only: ['saldo', 'extrato', 'cupons'] });
+        }, 8000);
+
+        return () => clearInterval(id);
+    }, [processando]);
 
     return (
         <AppLayout active="carteira">
@@ -107,6 +148,19 @@ export default function Index({ saldo, extrato }) {
                     </Button>
                 )}
 
+                {temCupons && (
+                    <section data-testid="screen-carteira-cupons">
+                        <h2 className="mb-md text-body-md font-semibold text-ink">
+                            {COPY.emAndamento}
+                        </h2>
+                        <ul className="flex flex-col gap-md">
+                            {cupons.map((cupom) => (
+                                <ItemCupom key={cupom.cupom_id} cupom={cupom} />
+                            ))}
+                        </ul>
+                    </section>
+                )}
+
                 {temExtrato ? (
                     <section data-testid="screen-carteira-historico">
                         <h2 className="mb-md text-body-md font-semibold text-ink">
@@ -119,7 +173,7 @@ export default function Index({ saldo, extrato }) {
                         </ul>
                     </section>
                 ) : (
-                    <EmptyState
+                    !temCupons && <EmptyState
                         icon={<ReceiptIcon className="h-3xl w-3xl" />}
                         title={COPY.vazioTitulo}
                         actionLabel={COPY.vazioCta}

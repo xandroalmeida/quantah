@@ -5,6 +5,7 @@ namespace App\Domain\Cashback;
 use App\Models\Carteira;
 use App\Models\CarteiraTransacao;
 use App\Models\Cupom;
+use App\Models\CupomAtribuicao;
 use App\Models\User;
 use App\Support\Formato;
 use Illuminate\Support\Carbon;
@@ -41,7 +42,64 @@ final class ExtratoCarteira
                 'reais' => self::reais($saldoCentavos),
             ],
             'extrato' => $carteira ? $this->historico($carteira) : [],
+            // Cupons recentes AINDA não creditados (em processamento / não aceitos). Dá ao
+            // Colaborador a prova visível de que o scan funcionou e o cupom está sendo validado
+            // — os validados já aparecem no `extrato` acima com o cashback.
+            'cupons' => $this->cuponsEmAndamento($user),
         ];
+    }
+
+    /**
+     * Cupons do Colaborador (via atribuição, ADR-006) que ainda NÃO viraram crédito: em
+     * processamento (aguardando/consultando a SEFAZ) ou não aceitos (rejeitados). Os validados
+     * ficam de fora — eles já estão no histórico de créditos.
+     *
+     * @return list<array{cupom_id: string, titulo: string, status: string, detalhe: string}>
+     */
+    private function cuponsEmAndamento(User $user): array
+    {
+        $ids = CupomAtribuicao::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->pluck('cupom_id');
+
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        $cupons = Cupom::whereIn('id', $ids)->get()->keyBy('id');
+
+        return $ids
+            ->map(fn ($id) => $cupons->get($id))
+            ->filter()
+            ->reject(fn (Cupom $c) => $c->status === Cupom::STATUS_VALIDADO)
+            ->map(function (Cupom $c) {
+                $rejeitado = $c->status === Cupom::STATUS_REJEITADO;
+
+                return [
+                    'cupom_id' => $c->id,
+                    'titulo' => $rejeitado ? 'Cupom não aceito' : 'Cupom recebido',
+                    // 'processando' | 'nao_aceito' — a SEFAZ instável mantém o cupom em
+                    // processamento (o Job reenfileira até ela voltar); só negócio/expiração recusa.
+                    'status' => $rejeitado ? 'nao_aceito' : 'processando',
+                    'detalhe' => $rejeitado
+                        ? self::motivoLegivel($c->motivo_falha)
+                        : 'Validando na Sefaz. Isso pode levar alguns minutos.',
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /** Motivo de recusa em linguagem do usuário (espelha ColetaController::microcopyRejeicao). */
+    private static function motivoLegivel(?string $motivo): string
+    {
+        return match ($motivo) {
+            'cupom_expirado' => 'Fora do prazo de validade.',
+            'fora_de_escopo_uf' => 'Por enquanto só aceitamos notas de São Paulo.',
+            'modelo_invalido' => 'Este documento não é uma NFC-e.',
+            default => 'Não foi possível validar na Sefaz.',
+        };
     }
 
     /**

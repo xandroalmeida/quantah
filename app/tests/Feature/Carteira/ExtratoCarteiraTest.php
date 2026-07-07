@@ -172,4 +172,73 @@ class ExtratoCarteiraTest extends TestCase
         // $user não tem carteira → não vê o crédito do outro.
         $this->assertSame([], $this->extrato->para($user)['extrato']);
     }
+
+    // --- Cupons recentes (em processamento / não aceitos) — visibilidade pós-scan -----------
+
+    private function cupomAtribuido(User $user, string $status, string $chave, ?string $motivo = null): Cupom
+    {
+        $cupom = Cupom::create([
+            'chave_acesso' => $chave, 'uf' => '35', 'ano_mes' => '2601',
+            'cnpj_emitente' => '12345678000195', 'modelo' => '65',
+            'status' => $status, 'motivo_falha' => $motivo, 'origem' => 'scan',
+        ]);
+        \App\Models\CupomAtribuicao::create(['cupom_id' => $cupom->id, 'user_id' => $user->id]);
+
+        return $cupom;
+    }
+
+    public function test_cupom_em_processamento_aparece_para_o_colaborador(): void
+    {
+        $user = User::factory()->create();
+        $this->cupomAtribuido($user, Cupom::STATUS_PENDENTE, self::CHAVE_A);
+        $this->cupomAtribuido($user, Cupom::STATUS_EXTRAINDO, self::CHAVE_B);
+
+        $cupons = $this->extrato->para($user)['cupons'];
+
+        $this->assertCount(2, $cupons);
+        $this->assertSame('processando', $cupons[0]['status']);
+        $this->assertSame('Cupom recebido', $cupons[0]['titulo']);
+    }
+
+    public function test_falha_transitoria_continua_como_em_processamento(): void
+    {
+        // SEFAZ instável: falha transitória NÃO é "não aceito" — o Job reprocessa até ela voltar.
+        $user = User::factory()->create();
+        $this->cupomAtribuido($user, Cupom::STATUS_FALHA, self::CHAVE_A, 'transitoria');
+
+        $cupons = $this->extrato->para($user)['cupons'];
+
+        $this->assertCount(1, $cupons);
+        $this->assertSame('processando', $cupons[0]['status']);
+    }
+
+    public function test_cupom_rejeitado_aparece_como_nao_aceito_com_motivo(): void
+    {
+        $user = User::factory()->create();
+        $this->cupomAtribuido($user, Cupom::STATUS_REJEITADO, self::CHAVE_A, 'cupom_expirado');
+
+        $cupons = $this->extrato->para($user)['cupons'];
+
+        $this->assertCount(1, $cupons);
+        $this->assertSame('nao_aceito', $cupons[0]['status']);
+        $this->assertSame('Fora do prazo de validade.', $cupons[0]['detalhe']);
+    }
+
+    public function test_cupom_validado_nao_fica_na_lista_de_recentes(): void
+    {
+        // Validado já aparece no `extrato` (com cashback) — não se repete em "cupons recentes".
+        $user = User::factory()->create();
+        $this->cupomAtribuido($user, Cupom::STATUS_VALIDADO, self::CHAVE_A);
+
+        $this->assertSame([], $this->extrato->para($user)['cupons']);
+    }
+
+    public function test_cupons_de_outro_colaborador_nao_vazam(): void
+    {
+        $user = User::factory()->create();
+        $outro = User::factory()->create();
+        $this->cupomAtribuido($outro, Cupom::STATUS_PENDENTE, self::CHAVE_A);
+
+        $this->assertSame([], $this->extrato->para($user)['cupons']);
+    }
 }

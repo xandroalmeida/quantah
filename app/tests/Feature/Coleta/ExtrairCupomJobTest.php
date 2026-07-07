@@ -229,13 +229,18 @@ class ExtrairCupomJobTest extends TestCase
         );
     }
 
-    /** ADR-002: política de retry com backoff crescente configurada. */
+    /**
+     * ADR-002: reprocessa por uma janela generosa (SEFAZ instável fica na fila até voltar),
+     * com backoff crescente que estabiliza. Enquanto isso o cupom aparece "em processamento".
+     */
     public function test_configuracao_de_retry_e_backoff(): void
     {
+        config()->set('coleta.extracao_retry_horas', 24);
         $job = new ExtrairCupomJob('qualquer');
 
-        $this->assertSame(3, $job->tries);
-        $this->assertSame([10, 60, 300], $job->backoff());
+        $this->assertSame([30, 60, 180, 600], $job->backoff());
+        // retryUntil ~24h à frente (janela de reprocesso), não um número fixo de tentativas.
+        $this->assertEqualsWithDelta(now()->addHours(24)->timestamp, $job->retryUntil()->timestamp, 60);
     }
 
     /** CA-5: cupom validado é contável como "válido, único e novo" (base da north-star). */

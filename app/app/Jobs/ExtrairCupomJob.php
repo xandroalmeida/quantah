@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -27,14 +28,23 @@ class ExtrairCupomJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 3;
-
     public function __construct(public string $cupomId) {}
 
-    /** Backoff crescente entre as tentativas (segundos). */
+    /**
+     * A SEFAZ-SP tem indisponibilidades (timeout/5xx) que podem durar minutos/horas. O cupom
+     * NÃO deve "desistir" nesse meio-tempo: fica na fila reprocessando até a SEFAZ voltar,
+     * dentro de uma janela generosa. Só depois dela (raro) vira `falha` (dead-letter). Enquanto
+     * isso, para o usuário o cupom aparece "em processamento" (read-model ExtratoCarteira).
+     */
+    public function retryUntil(): Carbon
+    {
+        return now()->addHours((int) config('coleta.extracao_retry_horas', 24));
+    }
+
+    /** Backoff crescente entre as tentativas, estabilizando em ~10 min (não martela a SEFAZ). */
     public function backoff(): array
     {
-        return [10, 60, 300];
+        return [30, 60, 180, 600];
     }
 
     public function handle(IngestaoCupomService $ingestao): void

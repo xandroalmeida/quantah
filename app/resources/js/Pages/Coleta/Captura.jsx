@@ -85,13 +85,22 @@ export default function Captura({ entradaInicial }) {
                             {formatarChave(coleta.chave)}
                         </p>
                     )}
-                    <Button
-                        variant="primary"
-                        onClick={recomecar}
-                        data-testid="screen-captura-another-btn"
-                    >
-                        Enviar outro cupom
-                    </Button>
+                    <div className="flex w-full flex-col gap-md">
+                        <Button
+                            variant="primary"
+                            onClick={() => router.visit('/carteira')}
+                            data-testid="screen-captura-track-btn"
+                        >
+                            Acompanhar na Carteira
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={recomecar}
+                            data-testid="screen-captura-another-btn"
+                        >
+                            Enviar outro cupom
+                        </Button>
+                    </div>
                 </Card>
             </Shell>
         );
