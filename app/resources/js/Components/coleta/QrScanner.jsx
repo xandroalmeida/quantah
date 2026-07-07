@@ -42,8 +42,6 @@ export default function QrScanner({ onDetected, onError }) {
     // 'nenhum' (mirando) | 'lendo' (foto congelada, decodificando) | 'falhou' (não leu)
     const [estadoFoto, setEstadoFoto] = useState('nenhum');
     const [fotoUrl, setFotoUrl] = useState(null);
-    // Painel de diagnóstico da leitura ao vivo (temporário — investigação iOS em campo).
-    const [diag, setDiag] = useState(null);
 
     const suportaDetectorNativo = () =>
         typeof window !== 'undefined' && 'BarcodeDetector' in window;
@@ -92,18 +90,6 @@ export default function QrScanner({ onDetected, onError }) {
     };
 
     const imageDataDe = (canvas) => canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
-
-    // Luma média (amostrada) — perto de 0 revela canvas preto (drawImage do vídeo falhou no iOS).
-    const lumaMedia = (id) => {
-        const d = id.data;
-        let soma = 0;
-        let n = 0;
-        for (let i = 0; i < d.length; i += 64) {
-            soma += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-            n++;
-        }
-        return n ? Math.round(soma / n) : 0;
-    };
 
     // Reduz o canvas para o maior lado <= max (jsQR/zxing gostam de módulos pequenos; e acelera).
     const reduzirPara = (canvas, max) => {
@@ -358,28 +344,26 @@ export default function QrScanner({ onDetected, onError }) {
         const jsQR = await carregarJsQR();
         const detector = suportaDetectorNativo() ? new window.BarcodeDetector({ formats: ['qr_code'] }) : null;
 
-        // jsQR num canvas com várias estratégias (cru → adaptativo → invertendo). Devolve o
-        // texto e QUAL variante leu (para o diagnóstico), ou null.
+        // jsQR num canvas em duas passadas: cru (rápido, boa luz) → binarizado adaptativo
+        // (resgata glare/térmico). Devolve o texto lido ou null.
         const lerCanvasJsQR = (canvas) => {
             const cru = imageDataDe(canvas);
             let r = jsQR(cru.data, cru.width, cru.height, { inversionAttempts: 'dontInvert' });
-            if (r?.data) return { data: r.data, via: 'cru' };
+            if (r?.data) return r.data;
             const bin = imageDataDe(binarizarAdaptativo(canvas));
             r = jsQR(bin.data, bin.width, bin.height, { inversionAttempts: 'attemptBoth' });
-            if (r?.data) return { data: r.data, via: 'adapt' };
-            return null;
+            return r?.data ?? null;
         };
 
         let n = 0;
-        // Loop ao vivo. Motores: BarcodeDetector nativo (Android) e, para todos, jsQR no recorte
-        // central E no quadro inteiro reduzido (cobre QR pequeno/descentralizado no iOS), com
-        // zxing periódico de reforço. Cada motor tem try/catch próprio — um detector nativo que
-        // lança NÃO pode faminto o jsQR. Instrumentado: publica métricas no painel de diagnóstico.
+        // Loop ao vivo. Motores: BarcodeDetector nativo (Android, rápido) e, para todos, jsQR no
+        // recorte central E no quadro INTEIRO reduzido — cobre o QR pequeno/descentralizado que
+        // no iOS (sem detector nativo) o recorte central sozinho não pegava —, com zxing de reforço
+        // a cada ~1s. Cada motor tem try/catch próprio: um detector nativo que lança NÃO pode
+        // faminto o jsQR (senão o scan ao vivo morre e só sobra a foto).
         const tick = async () => {
             if (!ativoRef.current || emitidoRef.current || !streamRef.current) return;
             n++;
-            const info = { n, vw: video.videoWidth || 0, vh: video.videoHeight || 0, det: !!detector, luma: -1, via: '—' };
-
             if (detector) {
                 try {
                     const codigos = await detector.detect(video);
@@ -391,30 +375,19 @@ export default function QrScanner({ onDetected, onError }) {
             try {
                 const central = capturarCentral();
                 if (central) {
-                    info.luma = lumaMedia(imageDataDe(central));
-                    const alvo = reduzirPara(central, 800);
-                    let res = lerCanvasJsQR(alvo);
-                    // Também o quadro INTEIRO reduzido — pega QR fora do quadrado central.
-                    if (!res) {
+                    let texto = lerCanvasJsQR(reduzirPara(central, 800));
+                    if (!texto) {
                         const full = capturarQuadro();
-                        if (full) res = lerCanvasJsQR(reduzirPara(full, 1000));
-                        if (res) info.via += '/full';
+                        if (full) texto = lerCanvasJsQR(reduzirPara(full, 1000));
                     }
-                    // Reforço zxing (binarizador adaptativo próprio) a cada ~1s.
-                    if (!res && n % 4 === 0) {
-                        const z = await lerCanvasComZxing(alvo);
-                        if (z) res = { data: z, via: 'zxing' };
+                    if (!texto && n % 4 === 0) {
+                        texto = await lerCanvasComZxing(reduzirPara(central, 800));
                     }
-                    if (res) {
-                        info.via = res.via;
-                        setDiag(info);
-                        return emitir(res.data);
-                    }
+                    if (texto) return emitir(texto);
                 }
-            } catch (e) {
-                info.via = 'erro:' + (e?.name ?? 'x');
+            } catch {
+                /* frame ruim; tenta o próximo. */
             }
-            setDiag(info);
             if (ativoRef.current && !emitidoRef.current && streamRef.current) setTimeout(tick, 250);
         };
         setTimeout(tick, 300);
@@ -517,16 +490,6 @@ export default function QrScanner({ onDetected, onError }) {
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-lg rounded-lg border-2 border-primary"
                 />
-
-                {/* Painel de diagnóstico (TEMPORÁRIO — investigação de leitura em campo no iOS). */}
-                {diag && (
-                    <pre
-                        data-testid="screen-captura-diag"
-                        className="pointer-events-none absolute left-1 top-1 m-0 rounded bg-ink/70 px-1 py-0.5 text-left font-mono text-[10px] leading-tight text-canvas"
-                    >
-                        {`#${diag.n} ${diag.vw}x${diag.vh} det:${diag.det ? 'sim' : 'nao'} luma:${diag.luma} via:${diag.via}`}
-                    </pre>
-                )}
 
                 {estadoFoto === 'lendo' && (
                     <div className="absolute inset-0 flex items-center justify-center bg-ink/50" role="status">
