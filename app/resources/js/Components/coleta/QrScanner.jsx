@@ -285,14 +285,20 @@ export default function QrScanner({ onDetected, onError }) {
         const jsQR = await carregarJsQR();
         const detector = suportaDetectorNativo() ? new window.BarcodeDetector({ formats: ['qr_code'] }) : null;
 
-        // Loop ao vivo: detector nativo (rápido) e/ou jsQR no quadro central.
+        // Loop ao vivo: detector nativo (rápido) E jsQR no quadro central. Cada motor tem
+        // seu try/catch — em alguns Androids o BarcodeDetector existe mas `detect()` lança a
+        // cada frame; isso NÃO pode faminto o jsQR (senão o scan ao vivo morre e só sobra a foto).
         const tick = async () => {
             if (!ativoRef.current || emitidoRef.current || !streamRef.current) return;
-            try {
-                if (detector) {
+            if (detector) {
+                try {
                     const codigos = await detector.detect(video);
                     if (codigos?.length) return emitir(codigos[0].rawValue);
+                } catch {
+                    /* detector nativo instável neste aparelho; o jsQR abaixo assume. */
                 }
+            }
+            try {
                 const central = capturarCentral();
                 if (central) {
                     const id = imageDataDe(central);
