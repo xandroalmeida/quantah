@@ -107,6 +107,55 @@ export default function QrScanner({ onDetected, onError }) {
         return canvas;
     };
 
+    // Limiarização adaptativa local (Bradley, via imagem integral): cada pixel é comparado à
+    // MÉDIA da sua vizinhança, não a um limiar global. É o que resgata QR fotografado com
+    // iluminação desigual/glare ou térmico desbotado — casos em que o jsQR (limiar global)
+    // não acha os padrões de posição. O zxing fazia isso internamente (HybridBinarizer); aqui
+    // fica explícito e barato, sem depender do decode contínuo do zxing.
+    const binarizarAdaptativo = (origem) => {
+        const canvas = desenhar(origem, origem.width, origem.height);
+        const ctx = canvas.getContext('2d');
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = img.data;
+        const w = canvas.width;
+        const h = canvas.height;
+        const cinza = new Float64Array(w * h);
+        for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+            cinza[j] = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        }
+        // Imagem integral (soma acumulada) → média de qualquer janela em O(1).
+        const integ = new Float64Array((w + 1) * (h + 1));
+        for (let y = 0; y < h; y++) {
+            let linha = 0;
+            for (let x = 0; x < w; x++) {
+                linha += cinza[y * w + x];
+                integ[(y + 1) * (w + 1) + (x + 1)] = integ[y * (w + 1) + (x + 1)] + linha;
+            }
+        }
+        const janela = Math.max(8, w >> 4);
+        const meia = janela >> 1;
+        const C = 7; // margem: pixel só vira preto se estiver claramente abaixo da média local
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const x1 = Math.max(0, x - meia);
+                const y1 = Math.max(0, y - meia);
+                const x2 = Math.min(w - 1, x + meia);
+                const y2 = Math.min(h - 1, y + meia);
+                const cnt = (x2 - x1 + 1) * (y2 - y1 + 1);
+                const soma =
+                    integ[(y2 + 1) * (w + 1) + (x2 + 1)] -
+                    integ[y1 * (w + 1) + (x2 + 1)] -
+                    integ[(y2 + 1) * (w + 1) + x1] +
+                    integ[y1 * (w + 1) + x1];
+                const v = cinza[y * w + x] < soma / cnt - C ? 0 : 255;
+                const k = (y * w + x) * 4;
+                d[k] = d[k + 1] = d[k + 2] = v;
+            }
+        }
+        ctx.putImageData(img, 0, 0);
+        return canvas;
+    };
+
     // Quadro central (maior quadrado central) — foca no que está na mira.
     const capturarCentral = () => {
         const video = videoRef.current;
@@ -150,9 +199,11 @@ export default function QrScanner({ onDetected, onError }) {
 
         const variantes = [
             central,
+            binarizarAdaptativo(central),
             realcarContraste(central),
             desenhar(central, Math.round(central.width / 2), Math.round(central.height / 2)),
             canvasFull,
+            binarizarAdaptativo(canvasFull),
             realcarContraste(canvasFull),
         ];
 
@@ -285,9 +336,9 @@ export default function QrScanner({ onDetected, onError }) {
         const jsQR = await carregarJsQR();
         const detector = suportaDetectorNativo() ? new window.BarcodeDetector({ formats: ['qr_code'] }) : null;
 
-        // Loop ao vivo: detector nativo (rápido) E jsQR no quadro central. Cada motor tem
-        // seu try/catch — em alguns Androids o BarcodeDetector existe mas `detect()` lança a
-        // cada frame; isso NÃO pode faminto o jsQR (senão o scan ao vivo morre e só sobra a foto).
+        // Loop ao vivo do jsQR no quadro central. Cada motor tem seu try/catch — em alguns
+        // Androids o BarcodeDetector existe mas `detect()` lança a cada frame; isso NÃO pode
+        // faminto o jsQR (senão o scan ao vivo morre e só sobra a foto).
         const tick = async () => {
             if (!ativoRef.current || emitidoRef.current || !streamRef.current) return;
             if (detector) {
@@ -301,8 +352,15 @@ export default function QrScanner({ onDetected, onError }) {
             try {
                 const central = capturarCentral();
                 if (central) {
-                    const id = imageDataDe(central);
-                    const r = jsQR(id.data, id.width, id.height, { inversionAttempts: 'dontInvert' });
+                    // 1) jsQR no quadro cru (rápido, resolve o caso de boa luz).
+                    const cru = imageDataDe(central);
+                    let r = jsQR(cru.data, cru.width, cru.height, { inversionAttempts: 'dontInvert' });
+                    // 2) Falhou? Binariza adaptativo e tenta de novo — resgata glare/térmico
+                    //    (iOS/Safari, sem detector nativo, dependia SÓ disto e não tinha).
+                    if (!r?.data) {
+                        const bin = imageDataDe(binarizarAdaptativo(central));
+                        r = jsQR(bin.data, bin.width, bin.height, { inversionAttempts: 'dontInvert' });
+                    }
                     if (r?.data) return emitir(r.data);
                 }
             } catch {
