@@ -6,6 +6,7 @@ use App\Domain\Cashback\ExtratoCarteira;
 use App\Models\Carteira;
 use App\Models\CarteiraTransacao;
 use App\Models\Cupom;
+use App\Models\CupomAtribuicao;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -182,7 +183,7 @@ class ExtratoCarteiraTest extends TestCase
             'cnpj_emitente' => '12345678000195', 'modelo' => '65',
             'status' => $status, 'motivo_falha' => $motivo, 'origem' => 'scan',
         ]);
-        \App\Models\CupomAtribuicao::create(['cupom_id' => $cupom->id, 'user_id' => $user->id]);
+        CupomAtribuicao::create(['cupom_id' => $cupom->id, 'user_id' => $user->id]);
 
         return $cupom;
     }
